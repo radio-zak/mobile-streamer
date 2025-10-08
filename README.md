@@ -5,5 +5,5 @@ Created for Studenckie Radio ŻAK Politechniki Łódzkiej, therefore appropriate
 
 ## Contact
 
-Primary developer: Kacper Zieliński (kzielinski@omenproductions.com)
+Primary developer: Kacper Zieliński (kacper.zielinski@zak.lodz.pl)
 
