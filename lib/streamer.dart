@@ -1,21 +1,38 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 
 enum ButtonState { paused, playing, loading }
 
-class Streamer {
+Future<AudioHandler> initAudioService() async {
+  final audioHandler = await AudioService.init(
+    builder: () => Streamer(),
+    config: const AudioServiceConfig(
+      androidNotificationChannelId:
+          'com.ryanheise.audioservice.AudioServiceActivity',
+      androidNotificationChannelName: 'Audio playback',
+      androidNotificationOngoing: true,
+      androidStopForegroundOnPause: true,
+      androidNotificationIcon: 'mipmap/launcher_icon',
+    ),
+  );
+
+  return audioHandler;
+}
+
+class Streamer extends BaseAudioHandler {
   final log = Logger('Streamer');
   final buttonNotifier = ValueNotifier<ButtonState>(ButtonState.paused);
   final stream = AudioSource.uri(
     Uri.parse('http://ra.man.lodz.pl:8000/radiozak6.mp3'),
     tag: MediaItem(
       // Specify a unique ID for each media item:
-      id: '1',
+      id: 'http://ra.man.lodz.pl:8000/radiozak6.mp3',
       // Metadata to display in the notification:
       album: "Studenckie Radio ŻAK Politechniki Łódzkiej",
       title: "Słuchasz na żywo",
+      isLive: true,
     ),
   );
   late AudioPlayer _audioPlayer;
@@ -29,6 +46,7 @@ class Streamer {
   }
   Future<void> _init() async {
     _audioPlayer = AudioPlayer();
+
     try {
       await _audioPlayer.setAudioSource(stream);
       log.fine('Set audio source: ', stream);
@@ -64,13 +82,25 @@ class Streamer {
     });
   }
 
-  void play() {
-    log.fine('Playing audio from source.');
-    _audioPlayer.play();
+  @override
+  Future<void> play() async {
+    playbackState.add(
+      playbackState.value.copyWith(
+        playing: true,
+        controls: [MediaControl.stop],
+      ),
+    );
+    await _audioPlayer.play();
   }
 
-  void pause() {
-    log.fine('Paused audio from source.');
-    _audioPlayer.pause();
+  @override
+  Future<void> pause() async {
+    playbackState.add(
+      playbackState.value.copyWith(
+        playing: false,
+        controls: [MediaControl.play],
+      ),
+    );
+    await _audioPlayer.stop();
   }
 }
