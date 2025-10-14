@@ -12,7 +12,8 @@ class Streamer {
     Uri.parse('http://ra.man.lodz.pl:8000/radiozak6.mp3'),
     tag: MediaItem(
       // Specify a unique ID for each media item:
-      id: '1',
+      id: 'http://ra.man.lodz.pl:8000/radiozak6.mp3',
+
       // Metadata to display in the notification:
       album: "Studenckie Radio ŻAK Politechniki Łódzkiej",
       title: "Słuchasz na żywo",
@@ -71,6 +72,6 @@ class Streamer {
 
   void pause() {
     log.fine('Paused audio from source.');
-    _audioPlayer.pause();
+    _audioPlayer.stop();
   }
 }
