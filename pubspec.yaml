@@ -1,7 +1,7 @@
 name: zak_streamer
 description: "Multi-platform streaming app for SR ŻAK PŁ"
 
-publish_to: 'none' 
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -12,13 +12,13 @@ dependencies:
     sdk: flutter
   just_audio: any
   just_audio_media_kit: any
-  just_audio_background: any
   cupertino_icons: ^1.0.8
   flutter_animate: ^4.5.2
   simple_animations: ^5.2.0
   audio_session: ^0.2.2
   logging: ^1.3.0
-
+  audio_service: ^0.18.18
+  get_it: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -35,7 +35,7 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/zak-kropka-niebieska-biale.png"
-  min_sdk_android: 21 # android min sdk min:16, default 21
+  min_sdk_android: 16 # android min sdk min:16, default 21
   web:
     generate: true
     image_path: "assets/zak-kropka-niebieska-biale.png"
