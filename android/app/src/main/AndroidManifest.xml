@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
     <application
         android:label="ŻAK Streamer"
-        android:name="${applicationName}"
+        android:name="com.srzak.zakstreamer"
         android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">
         <activity
