@@ -3,7 +3,7 @@ description: "Multi-platform streaming app for SR ŻAK PŁ"
 
 publish_to: "none"
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.9.2
