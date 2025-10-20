@@ -75,13 +75,13 @@ class PlayButton extends StatelessWidget {
               child: const CircularProgressIndicator(
                 strokeWidth: 15,
                 strokeCap: StrokeCap.round,
-                constraints: BoxConstraints(maxWidth: 250, maxHeight: 250),
+                constraints: BoxConstraints(maxWidth: 200, maxHeight: 200),
                 color: Colors.tealAccent,
               ),
             );
           case ButtonState.paused:
             return Opacity(
-              opacity: 0.8,
+              opacity: 0.4,
               child: SizedBox(
                 width: 300,
                 height: 300,
@@ -105,7 +105,7 @@ class PlayButton extends StatelessWidget {
                         boxShadow: [
                           BoxShadow(
                             color: Colors.tealAccent.withOpacity(0.5),
-                            blurRadius: 20,
+                            blurRadius: 25,
                             spreadRadius: 5,
                           ),
                         ],
@@ -124,7 +124,7 @@ class PlayButton extends StatelessWidget {
                   ],
                 );
               },
-              tween: Tween(begin: 290, end: 300),
+              tween: Tween(begin: 275, end: 300),
               duration: const Duration(seconds: 2),
               curve: Curves.easeInOut,
               startPosition: 0.5,
