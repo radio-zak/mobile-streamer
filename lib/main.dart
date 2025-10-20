@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:audio_session/audio_session.dart';
-import 'package:just_audio/just_audio.dart';
 import "package:logging/logging.dart";
 import 'package:simple_animations/animation_builder/custom_animation_builder.dart';
 import 'page_manager.dart';
@@ -11,7 +9,7 @@ Future<void> main() async {
   final log = Logger('Main');
   Logger.root.level = Level.ALL; // defaults to Level.INFO
   Logger.root.onRecord.listen((record) {
-    print('${record.level.name}: ${record.time}: ${record.message}');
+    debugPrint('${record.level.name}: ${record.time}: ${record.message}');
   });
 
   try {
