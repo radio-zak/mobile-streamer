@@ -70,6 +70,10 @@ class Streamer extends BaseAudioHandler {
   @override
   Future<void> stop() async {
     await _audioPlayer.stop();
-    await _audioPlayer.dispose();
+  }
+
+  @override
+  Future<void> onTaskRemoved() async {
+    await _audioPlayer.stop();
   }
 }
