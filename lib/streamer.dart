@@ -26,6 +26,9 @@ class Streamer extends BaseAudioHandler {
         id: stream,
         title: "Słuchasz alternatywy na żywo",
         artist: "Studenckie Radio ŻAK Politechniki Łódzkiej",
+        artUri: Uri.parse(
+          'https://www.zak.lodz.pl/public/layout_2014/src_images/logo_zak_updated.png',
+        ),
       ),
     );
     _audioPlayer.setUrl(stream);
