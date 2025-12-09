@@ -1,0 +1,3 @@
+Aplikacja do streamowania Studenckiego Radia ŻAK Politechniki Łódzkiej. Wystarczy wcisnąć Kropkę, aby słuchać alternatywy.
+
+Studenckie Radio Żak Politechniki Łódzkiej należy do jednych z najstarszych rozgłośni akademickich w Polsce. Można nas słuchać na częstotliwości 88,8 MHz w Łodzi i okolicach, a przez Internet na całym świecie. Żak jest jedyną radiostacją w Polsce w pełni zarządzaną przez samych studentów, którzy za swą pracę nie pobierają wynagrodzenia, bowiem nasza działalność opiera się na wolontariacie. Nasza ramówka może poszczycić się programami autorskimi o tematyce kulturalnej, społecznej, muzycznej, sportowej i publicystycznej.
