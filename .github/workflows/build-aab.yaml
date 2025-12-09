@@ -1,0 +1,82 @@
+name: Build Android AAB and publish to internal testing track
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - CHANGELOG.md
+      - LICENSE
+      - README.md
+      - cliff.toml
+      - .gitignore
+      - .github/**
+      - .vscode/**
+
+env:
+  FLUTTER_CHANNEL: "stable"
+  RUBY_VERSION: "3.3.10"
+
+jobs:
+  build_aab:
+    name: Build AAB
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+          working-directory: "android"
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "22"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          log-accepted-android-sdk-licenses: false
+
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          flutter-version-file: "pubspec.yaml"
+
+      - name: Create service account json
+        run: |
+          echo -n "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 --decode > android/zak-streamer.secret.json
+
+      - name: Create keystore.jks
+        run: |
+          echo -n "${{ secrets.ANDROID_SIGNING_KEY }}" | base64 --decode > android/keystore.jks
+
+      - name: Create key.properties
+        run: |
+          cat <<EOF > android/key.properties 
+          storePassword=${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+          keyAlias=upload
+          storeFile=../keystore.jks
+          EOF
+
+      - name: Fetch deps
+        run: flutter pub get
+
+      - name: Check flutter environment
+        run: flutter doctor
+
+      - name: Build app
+        run: |
+          flutter build appbundle
+
+      - name: Push to internal testing track
+        run: |
+          bundle exec fastlane internal
+        working-directory: android
