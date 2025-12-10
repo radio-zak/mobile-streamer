@@ -2,9 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## 1.1.0 - 2025-12-10
 
-[8d24f4f](8d24f4f87b06906879decd3da7c38e5551ba84e0)...[bd0cb82](bd0cb82f41a870d6206bdecfd2940bfeb7ebea1f)
+[8d24f4f](8d24f4f87b06906879decd3da7c38e5551ba84e0)...[ae8574f](ae8574fbada24bd7959957d750afe0135aeee43a)
 
 ### Documentation
 
@@ -23,8 +23,11 @@ All notable changes to this project will be documented in this file.
 - Chore/update .gitignore ([e010fe5](e010fe505c56b919d9e219d607b9134a8744c58c))
 - Chore/update version number to 1.1.0+4 ([cda8eb9](cda8eb9c77884608ae6bfc32eec6deea2abd3cb3))
 - Chore/prepare app management through fastlane ([6381a57](6381a57a205a837788bd322638ad7fcd5b3b1a48))
-- Ci/implement CI on push to main ([a64106b](a64106b3f316f4207c78a925ca6c6b56be2aa3bc))
-- Preliminary changelog generation ([bd0cb82](bd0cb82f41a870d6206bdecfd2940bfeb7ebea1f))
+- Automated aab building and publishing to internal testing ([6bf6f58](6bf6f58bfa7c136f5a4b89cde9b91bda2bab6009))
+- Automated changelog generation ([2ea6355](2ea6355eacc4c903b9e1b13fd18a6010cb120cff))
+- Cleanup completed todos ([959ab7c](959ab7c52c9c28dde86f6b94b83b8d189685d93f))
+- Automate version code generation ([7c70f57](7c70f572a56f1d1d89685564810731cf7fc3338d))
+- Fetch whole git history for purpose of version code generation ([ae8574f](ae8574fbada24bd7959957d750afe0135aeee43a))
 
 ## 1.0.0 - 2025-10-20
 
