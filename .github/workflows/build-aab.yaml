@@ -49,6 +49,11 @@ jobs:
           channel: ${{ env.FLUTTER_CHANNEL }}
           flutter-version-file: "pubspec.yaml"
 
+      - name: Generate version code
+        id: version-code
+        run: |
+          echo -n "code=$(git rev-list --count main)" >> $GITHUB_OUTPUT
+
       - name: Create service account json
         run: |
           echo -n "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 --decode > android/zak-streamer.secret.json
@@ -74,7 +79,8 @@ jobs:
 
       - name: Build app
         run: |
-          flutter build appbundle
+          echo "Building application with version code ${{ steps.version-code.outputs.code }}"
+          flutter build appbundle --build-number ${{ steps.version-code.outputs.code }}
 
       - name: Push to internal testing track
         run: |
