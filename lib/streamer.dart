@@ -18,20 +18,18 @@ Future<AudioHandler> initAudioService() async {
 
 class Streamer extends BaseAudioHandler {
   final log = Logger('Streamer');
-  final stream = "http://ra.man.lodz.pl:8000/radiozak6.mp3";
   final _audioPlayer = AudioPlayer();
+
+  final mediaLibrary = MediaLibrary();
   Streamer() {
-    mediaItem.add(
-      MediaItem(
-        id: stream,
-        title: "Słuchasz alternatywy na żywo",
-        artist: "Studenckie Radio ŻAK Politechniki Łódzkiej",
-        artUri: Uri.parse(
-          'https://www.zak.lodz.pl/public/layout_2014/src_images/logo_zak_updated.png',
-        ),
-      ),
-    );
-    _audioPlayer.setUrl(stream);
+    final getMediaItem = mediaLibrary.items[MediaLibrary.albumsRootId]!;
+
+    final streamSources = List<AudioSource>.empty(growable: true);
+    for (var item in getMediaItem) {
+      streamSources.add(AudioSource.uri(Uri.parse(item.id)));
+    }
+    _audioPlayer.setAudioSources(streamSources, initialIndex: 0);
+    mediaItem.add(getMediaItem[0]);
     _audioPlayer.errorStream.listen((PlayerException e) {
       log.severe('Error code: ', e.code);
       log.severe('Error message: ', e.message);
@@ -79,4 +77,49 @@ class Streamer extends BaseAudioHandler {
   Future<void> onTaskRemoved() async {
     await _audioPlayer.stop();
   }
+
+  @override
+  Future<List<MediaItem>> getChildren(
+    String parentMediaId, [
+    Map<String, dynamic>? options,
+  ]) async {
+    final mediaChildren = mediaLibrary.items[parentMediaId]!;
+    return mediaChildren;
+  }
+
+  @override
+  Future<void> playFromMediaId(
+    String mediaId, [
+    Map<String, dynamic>? extras,
+  ]) async {
+    _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(mediaId)));
+    final mediaItems = mediaLibrary.items[MediaLibrary.albumsRootId]!;
+    for (var item in mediaItems) {
+      if (item.id == mediaId) {
+        mediaItem.add(item);
+      }
+    }
+    await _audioPlayer.play();
+  }
+}
+
+class MediaLibrary {
+  static const albumsRootId = 'albums';
+
+  final items = <String, List<MediaItem>>{
+    AudioService.browsableRootId: const [
+      MediaItem(id: albumsRootId, title: 'ŻAK Streamer', playable: false),
+    ],
+    albumsRootId: [
+      MediaItem(
+        id: "http://ra.man.lodz.pl:8000/radiozak6.mp3",
+        title: "Alternatywa na żywo",
+        artist: 'Studenckie Radio "ŻAK" Politechniki Łódzkiej',
+        artUri: Uri.parse(
+          'https://raw.githubusercontent.com/radio-zak/mobile-streamer/refs/heads/main/assets/zak-artwork-dark.png',
+        ),
+        isLive: true,
+      ),
+    ],
+  };
 }
