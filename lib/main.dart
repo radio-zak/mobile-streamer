@@ -4,6 +4,7 @@ import "package:logging/logging.dart";
 import 'package:simple_animations/animation_builder/custom_animation_builder.dart';
 import 'page_manager.dart';
 import 'service_locator.dart';
+import 'package:flutter/services.dart';
 
 Future<void> main() async {
   final log = Logger('Main');
@@ -38,6 +39,10 @@ class _ZakStreamerState extends State<ZakStreamer> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData.dark(),
