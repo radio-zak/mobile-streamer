@@ -107,3 +107,4 @@ jobs:
         with:
           files: CHANGELOG.md
           commit-message: "docs: update CHANGELOG.md"
+          branch-name: main
