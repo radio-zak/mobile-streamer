@@ -2,8 +2,8 @@ name: Build Android AAB and publish to internal testing track
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "**-alpha"
     paths-ignore:
       - CHANGELOG.md
       - LICENSE
@@ -81,10 +81,29 @@ jobs:
 
       - name: Build app
         run: |
-          echo "Building application with version code ${{ steps.version-code.outputs.code }}"
-          flutter build appbundle --build-number ${{ steps.version-code.outputs.code }}
+          echo "Building application with version name ${{ github.ref_name }} and version code ${{ steps.version-code.outputs.code }}"
+          flutter build appbundle --build-name ${{ github.ref_name }} --build-number ${{ steps.version-code.outputs.code }}
 
-      - name: Push to internal testing track
+      - name: Push to internal and alpha testing track
         run: |
-          bundle exec fastlane internal
+          bundle exec fastlane internal version_name:"${{ github.ref_name }}" version_code:${{ steps.version-code.outputs.code }}
+          bundle exec fastlane alpha version_name:"${{ github.ref_name }}" version_code:${{ steps.version-code.outputs.code }}
         working-directory: android
+
+      - uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --output CHANGELOG.md
+
+      - uses: ncipollo/release-action@v1
+        with:
+          bodyFile: "CHANGELOG.md"
+          draft: true
+          prerelease: true
+
+      - uses: ryancyq/github-signed-commit@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          files: CHANGELOG.md
+          commit-message: "docs: update CHANGELOG.md"
