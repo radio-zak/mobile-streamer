@@ -1,0 +1,62 @@
+name: Submit release to production
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "!**-alpha"
+    paths-ignore:
+      - CHANGELOG.md
+      - LICENSE
+      - README.md
+      - cliff.toml
+      - .gitignore
+      - .github/**
+      - .vscode/**
+
+env:
+  FLUTTER_CHANNEL: "stable"
+  RUBY_VERSION: "3.3.10"
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+          working-directory: "android"
+
+      - name: Create service account json
+        run: |
+          echo -n "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 --decode > android/zak-streamer.secret.json
+
+      - name: Push to internal and alpha testing track
+        run: |
+          bundle exec fastlane production
+        working-directory: android
+
+      - uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --output CHANGELOG.md
+
+      - uses: ncipollo/release-action@v1
+        with:
+          bodyFile: "CHANGELOG.md"
+          draft: true
+
+      - uses: ryancyq/github-signed-commit@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          files: CHANGELOG.md
+          commit-message: "docs: update CHANGELOG.md"
