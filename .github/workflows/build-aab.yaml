@@ -3,7 +3,7 @@ name: Build Android AAB and publish to internal testing track
 on:
   push:
     tags:
-      - "**-alpha"
+      - "**-alpha*"
     paths-ignore:
       - CHANGELOG.md
       - LICENSE
@@ -54,7 +54,7 @@ jobs:
       - name: Generate version code
         id: version-code
         run: |
-          echo -n "code=$(git rev-list --count main)" >> $GITHUB_OUTPUT
+          echo -n "code=$(git rev-list --count ${{ github.ref }})" >> $GITHUB_OUTPUT
 
       - name: Create service account json
         run: |

@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - "v*"
-      - "!**-alpha"
+      - "!**alpha*"
     paths-ignore:
       - CHANGELOG.md
       - LICENSE
