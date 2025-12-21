@@ -25,11 +25,9 @@ class Streamer extends BaseAudioHandler {
   final mediaLibrary = MediaLibrary();
 
   Streamer() {
-    final getMediaItem = mediaLibrary.items[MediaLibrary.albumsRootId]!;
-    final streamSources = getMediaItem.map((item) => AudioSource.uri(Uri.parse(item.id))).toList();
-    
-    _audioPlayer.setAudioSources(streamSources, initialIndex: 0, preload: false);
-    mediaItem.add(getMediaItem[0]);
+    final defaultItem = mediaLibrary.items[MediaLibrary.albumsRootId]![0];
+    mediaItem.add(defaultItem);
+    _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(defaultItem.id)), preload: false);
 
     _audioPlayer.playerStateStream.listen((state) {
       playbackState.add(
@@ -97,45 +95,22 @@ class Streamer extends BaseAudioHandler {
     String parentMediaId, [
     Map<String, dynamic>? options,
   ]) async {
-    // This is called by the system to get the list of playable items.
     return mediaLibrary.items[parentMediaId]!;
-  }
-
-  @override
-  Future<void> playFromMediaId(String mediaId, [Map<String, dynamic>? extras]) async {
-    final mediaItems = mediaLibrary.items[MediaLibrary.albumsRootId]!;
-    final itemToPlay = mediaItems.firstWhere((item) => item.id == mediaId, orElse: () => mediaItems.first);
-    mediaItem.add(itemToPlay);
-
-    final index = mediaItems.indexOf(itemToPlay);
-    if (index != -1) {
-      await _audioPlayer.seek(Duration.zero, index: index);
-    }
-    await play();
   }
 }
 
 class MediaLibrary {
-  static const albumsRootId = 'streams';
+  static const albumsRootId = 'albums';
 
   final items = <String, List<MediaItem>>{
     AudioService.browsableRootId: const [
-      MediaItem(id: albumsRootId, title: 'Strumienie', playable: false),
+      MediaItem(id: albumsRootId, title: 'ŻAK Streamer', playable: false),
     ],
     albumsRootId: [
       MediaItem(
         id: "http://ra.man.lodz.pl:8000/radiozak6.mp3",
-        title: "Strumień MP3",
-        artist: 'Wysoka jakość',
-        artUri: Uri.parse(
-          'https://raw.githubusercontent.com/radio-zak/mobile-streamer/refs/heads/main/assets/zak-artwork-dark.png',
-        ),
-        isLive: true,
-      ),
-      MediaItem(
-        id: "http://ra.man.lodz.pl:8000/radiozak.aac",
-        title: "Strumień AAC",
-        artist: 'Niska jakość',
+        title: "Alternatywa na żywo",
+        artist: 'Studenckie Radio "ŻAK" Politechniki Łódzkiej',
         artUri: Uri.parse(
           'https://raw.githubusercontent.com/radio-zak/mobile-streamer/refs/heads/main/assets/zak-artwork-dark.png',
         ),
