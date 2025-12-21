@@ -5,26 +5,89 @@ import 'package:simple_animations/animation_builder/custom_animation_builder.dar
 import 'page_manager.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'dart:async';
+
+// v1.5 - Robust notification tap handling
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+// Stream to handle notification responses when app is running
+final StreamController<String?> selectNotificationStream =
+    StreamController<String?>.broadcast();
 
 Future<void> main() async {
   final log = Logger('Main');
-  Logger.root.level = Level.ALL; // defaults to Level.INFO
+  Logger.root.level = Level.ALL; 
   Logger.root.onRecord.listen((record) {
     debugPrint('${record.level.name}: ${record.time}: ${record.message}');
   });
 
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Check if the app was launched from a notification
+  final NotificationAppLaunchDetails? notificationAppLaunchDetails = await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+  String? initialPayload;
+  if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
+    initialPayload = notificationAppLaunchDetails!.notificationResponse?.payload;
+    log.info("App launched from notification with payload: $initialPayload");
+  }
+
   try {
     await setupServiceLocator();
+    await initNotifications();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.music());
-    runApp(ZakStreamer());
+    runApp(ZakStreamer(notificationPayload: initialPayload));
   } catch (e) {
     log.severe('Streamer failed', e);
   }
 }
 
+Future<void> initNotifications() async {
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('mipmap/launcher_icon');
+  final InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse response) {
+        Logger('main').info("Notification tapped while app is running. Payload: ${response.payload}");
+        selectNotificationStream.add(response.payload);
+    },
+  );
+}
+
+Future<void> showDisconnectionNotification() async {
+  debugPrint('showDisconnectionNotification() called.');
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    'disconnection_channel',
+    'Disconnection Notifications',
+    channelDescription: 'Channel for disconnection notifications',
+    importance: Importance.max,
+    priority: Priority.high,
+    showWhen: false,
+  );
+  const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+  try {
+    await flutterLocalNotificationsPlugin.show(
+        0,
+        'Błąd Połączenia',
+        'Nie udało się połączyć ze streamem. Dotknij, aby spróbować ponownie.',
+        platformChannelSpecifics,
+        payload: 'retry');
+  } catch (e) {
+    debugPrint('Error showing notification: $e');
+  }
+}
+
 class ZakStreamer extends StatefulWidget {
-  const ZakStreamer({super.key});
+  final String? notificationPayload;
+  const ZakStreamer({super.key, this.notificationPayload});
 
   @override
   State<ZakStreamer> createState() => _ZakStreamerState();
@@ -35,6 +98,33 @@ class _ZakStreamerState extends State<ZakStreamer> {
   void initState() {
     super.initState();
     getIt<PageManager>().init();
+
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+
+    // Handle notification that launched the app from a terminated state
+    if (widget.notificationPayload == 'retry') {
+        Logger('main').info("Handling 'retry' payload from terminated state.");
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+            getIt<PageManager>().play();
+        });
+    }
+
+    // Handle notification tapped while the app is in the foreground or background
+    selectNotificationStream.stream.listen((String? payload) {
+      if (payload == 'retry') {
+        Logger('main').info("Handling 'retry' payload from running state.");
+        getIt<PageManager>().play();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    selectNotificationStream.close();
+    super.dispose();
   }
 
   @override
@@ -78,7 +168,6 @@ class PlayButton extends StatelessWidget {
               child: const CircularProgressIndicator(
                 strokeWidth: 15,
                 strokeCap: StrokeCap.round,
-                constraints: BoxConstraints(maxWidth: 200, maxHeight: 200),
                 color: Colors.tealAccent,
               ),
             );
@@ -132,10 +221,16 @@ class PlayButton extends StatelessWidget {
               curve: Curves.easeInOut,
               startPosition: 0.5,
               control: Control.mirror,
-              animationStatusListener: (status) {
-                debugPrint('status updated: $status');
-              },
             );
+          case ButtonState.error:
+            return SizedBox(
+                width: 300,
+                height: 300,
+                child: IconButton(
+                  icon: Icon(Icons.replay_circle_filled, size: 100, color: Colors.redAccent),
+                  onPressed: pageManager.play,
+                ),
+              );
         }
       },
     );
