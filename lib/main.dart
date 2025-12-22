@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:audio_session/audio_session.dart';
-import "package:logging/logging.dart";
-import 'package:simple_animations/animation_builder/custom_animation_builder.dart';
-import 'page_manager.dart';
-import 'service_locator.dart';
 import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
+import 'package:simple_animations/animation_builder/custom_animation_builder.dart';
+
+import 'page_manager.dart';
+import 'schedule_page.dart';
+import 'schedule_service.dart' as schedule_service;
+import 'service_locator.dart';
+import 'splash_screen.dart';
 
 void main() {
   // Setup logging
@@ -34,18 +37,12 @@ class ZakStreamerApp extends StatelessWidget {
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData.dark(),
-      home: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
-              SizedBox(height: 75),
-              PlayButton(),
-            ],
-          ),
-        ),
-      ),
+      debugShowCheckedModeBanner: false,
+      home: const SplashScreen(), // Start with the splash screen
+    );
+  }
+}
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -89,6 +86,7 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
 class NowPlaying extends StatelessWidget {
   const NowPlaying({Key? key}) : super(key: key);
 
@@ -167,7 +165,6 @@ class PlayButton extends StatelessWidget {
               child: const CircularProgressIndicator(
                 strokeWidth: 15,
                 strokeCap: StrokeCap.round,
-                constraints: BoxConstraints(maxWidth: 200, maxHeight: 200),
                 color: Colors.tealAccent,
               ),
             );
@@ -185,7 +182,12 @@ class PlayButton extends StatelessWidget {
             );
           case ButtonState.playing:
             return CustomAnimationBuilder<double>(
-              builder: (context, value, children) {
+              tween: Tween(begin: 275.0, end: 300.0),
+              duration: const Duration(seconds: 2),
+              curve: Curves.easeInOut,
+              startPosition: 0.5,
+              control: Control.mirror,
+              builder: (context, value, child) {
                 return Stack(
                   alignment: Alignment.center,
                   children: [
@@ -216,15 +218,16 @@ class PlayButton extends StatelessWidget {
                   ],
                 );
               },
-              tween: Tween(begin: 275, end: 300),
-              duration: const Duration(seconds: 2),
-              curve: Curves.easeInOut,
-              startPosition: 0.5,
-              control: Control.mirror,
-              animationStatusListener: (status) {
-                debugPrint('status updated: $status');
-              },
             );
+          case ButtonState.error:
+            return SizedBox(
+                width: 300,
+                height: 300,
+                child: IconButton(
+                  icon: Icon(Icons.replay_circle_filled,
+                      size: 100, color: Colors.redAccent),
+                  onPressed: pageManager.play,
+                ));
         }
       },
     );
