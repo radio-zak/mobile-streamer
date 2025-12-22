@@ -46,6 +46,107 @@ class ZakStreamerApp extends StatelessWidget {
           ),
         ),
       ),
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Initialize PageManager now that services are ready
+    getIt<PageManager>().init();
+
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
+        // Use a flexible layout with Expanded widgets for better proportions
+        child: Column(
+          children: [
+            const Expanded(
+              flex: 2, // Give more space to the "Now Playing" info
+              child: NowPlaying(),
+            ),
+            const Expanded(
+              flex: 3, // The play button takes the most central space
+              child: PlayButton(),
+            ),
+            Expanded(
+              flex: 1, // The schedule button at the bottom
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SchedulePage()),
+                    );
+                  },
+                  child: const Text('Zobacz ramówkę'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+class NowPlaying extends StatelessWidget {
+  const NowPlaying({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final pageManager = getIt<PageManager>();
+    return ValueListenableBuilder<schedule_service.Program?>(
+      valueListenable: pageManager.currentProgramNotifier,
+      builder: (_, program, __) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          transitionBuilder: (child, animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: Container(
+            key: ValueKey<String>(program?.title ?? 'loading'),
+            alignment: Alignment.center, // Center the content
+            child: program == null
+                ? const Text(
+                    'Sprawdzanie ramówki...',
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                    textAlign: TextAlign.center,
+                  )
+                : SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'TERAZ GRAMY:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.tealAccent),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          program.title,
+                          style: const TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                        if (program.author.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Text(
+                              'Prowadzący: ${program.author}',
+                              style: const TextStyle(
+                                  fontSize: 16, fontStyle: FontStyle.italic),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+          ),
+        );
+      },
     );
   }
 }

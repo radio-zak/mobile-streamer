@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
+import 'dart:async';
 
 Future<AudioHandler> initAudioService() async {
   final audioHandler = await AudioService.init(
@@ -19,87 +20,103 @@ Future<AudioHandler> initAudioService() async {
 class Streamer extends BaseAudioHandler {
   final log = Logger('Streamer');
   final _audioPlayer = AudioPlayer();
+  Timer? _stuckTimer;
 
   final mediaLibrary = MediaLibrary();
+
   Streamer() {
-    final getMediaItem = mediaLibrary.items[MediaLibrary.albumsRootId]!;
+    final defaultItem = mediaLibrary.items[MediaLibrary.albumsRootId]![0];
+    mediaItem.add(defaultItem);
+    _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(defaultItem.id)), preload: false);
 
-    final streamSources = List<AudioSource>.empty(growable: true);
-    for (var item in getMediaItem) {
-      streamSources.add(AudioSource.uri(Uri.parse(item.id)));
-    }
-    _audioPlayer.setAudioSources(streamSources, initialIndex: 0);
-    mediaItem.add(getMediaItem[0]);
-    _audioPlayer.errorStream.listen((PlayerException e) {
-      log.severe('Error code: ', e.code);
-      log.severe('Error message: ', e.message);
-      log.severe('AudioSource index: ', e.index);
-    });
-    _notifyAudioHandlerAboutPlaybackEvents();
-  }
-
-  void _notifyAudioHandlerAboutPlaybackEvents() {
-    _audioPlayer.playbackEventStream.listen((PlaybackEvent event) {
-      final playing = _audioPlayer.playing;
+    _audioPlayer.playerStateStream.listen((state) {
       playbackState.add(
         playbackState.value.copyWith(
-          controls: [if (playing) MediaControl.pause else MediaControl.play],
+          controls: [if (state.playing) MediaControl.pause else MediaControl.play],
           processingState: const {
             ProcessingState.idle: AudioProcessingState.idle,
             ProcessingState.loading: AudioProcessingState.loading,
             ProcessingState.buffering: AudioProcessingState.buffering,
             ProcessingState.completed: AudioProcessingState.completed,
             ProcessingState.ready: AudioProcessingState.ready,
-          }[_audioPlayer.processingState]!,
-          playing: playing,
+          }[state.processingState]!,
+          playing: state.playing,
         ),
       );
+
+      final isStuck = state.playing && state.processingState != ProcessingState.ready;
+      if (isStuck) {
+        _stuckTimer ??= Timer(const Duration(seconds: 10), () {
+          log.warning("Player has been stuck for 10 seconds. Setting state to error.");
+          playbackState.add(playbackState.value.copyWith(processingState: AudioProcessingState.error));
+          _stuckTimer = null;
+        });
+      } else {
+        _stuckTimer?.cancel();
+        _stuckTimer = null;
+      }
     });
+
+    _audioPlayer.errorStream.listen((error) {
+      log.severe("A fatal error occurred: $error. Setting state to error.");
+      playbackState.add(playbackState.value.copyWith(processingState: AudioProcessingState.error));
+    });
+  }
+
+  void _cancelStuckTimer() {
+    _stuckTimer?.cancel();
+    _stuckTimer = null;
   }
 
   @override
   Future<void> play() async {
+    _cancelStuckTimer();
     await _audioPlayer.seek(null);
-    await _audioPlayer.play();
+    return _audioPlayer.play();
   }
 
   @override
   Future<void> pause() async {
+    _cancelStuckTimer();
     await _audioPlayer.pause();
   }
 
   @override
   Future<void> stop() async {
+    _cancelStuckTimer();
     await _audioPlayer.stop();
   }
 
   @override
-  Future<void> onTaskRemoved() async {
-    await _audioPlayer.stop();
-  }
+  Future<void> onTaskRemoved() => stop();
 
   @override
   Future<List<MediaItem>> getChildren(
     String parentMediaId, [
     Map<String, dynamic>? options,
   ]) async {
-    final mediaChildren = mediaLibrary.items[parentMediaId]!;
-    return mediaChildren;
+    return mediaLibrary.items[parentMediaId]!;
   }
 
   @override
-  Future<void> playFromMediaId(
-    String mediaId, [
-    Map<String, dynamic>? extras,
-  ]) async {
-    _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(mediaId)));
-    final mediaItems = mediaLibrary.items[MediaLibrary.albumsRootId]!;
-    for (var item in mediaItems) {
-      if (item.id == mediaId) {
-        mediaItem.add(item);
+  Future<dynamic> customAction(String name, [Map<String, dynamic>? extras]) async {
+    if (name == 'updateMetadata') {
+      final title = extras?['title'] as String?;
+      final artist = extras?['artist'] as String?;
+
+      final currentItem = mediaItem.value;
+      if (currentItem != null) {
+        if (title != null) {
+          // Update with new program info
+          mediaItem.add(currentItem.copyWith(title: title, artist: artist));
+        } else {
+          // Revert to default info when no program is live
+          final defaultItem = mediaLibrary.items[MediaLibrary.albumsRootId]![0];
+          mediaItem.add(defaultItem);
+        }
       }
     }
-    await _audioPlayer.play();
+    return super.customAction(name, extras);
   }
 }
 
