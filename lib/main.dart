@@ -6,43 +6,31 @@ import 'page_manager.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
 
-Future<void> main() async {
-  final log = Logger('Main');
-  Logger.root.level = Level.ALL; // defaults to Level.INFO
+void main() {
+  // Setup logging
+  Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
     debugPrint('${record.level.name}: ${record.time}: ${record.message}');
   });
 
-  try {
-    await setupServiceLocator();
-    final session = await AudioSession.instance;
-    await session.configure(AudioSessionConfiguration.music());
-    runApp(ZakStreamer());
-  } catch (e) {
-    log.severe('Streamer failed', e);
-  }
+  // Ensure Flutter is ready
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Run the app
+  runApp(const ZakStreamerApp());
 }
 
-class ZakStreamer extends StatefulWidget {
-  const ZakStreamer({super.key});
-
-  @override
-  State<ZakStreamer> createState() => _ZakStreamerState();
-}
-
-class _ZakStreamerState extends State<ZakStreamer> {
-  @override
-  void initState() {
-    super.initState();
-    getIt<PageManager>().init();
-  }
+class ZakStreamerApp extends StatelessWidget {
+  const ZakStreamerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Set preferred orientations
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData.dark(),
