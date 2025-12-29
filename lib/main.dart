@@ -58,6 +58,47 @@ class _ZakStreamerState extends State<ZakStreamer> {
           ),
         ),
       ),
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    getIt<PageManager>().init();
+
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
+        child: Column(
+          children: [
+            const Expanded(
+              flex: 2,
+              child: NowPlaying(),
+            ),
+            const Expanded(
+              flex: 0,
+              child: PlayButton(),
+            ),
+            Expanded(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SchedulePage()),
+                    );
+                  },
+                  child: const Text('Zobacz ramówkę'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
     );
   }
 }
