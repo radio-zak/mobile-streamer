@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:audio_service/audio_service.dart';
 import 'service_locator.dart';
 
-enum ButtonState { playing, paused, loading }
+enum ButtonState { playing, paused, loading, error }
 
 class PlayButtonNotifier extends ValueNotifier<ButtonState> {
   PlayButtonNotifier() : super(_initialValue);
@@ -17,6 +17,11 @@ class PageManager {
 
   final _audioHandler = getIt<AudioHandler>();
   Future<void> _listenToPlaybackState() async {
+  void init() {
+    _listenToPlaybackState();
+  void play() => _audioHandler.play();
+  void pause() => _audioHandler.pause();
+  void _listenToPlaybackState() {
     _audioHandler.playbackState.listen((playbackState) {
       final isPlaying = playbackState.playing;
       final processingState = playbackState.processingState;
@@ -25,7 +30,10 @@ class PageManager {
         playButtonNotifier.value = ButtonState.loading;
       } else if (!isPlaying) {
         playButtonNotifier.value = ButtonState.paused;
-      } else if (processingState != AudioProcessingState.completed) {
+      } else if (processingState == AudioProcessingState.error) {
+        playButtonNotifier.value = ButtonState.error;
+        showDisconnectionNotification();
+      } else {
         playButtonNotifier.value = ButtonState.playing;
       } else {
         _audioHandler.pause();
@@ -35,4 +43,5 @@ class PageManager {
 
   void play() => _audioHandler.play();
   void pause() => _audioHandler.pause();
+      }
 }
