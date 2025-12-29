@@ -99,6 +99,65 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
+class NowPlaying extends StatelessWidget {
+  const NowPlaying({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final pageManager = getIt<PageManager>();
+    return ValueListenableBuilder<schedule_service.Program?>(
+      valueListenable: pageManager.currentProgramNotifier,
+      builder: (_, program, __) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          transitionBuilder: (child, animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: Container(
+            key: ValueKey<String>(program?.title ?? 'loading'),
+            alignment: Alignment.center,
+            child: program == null
+                ? const Text(
+                    'Sprawdzanie ramówki...',
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                    textAlign: TextAlign.center,
+                  )
+                : SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'TERAZ GRAMY:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.tealAccent),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          program.title,
+                          style: const TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                        if (program.author.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Text(
+                              'Prowadzący: ${program.author}',
+                              style: const TextStyle(
+                                  fontSize: 16, fontStyle: FontStyle.italic),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+          ),
+        );
+      },
     );
   }
 }
