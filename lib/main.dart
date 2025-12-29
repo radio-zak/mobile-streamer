@@ -1,15 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import "package:logging/logging.dart";
 import 'package:logging/logging.dart';
 import 'package:simple_animations/animation_builder/custom_animation_builder.dart';
+
+import 'notification_service.dart';
 import 'page_manager.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
 
-Future<void> main() async {
-  final log = Logger('Main');
-  Logger.root.level = Level.ALL; // defaults to Level.INFO
 void main() async {
   // Setup logging
   final log = Logger('Init');
@@ -27,6 +25,15 @@ void main() async {
     log.severe('Streamer failed', e);
   }
 }
+  // Ensure Flutter is ready
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize all services before running the app
+  await setupServiceLocator();
+  await initNotifications();
+  await AudioSession.instance
+      .then((session) => session.configure(const AudioSessionConfiguration.music()));
+
 
 class ZakStreamer extends StatefulWidget {
   const ZakStreamer({super.key});
