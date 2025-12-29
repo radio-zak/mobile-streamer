@@ -34,6 +34,8 @@ void main() async {
   await AudioSession.instance
       .then((session) => session.configure(const AudioSessionConfiguration.music()));
 
+  // Now that services are ready, run the app
+  runApp(const ZakStreamerApp());
 
 class ZakStreamer extends StatefulWidget {
   const ZakStreamer({super.key});
@@ -48,6 +50,8 @@ class _ZakStreamerState extends State<ZakStreamer> {
     super.initState();
     getIt<PageManager>().init();
   }
+class ZakStreamerApp extends StatelessWidget {
+  const ZakStreamerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +59,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData.dark(),
@@ -70,6 +75,19 @@ class _ZakStreamerState extends State<ZakStreamer> {
           ),
         ),
       ),
+      debugShowCheckedModeBanner: true,
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    getIt<PageManager>().init();
+
     );
   }
 }
