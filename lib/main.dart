@@ -37,19 +37,32 @@ void main() async {
   // Now that services are ready, run the app
   runApp(const ZakStreamerApp());
 
-class ZakStreamer extends StatefulWidget {
-  const ZakStreamer({super.key});
+  // --- Post-runApp initialization ---
+  final notificationAppLaunchDetails =
+      await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+  final didLaunchFromNotification =
+      notificationAppLaunchDetails?.didNotificationLaunchApp ?? false;
+  final notificationPayload =
+      notificationAppLaunchDetails?.notificationResponse?.payload;
 
-  @override
-  State<ZakStreamer> createState() => _ZakStreamerState();
+  if (didLaunchFromNotification && notificationPayload == 'retry') {
+    log.info("Handling 'retry' payload from terminated state.");
+    getIt<PageManager>().play();
+  }
+
+  selectNotificationStream.stream.listen((String? payload) {
+    if (payload == 'retry') {
+      log.info("Handling 'retry' payload from running state.");
+      getIt<PageManager>().play();
+    }
+  });
+
+  flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.requestNotificationsPermission();
 }
 
-class _ZakStreamerState extends State<ZakStreamer> {
-  @override
-  void initState() {
-    super.initState();
-    getIt<PageManager>().init();
-  }
 class ZakStreamerApp extends StatelessWidget {
   const ZakStreamerApp({super.key});
 
