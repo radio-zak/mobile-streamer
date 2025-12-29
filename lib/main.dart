@@ -119,7 +119,6 @@ class PlayButton extends StatelessWidget {
               child: const CircularProgressIndicator(
                 strokeWidth: 15,
                 strokeCap: StrokeCap.round,
-                constraints: BoxConstraints(maxWidth: 200, maxHeight: 200),
                 color: Colors.tealAccent,
               ),
             );
@@ -137,7 +136,12 @@ class PlayButton extends StatelessWidget {
             );
           case ButtonState.playing:
             return CustomAnimationBuilder<double>(
-              builder: (context, value, children) {
+              tween: Tween(begin: 275.0, end: 300.0),
+              duration: const Duration(seconds: 2),
+              curve: Curves.easeInOut,
+              startPosition: 0.5,
+              control: Control.mirror,
+              builder: (context, value, child) {
                 return Stack(
                   alignment: Alignment.center,
                   children: [
