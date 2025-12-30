@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
@@ -25,6 +26,7 @@ class Streamer extends BaseAudioHandler {
   Timer? _connectionTimer;
   Timer? _bufferingTimer;
   bool _isConnecting = false;
+  bool _bufferingErrorActive = false;
 
   final mediaLibrary = MediaLibrary();
   Streamer() {
@@ -36,13 +38,46 @@ class Streamer extends BaseAudioHandler {
     }
     _audioPlayer.setAudioSources(streamSources, initialIndex: 0);
     mediaItem.add(getMediaItem[0]);
-    _audioPlayer.errorStream.listen((PlayerException e) {
-      log.severe('Error code: ', e.code);
-      log.severe('Error message: ', e.message);
-      log.severe('AudioSource index: ', e.index);
+
+    _audioPlayer.errorStream.listen((PlayerException e) async {
+      if (_bufferingErrorActive) return; // Ignore if a buffering error is already active
+
+      log.severe('PlayerException code: ${e.code}, message: ${e.message}');
+      _isConnecting = false;
+      _connectionTimer?.cancel();
+      _bufferingTimer?.cancel();
+      
+      final errorMessage = await _mapErrorToMessage(e);
+
+      customEvent.add({'type': 'error', 'message': errorMessage});
+      
+      Notifications.showNotification(
+        title: 'Błąd Połączenia',
+        body: errorMessage,
+        payload: 'reconnect',
+      );
     });
+
     _notifyAudioHandlerAboutPlaybackEvents();
   }
+
+  Future<String> _mapErrorToMessage(PlayerException e) async {
+    if (e.message != null && e.message!.toLowerCase().contains('source error')) {
+      try {
+        // Actively check for internet connectivity.
+        final socket = await Socket.connect('8.8.8.8', 53, timeout: const Duration(seconds: 3));
+        socket.destroy();
+        // If connection succeeds, it's a server/stream issue.
+        return 'Strumień jest obecnie niedostępny. Spróbuj ponownie później.';
+      } on SocketException catch (_) {
+        // If connection fails, there is no internet.
+        return 'Brak połączenia z internetem. Sprawdź ustawienia sieci.';
+      }
+    }
+    // Fallback for any other unexpected errors.
+    return 'Wystąpił nieoczekiwany błąd odtwarzania. Spróbuj ponownie.';
+  }
+
 
   void _notifyAudioHandlerAboutPlaybackEvents() {
     _audioPlayer.playbackEventStream.listen((PlaybackEvent event) {
@@ -62,6 +97,7 @@ class Streamer extends BaseAudioHandler {
         if (_bufferingTimer == null || !_bufferingTimer!.isActive) {
           _bufferingTimer = Timer(const Duration(seconds: 10), () {
             if (_audioPlayer.playing && _audioPlayer.processingState == ProcessingState.buffering) {
+              _bufferingErrorActive = true;
               final message = 'Połączenie ze strumieniem zostało przerwane.';
               customEvent.add({'type': 'error', 'message': message});
               Notifications.showNotification(
@@ -95,14 +131,15 @@ class Streamer extends BaseAudioHandler {
   @override
   Future<void> play() async {
     customEvent.add({'type': 'clear_error'});
+    _bufferingErrorActive = false; // Reset flag
     _isConnecting = true;
     _connectionTimer = Timer(const Duration(seconds: 10), () {
       if (_isConnecting) {
         _isConnecting = false;
-        final message = 'Nie udało się połączyć z serwerem. Spróbuj ponownie.';
+        final message = 'Przekroczono czas oczekiwania na połączenie.';
         customEvent.add({'type': 'error', 'message': message});
         Notifications.showNotification(
-          title: 'Brak połączenia',
+          title: 'Błąd połączenia',
           body: message,
           payload: 'reconnect',
         );
@@ -115,6 +152,7 @@ class Streamer extends BaseAudioHandler {
   @override
   Future<void> pause() async {
     customEvent.add({'type': 'clear_error'});
+    _bufferingErrorActive = false; // Reset flag
     _isConnecting = false;
     _connectionTimer?.cancel();
     _bufferingTimer?.cancel();
@@ -124,6 +162,7 @@ class Streamer extends BaseAudioHandler {
   @override
   Future<void> stop() async {
     customEvent.add({'type': 'clear_error'});
+    _bufferingErrorActive = false; // Reset flag
     _isConnecting = false;
     _connectionTimer?.cancel();
     _bufferingTimer?.cancel();
