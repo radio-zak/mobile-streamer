@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
-import "package:logging/logging.dart";
+import 'package:logging/logging.dart';
 import 'package:simple_animations/animation_builder/custom_animation_builder.dart';
 import 'page_manager.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
+import 'notifications.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final log = Logger('Main');
   Logger.root.level = Level.ALL; // defaults to Level.INFO
   Logger.root.onRecord.listen((record) {
@@ -15,6 +17,7 @@ Future<void> main() async {
 
   try {
     await setupServiceLocator();
+    await Notifications.init();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.music());
     runApp(ZakStreamer());
