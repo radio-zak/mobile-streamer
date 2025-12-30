@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
+
+import 'notifications.dart';
 
 Future<AudioHandler> initAudioService() async {
   final audioHandler = await AudioService.init(
@@ -19,6 +23,9 @@ Future<AudioHandler> initAudioService() async {
 class Streamer extends BaseAudioHandler {
   final log = Logger('Streamer');
   final _audioPlayer = AudioPlayer();
+  Timer? _connectionTimer;
+  Timer? _bufferingTimer;
+  bool _isConnecting = false;
 
   final mediaLibrary = MediaLibrary();
   Streamer() {
@@ -41,6 +48,31 @@ class Streamer extends BaseAudioHandler {
   void _notifyAudioHandlerAboutPlaybackEvents() {
     _audioPlayer.playbackEventStream.listen((PlaybackEvent event) {
       final playing = _audioPlayer.playing;
+      
+      final successfullyConnected = playing &&
+          (event.processingState == ProcessingState.ready ||
+              event.processingState == ProcessingState.buffering);
+
+      if (successfullyConnected && _isConnecting) {
+        _isConnecting = false;
+        _connectionTimer?.cancel();
+      }
+
+      if (playing && event.processingState == ProcessingState.buffering) {
+        if (_bufferingTimer == null || !_bufferingTimer!.isActive) {
+          _bufferingTimer = Timer(const Duration(seconds: 10), () {
+            if (_audioPlayer.playing && _audioPlayer.processingState == ProcessingState.buffering) {
+              Notifications.showNotification(
+                title: 'Utrata połączenia',
+                body: 'Połączenie ze strumieniem zostało przerwane.',
+              );
+            }
+          });
+        }
+      } else {
+        _bufferingTimer?.cancel();
+      }
+
       playbackState.add(
         playbackState.value.copyWith(
           controls: [if (playing) MediaControl.pause else MediaControl.play],
@@ -59,17 +91,33 @@ class Streamer extends BaseAudioHandler {
 
   @override
   Future<void> play() async {
+    _isConnecting = true;
+    _connectionTimer = Timer(const Duration(seconds: 10), () {
+      if (_isConnecting) {
+        _isConnecting = false;
+        Notifications.showNotification(
+          title: 'Brak połączenia',
+          body: 'Nie udało się połączyć z serwerem. Spróbuj ponownie.',
+        );
+      }
+    });
     await _audioPlayer.seek(null);
     await _audioPlayer.play();
   }
 
   @override
   Future<void> pause() async {
+    _isConnecting = false;
+    _connectionTimer?.cancel();
+    _bufferingTimer?.cancel();
     await _audioPlayer.pause();
   }
 
   @override
   Future<void> stop() async {
+    _isConnecting = false;
+    _connectionTimer?.cancel();
+    _bufferingTimer?.cancel();
     await _audioPlayer.stop();
   }
 
