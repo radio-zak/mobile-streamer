@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:audio_service/audio_service.dart';
 import 'service_locator.dart';
@@ -11,12 +13,17 @@ class PlayButtonNotifier extends ValueNotifier<ButtonState> {
 
 class PageManager {
   final playButtonNotifier = PlayButtonNotifier();
-  void init() async {
-    await _listenToPlaybackState();
-  }
+  final errorNotifier = ValueNotifier<String>('');
 
   final _audioHandler = getIt<AudioHandler>();
-  Future<void> _listenToPlaybackState() async {
+  StreamSubscription<dynamic>? _customEventSubscription;
+
+  void init() {
+    _listenToPlaybackState();
+    _listenToCustomEvents();
+  }
+
+  void _listenToPlaybackState() {
     _audioHandler.playbackState.listen((playbackState) {
       final isPlaying = playbackState.playing;
       final processingState = playbackState.processingState;
@@ -25,14 +32,26 @@ class PageManager {
         playButtonNotifier.value = ButtonState.loading;
       } else if (!isPlaying) {
         playButtonNotifier.value = ButtonState.paused;
-      } else if (processingState != AudioProcessingState.completed) {
-        playButtonNotifier.value = ButtonState.playing;
       } else {
-        _audioHandler.pause();
+        playButtonNotifier.value = ButtonState.playing;
+      }
+    });
+  }
+
+  void _listenToCustomEvents() {
+    _customEventSubscription = _audioHandler.customEvent.listen((event) {
+      if (event is Map && event['type'] == 'error') {
+        errorNotifier.value = event['message'] as String;
+      } else if (event is Map && event['type'] == 'clear_error') {
+        errorNotifier.value = '';
       }
     });
   }
 
   void play() => _audioHandler.play();
   void pause() => _audioHandler.pause();
+
+  void dispose() {
+    _customEventSubscription?.cancel();
+  }
 }

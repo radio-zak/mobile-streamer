@@ -21,7 +21,7 @@ Future<void> main() async {
     await Notifications.init();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.music());
-    runApp(ZakStreamer());
+    runApp(const ZakStreamer());
   } catch (e) {
     log.severe('Streamer failed', e);
   }
@@ -53,6 +53,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
   @override
   void dispose() {
     _notificationSubscription?.cancel();
+    getIt<PageManager>().dispose();
     super.dispose();
   }
 
@@ -70,9 +71,19 @@ class _ZakStreamerState extends State<ZakStreamer> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
-              SizedBox(height: 75),
-              PlayButton(),
+              const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
+              const SizedBox(height: 75),
+              const PlayButton(),
+              ValueListenableBuilder<String>(
+                valueListenable: getIt<PageManager>().errorNotifier,
+                builder: (_, error, __) {
+                  if (error.isEmpty) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 24.0),
+                    child: Text(error, style: const TextStyle(color: Colors.red, fontSize: 16)),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -91,13 +102,12 @@ class PlayButton extends StatelessWidget {
       builder: (_, value, __) {
         switch (value) {
           case ButtonState.loading:
-            return SizedBox(
+            return const SizedBox(
               width: 300,
               height: 300,
-              child: const CircularProgressIndicator(
+              child: CircularProgressIndicator(
                 strokeWidth: 15,
                 strokeCap: StrokeCap.round,
-                constraints: BoxConstraints(maxWidth: 200, maxHeight: 200),
                 color: Colors.tealAccent,
               ),
             );
