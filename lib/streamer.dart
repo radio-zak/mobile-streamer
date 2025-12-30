@@ -7,7 +7,7 @@ import 'package:logging/logging.dart';
 import 'notifications.dart';
 
 Future<AudioHandler> initAudioService() async {
-  final audioHandler = await AudioService.init(
+  return await AudioService.init(
     builder: () => Streamer(),
     config: const AudioServiceConfig(
       androidShowNotificationBadge: true,
@@ -17,7 +17,6 @@ Future<AudioHandler> initAudioService() async {
       androidNotificationIcon: 'mipmap/launcher_icon',
     ),
   );
-  return audioHandler;
 }
 
 class Streamer extends BaseAudioHandler {
@@ -56,15 +55,18 @@ class Streamer extends BaseAudioHandler {
       if (successfullyConnected && _isConnecting) {
         _isConnecting = false;
         _connectionTimer?.cancel();
+        customEvent.add({'type': 'clear_error'});
       }
 
       if (playing && event.processingState == ProcessingState.buffering) {
         if (_bufferingTimer == null || !_bufferingTimer!.isActive) {
           _bufferingTimer = Timer(const Duration(seconds: 10), () {
             if (_audioPlayer.playing && _audioPlayer.processingState == ProcessingState.buffering) {
+              final message = 'Połączenie ze strumieniem zostało przerwane.';
+              customEvent.add({'type': 'error', 'message': message});
               Notifications.showNotification(
                 title: 'Utrata połączenia',
-                body: 'Połączenie ze strumieniem zostało przerwane.',
+                body: message,
                 payload: 'reconnect',
               );
             }
@@ -92,13 +94,16 @@ class Streamer extends BaseAudioHandler {
 
   @override
   Future<void> play() async {
+    customEvent.add({'type': 'clear_error'});
     _isConnecting = true;
     _connectionTimer = Timer(const Duration(seconds: 10), () {
       if (_isConnecting) {
         _isConnecting = false;
+        final message = 'Nie udało się połączyć z serwerem. Spróbuj ponownie.';
+        customEvent.add({'type': 'error', 'message': message});
         Notifications.showNotification(
           title: 'Brak połączenia',
-          body: 'Nie udało się połączyć z serwerem. Spróbuj ponownie.',
+          body: message,
           payload: 'reconnect',
         );
       }
@@ -109,6 +114,7 @@ class Streamer extends BaseAudioHandler {
 
   @override
   Future<void> pause() async {
+    customEvent.add({'type': 'clear_error'});
     _isConnecting = false;
     _connectionTimer?.cancel();
     _bufferingTimer?.cancel();
@@ -117,6 +123,7 @@ class Streamer extends BaseAudioHandler {
 
   @override
   Future<void> stop() async {
+    customEvent.add({'type': 'clear_error'});
     _isConnecting = false;
     _connectionTimer?.cancel();
     _bufferingTimer?.cancel();
