@@ -25,6 +25,7 @@ class PageManager {
 
   void _listenToPlaybackState() {
     _audioHandler.playbackState.listen((playbackState) {
+      if (errorNotifier.value.isNotEmpty) return;
       final isPlaying = playbackState.playing;
       final processingState = playbackState.processingState;
       if (processingState == AudioProcessingState.loading ||
@@ -42,6 +43,7 @@ class PageManager {
     _customEventSubscription = _audioHandler.customEvent.listen((event) {
       if (event is Map && event['type'] == 'error') {
         errorNotifier.value = event['message'] as String;
+        playButtonNotifier.value = ButtonState.paused;
       } else if (event is Map && event['type'] == 'clear_error') {
         errorNotifier.value = '';
       }
