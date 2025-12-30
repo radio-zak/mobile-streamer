@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
@@ -34,10 +35,25 @@ class ZakStreamer extends StatefulWidget {
 }
 
 class _ZakStreamerState extends State<ZakStreamer> {
+  StreamSubscription? _notificationSubscription;
+
   @override
   void initState() {
     super.initState();
     getIt<PageManager>().init();
+    Notifications.requestPermission();
+
+    _notificationSubscription = Notifications.onNotificationTapped.stream.listen((payload) {
+      if (payload == 'reconnect') {
+        getIt<PageManager>().play();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _notificationSubscription?.cancel();
+    super.dispose();
   }
 
   @override
