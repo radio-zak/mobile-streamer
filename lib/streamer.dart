@@ -65,6 +65,7 @@ class Streamer extends BaseAudioHandler {
               Notifications.showNotification(
                 title: 'Utrata połączenia',
                 body: 'Połączenie ze strumieniem zostało przerwane.',
+                payload: 'reconnect',
               );
             }
           });
@@ -98,6 +99,7 @@ class Streamer extends BaseAudioHandler {
         Notifications.showNotification(
           title: 'Brak połączenia',
           body: 'Nie udało się połączyć z serwerem. Spróbuj ponownie.',
+          payload: 'reconnect',
         );
       }
     });
