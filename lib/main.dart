@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
 import 'package:simple_animations/animation_builder/custom_animation_builder.dart';
+import 'package:zakstreamer/widgets/now_playing_widget.dart';
 import 'page_manager.dart';
 import 'schedule_page.dart';
 import 'service_locator.dart';
@@ -60,6 +61,12 @@ class _ZakStreamerState extends State<ZakStreamer> {
   }
 
   @override
+  void dispose() {
+    getIt<PageManager>().dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -83,10 +90,11 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const NowPlayingWidget(),
             const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
-            const SizedBox(height: 75),
+            const SizedBox(height: 24),
             const PlayButton(),
-            const SizedBox(height: 48),
+            const SizedBox(height: 24),
             TextButton(
               child: const Text('POKAŻ RAMÓWKĘ'),
               onPressed: () {
