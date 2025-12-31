@@ -64,9 +64,15 @@ class PageManager {
       }
     }
 
-    // Only notify listeners if the show has actually changed.
+    // Only notify listeners and update metadata if the show has actually changed.
     if (nowPlayingNotifier.value?.title != liveEntry?.title) {
       nowPlayingNotifier.value = liveEntry;
+      _audioHandler.customAction('updateMetadata', {
+        'title': liveEntry?.title ?? 'Radio Żak',
+        'artist': liveEntry?.hosts.isNotEmpty == true
+            ? liveEntry!.hosts
+            : 'Studenckie Radio Politechniki Łódzkiej',
+      });
     }
   }
 
