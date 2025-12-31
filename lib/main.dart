@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
-import "package:logging/logging.dart";
+import 'package:logging/logging.dart';
 import 'package:simple_animations/animation_builder/custom_animation_builder.dart';
 import 'page_manager.dart';
+import 'schedule_page.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final log = Logger('Main');
   Logger.root.level = Level.ALL; // defaults to Level.INFO
   Logger.root.onRecord.listen((record) {
@@ -17,7 +19,7 @@ Future<void> main() async {
     await setupServiceLocator();
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.music());
-    runApp(ZakStreamer());
+    runApp(const ZakStreamer());
   } catch (e) {
     log.severe('Streamer failed', e);
   }
@@ -46,16 +48,35 @@ class _ZakStreamerState extends State<ZakStreamer> {
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData.dark(),
-      home: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
-              SizedBox(height: 75),
-              PlayButton(),
-            ],
-          ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
+            const SizedBox(height: 75),
+            const PlayButton(),
+            const SizedBox(height: 48),
+            TextButton(
+              child: const Text('POKAŻ RAMÓWKĘ'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SchedulePage()),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -72,13 +93,12 @@ class PlayButton extends StatelessWidget {
       builder: (_, value, __) {
         switch (value) {
           case ButtonState.loading:
-            return SizedBox(
+            return const SizedBox(
               width: 300,
               height: 300,
-              child: const CircularProgressIndicator(
+              child: CircularProgressIndicator(
                 strokeWidth: 15,
                 strokeCap: StrokeCap.round,
-                constraints: BoxConstraints(maxWidth: 200, maxHeight: 200),
                 color: Colors.tealAccent,
               ),
             );

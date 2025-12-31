@@ -11,12 +11,12 @@ class PlayButtonNotifier extends ValueNotifier<ButtonState> {
 
 class PageManager {
   final playButtonNotifier = PlayButtonNotifier();
-  void init() async {
-    await _listenToPlaybackState();
+  void init() {
+    _listenToPlaybackState();
   }
 
   final _audioHandler = getIt<AudioHandler>();
-  Future<void> _listenToPlaybackState() async {
+  void _listenToPlaybackState() {
     _audioHandler.playbackState.listen((playbackState) {
       final isPlaying = playbackState.playing;
       final processingState = playbackState.processingState;
