@@ -4,6 +4,7 @@ import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
 import 'package:simple_animations/animation_builder/custom_animation_builder.dart';
 import 'page_manager.dart';
+import 'schedule_page.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
 import 'notifications.dart';
@@ -43,11 +44,12 @@ class _ZakStreamerState extends State<ZakStreamer> {
     getIt<PageManager>().init();
     Notifications.requestPermission();
 
-    _notificationSubscription = Notifications.onNotificationTapped.stream.listen((payload) {
-      if (payload == 'reconnect') {
-        getIt<PageManager>().play();
-      }
-    });
+    _notificationSubscription = Notifications.onNotificationTapped.stream
+        .listen((payload) {
+          if (payload == 'reconnect') {
+            getIt<PageManager>().play();
+          }
+        });
   }
 
   @override
@@ -66,26 +68,35 @@ class _ZakStreamerState extends State<ZakStreamer> {
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData.dark(),
-      home: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
-              const SizedBox(height: 75),
-              const PlayButton(),
-              ValueListenableBuilder<String>(
-                valueListenable: getIt<PageManager>().errorNotifier,
-                builder: (_, error, __) {
-                  if (error.isEmpty) return const SizedBox(height: 67);
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 48.0),
-                    child: Text(error, style: const TextStyle(fontSize: 14)),
-                  );
-                },
-              ),
-            ],
-          ),
+      home: const HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
+            const SizedBox(height: 75),
+            const PlayButton(),
+            const SizedBox(height: 48),
+            TextButton(
+              child: const Text('POKAŻ RAMÓWKĘ'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SchedulePage()),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
