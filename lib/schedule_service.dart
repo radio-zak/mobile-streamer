@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 
@@ -35,7 +36,8 @@ class ScheduleService {
       final response = await http.get(Uri.parse(_baseUrl + path), headers: headers);
 
       if (response.statusCode == 200) {
-        final document = parser.parse(response.body);
+        // Decode the response body using UTF-8 to handle Polish characters
+        final document = parser.parse(utf8.decode(response.bodyBytes));
         final entries = <ScheduleEntry>[];
         
         final entryElements = document.querySelectorAll('ul#ramowka > li.row');
@@ -46,8 +48,8 @@ class ScheduleService {
           String title = '';
           final aTag = entryElement.querySelector('h3.tytul > a');
           if (aTag != null) {
-            final aClone = aTag.clone(true); // Deep clone to avoid modifying the original document
-            aClone.querySelector('span.show-for-small')?.remove(); // Remove the duplicated time span
+            final aClone = aTag.clone(true);
+            aClone.querySelector('span.show-for-small')?.remove();
             title = aClone.text.trim();
           }
 
