@@ -129,6 +129,21 @@ class Streamer extends BaseAudioHandler {
   }
 
   @override
+  Future<void> customAction(String name, [Map<String, dynamic>? extras]) async {
+    if (name == 'updateMetadata') {
+      final title = extras?['title'] as String?;
+      final artist = extras?['artist'] as String?;
+
+      if (title != null && artist != null) {
+        final currentItem = mediaItem.value;
+        if (currentItem != null) {
+          mediaItem.add(currentItem.copyWith(title: title, artist: artist));
+        }
+      }
+    }
+  }
+
+  @override
   Future<void> play() async {
     customEvent.add({'type': 'clear_error'});
     _bufferingErrorActive = false; // Reset flag
