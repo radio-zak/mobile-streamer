@@ -9,14 +9,6 @@ class ScheduleEntry {
 
   ScheduleEntry({required this.time, required this.title, required this.hosts});
 
-  factory ScheduleEntry.fromJson(Map<String, dynamic> json) {
-    return ScheduleEntry(
-      time: json['godzina'] as String,
-      title: json['tytul'] as String,
-      hosts: '', // Will be populated by HTML parsing
-    );
-  }
-
   bool get isLive {
     try {
       final now = DateTime.now();
@@ -33,22 +25,16 @@ class ScheduleEntry {
       final endMinute = int.parse(endTimeParts[1]);
 
       final startTime = DateTime(now.year, now.month, now.day, startHour, startMinute);
+      // The end time could be on the next day
       var endTime = DateTime(now.year, now.month, now.day, endHour, endMinute);
-
-      // Handle shows that cross midnight (e.g., 23:00 - 01:00)
+      
       if (endTime.isBefore(startTime)) {
-        // If current time is after midnight but before end time, we are in the next day part of the show.
-        if (now.isBefore(endTime)) {
-          // We are in the same logical day as endTime, do nothing.
-        } else {
-          // The show started yesterday.
-          endTime = endTime.add(const Duration(days: 1));
-        }
-      } 
+        endTime = endTime.add(const Duration(days: 1));
+      }
 
       return now.isAfter(startTime) && now.isBefore(endTime);
     } catch (e) {
-      return false; // If parsing fails for any reason, it's not live.
+      return false;
     }
   }
 
@@ -126,6 +112,7 @@ class ScheduleService {
       throw Exception('Failed to fetch or parse schedule from any of the daily pages.');
     }
 
+    // Sort the final map to ensure the days are in the correct order
     final sortedScheduleMap = <String, List<ScheduleEntry>>{};
     for (var day in _dayPaths.keys) {
       if (scheduleMap.containsKey(day)) {
