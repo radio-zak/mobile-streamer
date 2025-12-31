@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'service_locator.dart';
 import 'schedule_service.dart';
 
@@ -9,13 +10,39 @@ class SchedulePage extends StatefulWidget {
   State<SchedulePage> createState() => _SchedulePageState();
 }
 
-class _SchedulePageState extends State<SchedulePage> {
+class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMixin {
   Future<Map<String, List<ScheduleEntry>>>? _scheduleFuture;
+  TabController? _tabController;
+  final List<ItemScrollController> _scrollControllers = List.generate(7, (_) => ItemScrollController());
 
   @override
   void initState() {
     super.initState();
     _scheduleFuture = getIt<ScheduleService>().fetchSchedule();
+  }
+
+  void _scrollToCurrentShow(int dayIndex, Map<String, List<ScheduleEntry>> schedule) {
+    final todayIndex = DateTime.now().weekday - 1;
+    if (dayIndex != todayIndex) return;
+
+    final currentDayController = _scrollControllers[dayIndex];
+    final todayEntries = schedule.values.elementAt(dayIndex);
+    final currentShowIndex = todayEntries.indexWhere((entry) => entry.isLive);
+
+    if (currentShowIndex != -1 && currentDayController.isAttached) {
+      currentDayController.scrollTo(
+        index: currentShowIndex,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOutCubic,
+        alignment: 0.3,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -42,51 +69,84 @@ class _SchedulePageState extends State<SchedulePage> {
 
           final schedule = snapshot.data!;
           final days = schedule.keys.toList();
+          final todayWeekday = DateTime.now().weekday;
+          final initialDayIndex = (todayWeekday - 1).clamp(0, days.length - 1);
 
-          return DefaultTabController(
-            length: days.length,
-            child: Column(
-              children: [
-                TabBar(
-                  isScrollable: true,
-                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                  unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
-                  tabs: days.map((day) => Tab(text: day)).toList(),
-                ),
-                Expanded(
-                  child: TabBarView(
-                    children: days.map((day) {
-                      final entries = schedule[day]!;
-                      return ListView.separated(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                        itemCount: entries.length,
-                        separatorBuilder: (context, index) => const Divider(height: 24),
-                        itemBuilder: (context, index) {
-                          final entry = entries[index];
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+          _tabController ??= TabController(length: days.length, vsync: this, initialIndex: initialDayIndex);
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _scrollToCurrentShow(initialDayIndex, schedule);
+          });
+
+          return Column(
+            children: [
+              TabBar(
+                controller: _tabController,
+                isScrollable: true,
+                labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+                tabs: days.map((day) => Tab(text: day)).toList(),
+              ),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: schedule.entries.map((dayEntry) {
+                    final dayIndex = days.indexOf(dayEntry.key);
+                    final entries = dayEntry.value;
+                    return ScrollablePositionedList.separated(
+                      itemScrollController: _scrollControllers[dayIndex],
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      itemCount: entries.length,
+                      separatorBuilder: (context, index) => const Divider(indent: 16, endIndent: 16, height: 24),
+                      itemBuilder: (context, index) {
+                        final entry = entries[index];
+                        // A show is live ONLY if the time is correct AND it's the current day of the week.
+                        final bool isLive = entry.isLive && dayIndex == initialDayIndex;
+                        return Container(
+                          color: isLive ? Colors.teal.withOpacity(0.25) : Colors.transparent,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Row(
                             children: [
-                              Text(
-                                '${entry.time} - ${entry.title}',
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                              SizedBox(
+                                width: 36,
+                                child: isLive 
+                                  ? const Icon(Icons.volume_up_outlined, color: Colors.tealAccent)
+                                  : null,
                               ),
-                              if (entry.hosts.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 4.0),
-                                  child: Text(
-                                    'Prowadzący: ${entry.hosts}',
-                                    style: TextStyle(fontSize: 14, color: Colors.white70),
-                                  ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${entry.time} - ${entry.title}',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: isLive ? FontWeight.bold : FontWeight.normal,
+                                      ),
+                                    ),
+                                    if (entry.hosts.isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4.0),
+                                        child: Text(
+                                          'Prowadzący: ${entry.hosts}',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: isLive ? Colors.white : Colors.white70,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
+                              ),
                             ],
-                          );
-                        },
-                      );
-                    }).toList(),
-                  ),
+                          ),
+                        );
+                      },
+                    );
+                  }).toList(),
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),
