@@ -1,9 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:audio_service/audio_service.dart';
-import 'package:zakstreamer/schedule_service.dart';
-
+import 'now_playing.dart';
 import 'service_locator.dart';
 
 enum ButtonState { playing, paused, loading }
@@ -16,64 +14,16 @@ class PlayButtonNotifier extends ValueNotifier<ButtonState> {
 class PageManager {
   // Notifiers
   final playButtonNotifier = PlayButtonNotifier();
-  final nowPlayingNotifier = ValueNotifier<ScheduleEntry?>(null);
   final errorNotifier = ValueNotifier<String>('');
   // Dependencies
   final _audioHandler = getIt<AudioHandler>();
-  final _scheduleService = getIt<ScheduleService>();
-
+  final _nowPlaying = getIt<NowPlaying>();
   StreamSubscription<dynamic>? _customEventSubscription;
-
-  // State
-  Timer? _nowPlayingTimer;
-  Map<String, List<ScheduleEntry>>? _fullSchedule;
 
   void init() {
     _listenToPlaybackState();
-    _initializeNowPlayingFeature();
+    _nowPlaying.initializeNowPlayingFeature();
     _listenToCustomEvents();
-  }
-
-  Future<void> _initializeNowPlayingFeature() async {
-    try {
-      // Fetch the schedule once.
-      _fullSchedule = await _scheduleService.fetchSchedule();
-      // Perform the first check immediately.
-      _updateNowPlaying();
-      // Start a timer to check every minute.
-      _nowPlayingTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-        _updateNowPlaying();
-      });
-    } catch (e) {
-      print("Failed to initialize Now Playing feature: $e");
-    }
-  }
-
-  void _updateNowPlaying() {
-    if (_fullSchedule == null) return;
-
-    final todayIndex = (DateTime.now().weekday - 1).clamp(0, 6);
-    final todayKey = _fullSchedule!.keys.elementAt(todayIndex);
-    final entriesToday = _fullSchedule![todayKey] ?? [];
-
-    ScheduleEntry? liveEntry;
-    for (final entry in entriesToday) {
-      if (entry.isLive) {
-        liveEntry = entry;
-        break; // Find the first one and stop
-      }
-    }
-
-    // Only notify listeners and update metadata if the show has actually changed.
-    if (nowPlayingNotifier.value?.title != liveEntry?.title) {
-      nowPlayingNotifier.value = liveEntry;
-      _audioHandler.customAction('updateMetadata', {
-        'title': liveEntry?.title ?? 'Radio Żak',
-        'artist': liveEntry?.hosts.isNotEmpty == true
-            ? liveEntry!.hosts
-            : 'Studenckie Radio Politechniki Łódzkiej',
-      });
-    }
   }
 
   void _listenToPlaybackState() {
@@ -108,6 +58,6 @@ class PageManager {
 
   void dispose() {
     _customEventSubscription?.cancel();
-    _nowPlayingTimer?.cancel();
+    _nowPlaying.cancelTimer();
   }
 }
