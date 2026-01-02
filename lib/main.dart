@@ -77,10 +77,10 @@ class _ZakStreamerState extends State<ZakStreamer> {
               ValueListenableBuilder<String>(
                 valueListenable: getIt<PageManager>().errorNotifier,
                 builder: (_, error, __) {
-                  if (error.isEmpty) return const SizedBox.shrink();
+                  if (error.isEmpty) return const SizedBox(height: 67);
                   return Padding(
-                    padding: const EdgeInsets.only(top: 24.0),
-                    child: Text(error, style: const TextStyle(color: Colors.red, fontSize: 16)),
+                    padding: const EdgeInsets.only(top: 48.0),
+                    child: Text(error, style: const TextStyle(fontSize: 14)),
                   );
                 },
               ),
