@@ -46,10 +46,10 @@ class NowPlaying {
     if (nowPlayingNotifier.value?.title != liveEntry?.title) {
       nowPlayingNotifier.value = liveEntry;
       _audioHandler.customAction('updateMetadata', {
-        'title': liveEntry?.title ?? 'Radio Żak',
+        'title': liveEntry?.title ?? 'Alternatywa na żywo',
         'artist': liveEntry?.hosts.isNotEmpty == true
             ? liveEntry!.hosts
-            : 'Studenckie Radio Politechniki Łódzkiej',
+            : 'Studenckie Radio "ŻAK" Politechniki Łódzkiej',
       });
     }
   }
