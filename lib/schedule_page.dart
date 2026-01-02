@@ -109,6 +109,7 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
     return Column(
       children: [
         TabBar(
+          tabAlignment: TabAlignment.start,
           controller: _tabController,
           isScrollable: true,
           indicatorColor: Colors.tealAccent,
