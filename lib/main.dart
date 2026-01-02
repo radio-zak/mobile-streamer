@@ -61,12 +61,6 @@ class _ZakStreamerState extends State<ZakStreamer> {
   }
 
   @override
-  void dispose() {
-    getIt<PageManager>().dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
