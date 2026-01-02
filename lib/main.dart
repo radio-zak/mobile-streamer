@@ -87,24 +87,31 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const NowPlayingWidget(),
-            const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
-            const SizedBox(height: 24),
-            const PlayButton(),
-            const SizedBox(height: 24),
-            TextButton(
-              child: const Text('POKAŻ RAMÓWKĘ'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SchedulePage()),
-                );
-              },
-            ),
-          ],
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 36, horizontal: 12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const NowPlayingWidget(),
+              const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
+              const PlayButton(),
+              TextButton(
+                child: const Text(
+                  'POKAŻ RAMÓWKĘ',
+                  style: TextStyle(color: Colors.tealAccent),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SchedulePage(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
