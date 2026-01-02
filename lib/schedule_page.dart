@@ -54,7 +54,7 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
         if (_liveShowIndex != -1) {
           _scrollControllers[_liveDayIndex].scrollTo(
             index: _liveShowIndex,
-            duration: const Duration(milliseconds: 800),
+            duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOutCubic,
             alignment: 0.3, // Scroll to 30% from the top
           );
