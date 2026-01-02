@@ -52,7 +52,7 @@ class Streamer extends BaseAudioHandler {
       customEvent.add({'type': 'error', 'message': errorMessage});
       
       Notifications.showNotification(
-        title: 'Błąd Połączenia',
+        title: 'Błąd połączenia',
         body: errorMessage,
         payload: 'reconnect',
       );
