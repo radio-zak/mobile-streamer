@@ -10,14 +10,18 @@ class SchedulePage extends StatefulWidget {
   State<SchedulePage> createState() => _SchedulePageState();
 }
 
-class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMixin {
+class _SchedulePageState extends State<SchedulePage>
+    with TickerProviderStateMixin {
   // State variables to hold the data, loading, and error states
   Map<String, List<ScheduleEntry>>? _schedule;
   Object? _error;
   bool _isLoading = true;
 
   TabController? _tabController;
-  final List<ItemScrollController> _scrollControllers = List.generate(7, (_) => ItemScrollController());
+  final List<ItemScrollController> _scrollControllers = List.generate(
+    7,
+    (_) => ItemScrollController(),
+  );
 
   // State variables to hold the position of the live show
   int _liveDayIndex = -1;
@@ -46,7 +50,11 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
         _liveShowIndex = liveIndex;
 
         final days = scheduleData.keys.toList();
-        _tabController = TabController(length: days.length, vsync: this, initialIndex: today);
+        _tabController = TabController(
+          length: days.length,
+          vsync: this,
+          initialIndex: today,
+        );
       });
 
       // Schedule the scroll to after the first frame has been built
@@ -60,7 +68,6 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
           );
         }
       });
-
     } catch (e, stackTrace) {
       print('Error fetching schedule: $e\n$stackTrace');
       if (!mounted) return;
@@ -80,9 +87,7 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ramówka'),
-      ),
+      appBar: AppBar(title: const Text('Ramówka')),
       body: _buildBody(),
     );
   }
@@ -94,10 +99,15 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
       );
     }
     if (_error != null) {
-      return Center(child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text('Nie udało się załadować ramówki.\nBłąd: $_error', textAlign: TextAlign.center),
-      ));
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'Nie udało się załadować ramówki.\nBłąd: $_error',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
     }
     if (_schedule == null || _schedule!.isEmpty) {
       return const Center(child: Text('Brak danych ramówki.'));
@@ -134,7 +144,8 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
                 itemBuilder: (context, index) {
                   final entry = entries[index];
                   // The check is now simple and stable, based on pre-calculated state
-                  final bool isLiveNow = (dayIndex == _liveDayIndex && index == _liveShowIndex);
+                  final bool isLiveNow =
+                      (dayIndex == _liveDayIndex && index == _liveShowIndex);
 
                   return Container(
                     color: isLiveNow
@@ -166,7 +177,9 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
                                     'Prowadzący: ${entry.hosts}',
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: isLiveNow ? Colors.white : Colors.white70,
+                                      color: isLiveNow
+                                          ? Colors.white
+                                          : Colors.white70,
                                     ),
                                   ),
                                 ),
