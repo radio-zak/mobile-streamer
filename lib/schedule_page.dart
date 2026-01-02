@@ -89,7 +89,9 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.tealAccent),
+      );
     }
     if (_error != null) {
       return Center(child: Padding(
@@ -109,7 +111,11 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
         TabBar(
           controller: _tabController,
           isScrollable: true,
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+          indicatorColor: Colors.tealAccent,
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.tealAccent,
+          ),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
           tabs: days.map((day) => Tab(text: day)).toList(),
         ),
