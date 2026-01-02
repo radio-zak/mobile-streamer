@@ -3,11 +3,13 @@ import 'page_manager.dart';
 import 'streamer.dart';
 import 'package:get_it/get_it.dart';
 import 'schedule_service.dart';
+import 'now_playing.dart';
 
 GetIt getIt = GetIt.instance;
 
 Future<void> setupServiceLocator() async {
   getIt.registerSingleton<AudioHandler>(await initAudioService());
   getIt.registerLazySingleton<PageManager>(() => PageManager());
+  getIt.registerLazySingleton<NowPlaying>(() => NowPlaying());
   getIt.registerLazySingleton<ScheduleService>(() => ScheduleService());
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zakstreamer/page_manager.dart';
+import 'package:zakstreamer/now_playing.dart';
 import 'package:zakstreamer/schedule_service.dart';
 import 'package:zakstreamer/service_locator.dart';
 
@@ -8,7 +8,7 @@ class NowPlayingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pageManager = getIt<PageManager>();
+    final pageManager = getIt<NowPlaying>();
 
     return ValueListenableBuilder<ScheduleEntry?>(
       valueListenable: pageManager.nowPlayingNotifier,
