@@ -204,12 +204,6 @@ class Streamer extends BaseAudioHandler {
     Map<String, dynamic>? extras,
   ]) async {
     _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(mediaId)));
-    final mediaItems = mediaLibrary.items[MediaLibrary.albumsRootId]!;
-    for (var item in mediaItems) {
-      if (item.id == mediaId) {
-        mediaItem.add(item);
-      }
-    }
     await _audioPlayer.play();
   }
 }
