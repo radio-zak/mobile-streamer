@@ -129,17 +129,21 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
 
               return ScrollablePositionedList.separated(
                 itemScrollController: _scrollControllers[dayIndex],
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
                 itemCount: entries.length,
-                separatorBuilder: (context, index) => const Divider(indent: 16, endIndent: 16, height: 24),
+                separatorBuilder: (context, index) => const Divider(height: 0),
                 itemBuilder: (context, index) {
                   final entry = entries[index];
                   // The check is now simple and stable, based on pre-calculated state
                   final bool isLiveNow = (dayIndex == _liveDayIndex && index == _liveShowIndex);
 
                   return Container(
-                    color: isLiveNow ? Colors.teal.withOpacity(0.25) : Colors.transparent,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    color: isLiveNow
+                        ? Colors.teal.withOpacity(0.25)
+                        : Colors.transparent,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     child: Row(
                       children: [
                         Expanded(
@@ -149,8 +153,10 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
                               Text(
                                 '${entry.time} - ${entry.title}',
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: isLiveNow ? FontWeight.bold : FontWeight.normal,
+                                  fontSize: 14,
+                                  fontWeight: isLiveNow
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                                 ),
                               ),
                               if (entry.hosts.isNotEmpty)
