@@ -40,17 +40,18 @@ class Streamer extends BaseAudioHandler {
     mediaItem.add(getMediaItem[0]);
 
     _audioPlayer.errorStream.listen((PlayerException e) async {
-      if (_bufferingErrorActive) return; // Ignore if a buffering error is already active
+      if (_bufferingErrorActive)
+        return; // Ignore if a buffering error is already active
 
       log.severe('PlayerException code: ${e.code}, message: ${e.message}');
       _isConnecting = false;
       _connectionTimer?.cancel();
       _bufferingTimer?.cancel();
-      
+
       final errorMessage = await _mapErrorToMessage(e);
 
       customEvent.add({'type': 'error', 'message': errorMessage});
-      
+
       Notifications.showNotification(
         title: 'Błąd połączenia',
         body: errorMessage,
@@ -62,10 +63,15 @@ class Streamer extends BaseAudioHandler {
   }
 
   Future<String> _mapErrorToMessage(PlayerException e) async {
-    if (e.message != null && e.message!.toLowerCase().contains('source error')) {
+    if (e.message != null &&
+        e.message!.toLowerCase().contains('source error')) {
       try {
         // Actively check for internet connectivity.
-        final socket = await Socket.connect('8.8.8.8', 53, timeout: const Duration(seconds: 3));
+        final socket = await Socket.connect(
+          '8.8.8.8',
+          53,
+          timeout: const Duration(seconds: 3),
+        );
         socket.destroy();
         // If connection succeeds, it's a server/stream issue.
         return 'Strumień jest obecnie niedostępny. Spróbuj ponownie później.';
@@ -78,12 +84,12 @@ class Streamer extends BaseAudioHandler {
     return 'Wystąpił nieoczekiwany błąd odtwarzania. Spróbuj ponownie.';
   }
 
-
   void _notifyAudioHandlerAboutPlaybackEvents() {
     _audioPlayer.playbackEventStream.listen((PlaybackEvent event) {
       final playing = _audioPlayer.playing;
-      
-      final successfullyConnected = playing &&
+
+      final successfullyConnected =
+          playing &&
           (event.processingState == ProcessingState.ready ||
               event.processingState == ProcessingState.buffering);
 
@@ -96,7 +102,8 @@ class Streamer extends BaseAudioHandler {
       if (playing && event.processingState == ProcessingState.buffering) {
         if (_bufferingTimer == null || !_bufferingTimer!.isActive) {
           _bufferingTimer = Timer(const Duration(seconds: 10), () {
-            if (_audioPlayer.playing && _audioPlayer.processingState == ProcessingState.buffering) {
+            if (_audioPlayer.playing &&
+                _audioPlayer.processingState == ProcessingState.buffering) {
               _bufferingErrorActive = true;
               final message = 'Połączenie ze strumieniem zostało przerwane.';
               customEvent.add({'type': 'error', 'message': message});
