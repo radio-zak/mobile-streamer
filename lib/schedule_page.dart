@@ -142,12 +142,6 @@ class _SchedulePageState extends State<SchedulePage> with TickerProviderStateMix
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
                       children: [
-                        SizedBox(
-                          width: 36,
-                          child: isLiveNow 
-                            ? const Icon(Icons.volume_up_outlined, color: Colors.tealAccent)
-                            : null,
-                        ),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
