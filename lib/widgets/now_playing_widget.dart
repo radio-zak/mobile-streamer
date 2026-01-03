@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:zakstreamer/now_playing.dart';
 import 'package:zakstreamer/schedule_service.dart';
 import 'package:zakstreamer/service_locator.dart';
@@ -33,13 +34,31 @@ class NowPlayingWidget extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       key: ValueKey(nowPlaying.title),
                       children: [
-                        Text(
-                          'TERAZ GRAMY',
-                          style: Theme.of(context).textTheme.labelLarge
-                              ?.copyWith(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'TERAZ GRAMY',
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(
+                                    color: Colors.tealAccent,
+                                    letterSpacing: 1.5,
+                                  ),
+                            ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () {
+                                var shareText = 'Słucham właśnie "${nowPlaying.title}" w Studenckim Radiu Żak PŁ! Dołącz do mnie na 88,8 MHz!';
+                                Share.share(shareText);
+                              },
+                              child: const Icon(
+                                Icons.share,
                                 color: Colors.tealAccent,
-                                letterSpacing: 1.5,
+                                size: 18.0,
                               ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 8),
                         Text(
