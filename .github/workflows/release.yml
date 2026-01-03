@@ -49,14 +49,16 @@ jobs:
           config: cliff.toml
           args: --output CHANGELOG.md
 
+      - uses: ryancyq/github-signed-commit@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
+        with:
+          files: CHANGELOG.md
+          commit-message: "docs: update CHANGELOG.md"
+          branch: main
+
       - uses: ncipollo/release-action@v1
         with:
           bodyFile: "CHANGELOG.md"
           draft: true
-
-      - uses: ryancyq/github-signed-commit@v1
-        env:
-          GH_TOKEN: ${{ github.token }}
-        with:
-          files: CHANGELOG.md
-          commit-message: "docs: update CHANGELOG.md"
