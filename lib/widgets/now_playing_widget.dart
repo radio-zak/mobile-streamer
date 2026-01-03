@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:zakstreamer/now_playing.dart';
 import 'package:zakstreamer/schedule_service.dart';
 import 'package:zakstreamer/service_locator.dart';
@@ -58,6 +59,18 @@ class NowPlayingWidget extends StatelessWidget {
                                   ?.copyWith(color: Colors.white70),
                             ),
                           ),
+                        const SizedBox(height: 8),
+                        IconButton(
+                          icon: const Icon(Icons.share),
+                          color: Colors.tealAccent,
+                          onPressed: () {
+                            var shareText = 'Słucham właśnie "${nowPlaying.title}" w Radiu Żak!';
+                            if (nowPlaying.hosts.isNotEmpty) {
+                              shareText += ' Prowadzący: ${nowPlaying.hosts}.';
+                            }
+                            Share.share(shareText);
+                          },
+                        ),
                       ],
                     ),
             ),
