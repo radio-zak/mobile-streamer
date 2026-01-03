@@ -34,13 +34,31 @@ class NowPlayingWidget extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       key: ValueKey(nowPlaying.title),
                       children: [
-                        Text(
-                          'TERAZ GRAMY',
-                          style: Theme.of(context).textTheme.labelLarge
-                              ?.copyWith(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'TERAZ GRAMY',
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(
+                                    color: Colors.tealAccent,
+                                    letterSpacing: 1.5,
+                                  ),
+                            ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () {
+                                var shareText = 'Słucham właśnie "${nowPlaying.title}" w Studenckim Radiu Żak PŁ! Dołącz do mnie na 88,8 MHz!';
+                                Share.share(shareText);
+                              },
+                              child: const Icon(
+                                Icons.share,
                                 color: Colors.tealAccent,
-                                letterSpacing: 1.5,
+                                size: 18.0,
                               ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -59,18 +77,6 @@ class NowPlayingWidget extends StatelessWidget {
                                   ?.copyWith(color: Colors.white70),
                             ),
                           ),
-                        const SizedBox(height: 8),
-                        IconButton(
-                          icon: const Icon(Icons.share),
-                          color: Colors.tealAccent,
-                          onPressed: () {
-                            var shareText = 'Słucham właśnie "${nowPlaying.title}" w Radiu Żak!';
-                            if (nowPlaying.hosts.isNotEmpty) {
-                              shareText += ' Prowadzący: ${nowPlaying.hosts}.';
-                            }
-                            Share.share(shareText);
-                          },
-                        ),
                       ],
                     ),
             ),
