@@ -10,56 +10,69 @@ class NowPlayingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final pageManager = getIt<NowPlaying>();
 
-    return ValueListenableBuilder<ScheduleEntry?>(
+    return ValueListenableBuilder<NowPlayingState>(
       valueListenable: pageManager.nowPlayingNotifier,
+      builder: (_, nowPlaying, __) {
+        switch (nowPlaying) {
+          case NowPlayingState.loading:
+            return const CircularProgressIndicator(color: Colors.tealAccent);
+          case NowPlayingState.inactive:
+            return Container();
+          case NowPlayingState.active:
+            return NowPlayingActiveWidget();
+        }
+      },
+    );
+  }
+}
+
+class NowPlayingActiveWidget extends NowPlayingWidget {
+  const NowPlayingActiveWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final pageManager = getIt<NowPlaying>();
+
+    return ValueListenableBuilder<ScheduleEntry?>(
+      valueListenable: pageManager.nowPlayingContents,
       builder: (_, nowPlaying, __) {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 750),
           transitionBuilder: (Widget child, Animation<double> animation) {
             return FadeTransition(opacity: animation, child: child);
           },
-          child: SizedBox(
-            height: 120,
-            child: Center(
-              child: nowPlaying == null
-                  // When no show is live, display an empty box with a specific key.
-                  // The key is crucial for AnimatedSwitcher to detect a change.
-                  ? const CircularProgressIndicator(
-                      color: Colors.tealAccent,
-                      key: ValueKey('empty'),
-                    )
-                  // When a show is live, display its details.
-                  : Column(
-                      mainAxisSize: MainAxisSize.min,
-                      key: ValueKey(nowPlaying.title),
-                      children: [
-                        Text(
-                          'TERAZ GRAMY',
-                          style: Theme.of(context).textTheme.labelLarge
-                              ?.copyWith(
-                                color: Colors.tealAccent,
-                                letterSpacing: 1.5,
-                              ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          nowPlaying.title,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        if (nowPlaying.hosts.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Text(
-                              'Prowadzący: ${nowPlaying.hosts}',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(color: Colors.white70),
-                            ),
-                          ),
-                      ],
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              key: ValueKey(nowPlaying?.title),
+              children: [
+                Text(
+                  'TERAZ GRAMY',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Colors.tealAccent,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  nowPlaying!.title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (nowPlaying.hosts.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Text(
+                      'Prowadzący: ${nowPlaying.hosts}',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
                     ),
+                  ),
+              ],
             ),
           ),
         );
