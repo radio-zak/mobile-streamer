@@ -87,7 +87,7 @@ class HomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const NowPlayingWidget(),
+              const SizedBox(height: 140, child: NowPlayingWidget()),
               const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
               const PlayButton(),
               TextButton(
