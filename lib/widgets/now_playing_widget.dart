@@ -15,7 +15,9 @@ class NowPlayingWidget extends StatelessWidget {
       builder: (_, nowPlaying, __) {
         switch (nowPlaying) {
           case NowPlayingState.loading:
-            return const CircularProgressIndicator(color: Colors.tealAccent);
+            return Center(
+              child: const CircularProgressIndicator(color: Colors.tealAccent),
+            );
           case NowPlayingState.inactive:
             return Container();
           case NowPlayingState.active:
