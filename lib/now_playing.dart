@@ -11,19 +11,42 @@ class NowPlaying {
 
   // State
   Timer? _nowPlayingTimer;
+  Timer? _retryTimer; // Timer for retrying on failure
   Map<String, List<ScheduleEntry>>? _fullSchedule;
-  Future<void> initializeNowPlayingFeature() async {
+
+  void initializeNowPlayingFeature() {
+    _fetchScheduleWithRetry(); // Start the process
+  }
+
+  Future<void> _fetchScheduleWithRetry() async {
     try {
-      // Fetch the schedule once.
+      // Attempt to fetch the schedule.
       _fullSchedule = await _scheduleService.fetchSchedule();
+
+      // If successful, stop retrying.
+      if (_retryTimer != null) {
+        _retryTimer?.cancel();
+        _retryTimer = null;
+        print("Successfully fetched schedule. Stopping retry mechanism.");
+      }
+
       // Perform the first check immediately.
       _updateNowPlaying();
-      // Start a timer to check every minute.
+
+      // Start the regular timer to check every minute.
+      _nowPlayingTimer?.cancel(); // Cancel any existing timer
       _nowPlayingTimer = Timer.periodic(const Duration(minutes: 1), (_) {
         _updateNowPlaying();
       });
     } catch (e) {
-      print("Failed to initialize Now Playing feature: $e");
+      print("Failed to fetch schedule: $e. Will retry in 5 seconds.");
+      // If fetching fails, start the retry mechanism if it's not already running.
+      if (_retryTimer == null || !_retryTimer!.isActive) {
+        _retryTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+          print("Retrying to fetch schedule...");
+          _fetchScheduleWithRetry();
+        });
+      }
     }
   }
 
@@ -56,5 +79,6 @@ class NowPlaying {
 
   void cancelTimer() {
     _nowPlayingTimer?.cancel();
+    _retryTimer?.cancel(); // Also cancel the retry timer
   }
 }

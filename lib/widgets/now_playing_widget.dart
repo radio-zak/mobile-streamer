@@ -19,7 +19,7 @@ class NowPlayingWidget extends StatelessWidget {
             return FadeTransition(opacity: animation, child: child);
           },
           child: SizedBox(
-            height: 120,
+            height: 130,
             child: Center(
               child: nowPlaying == null
                   // When no show is live, display an empty box with a specific key.
