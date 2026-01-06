@@ -20,9 +20,21 @@ Future<void> main() async {
 
   try {
     await setupServiceLocator();
+  } catch (e) {
+    log.severe('Service locator failed', e);
+  }
+  try {
     await Notifications.init();
+  } catch (e) {
+    log.severe('Notifications service failed', e);
+  }
+  try { 
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.music());
+  } catch (e) {
+    log.severe('Failed configuring audio session', e);
+  }
+  try { 
     runApp(const ZakStreamer());
   } catch (e) {
     log.severe('Streamer failed', e);
