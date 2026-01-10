@@ -50,11 +50,25 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
             child: Column(
               key: ValueKey(nowPlaying?.title),
               children: [
-                Text(
-                  'TERAZ GRAMY',
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                Row(
+                  children: [
+                    const SizedBox(width: 48.0), // Spacer to balance the button on the right
+                    Expanded(
+                      child: Text(
+                        'TERAZ GRAMY',
+                        textAlign: TextAlign.center, // Center the text
+                        style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                              letterSpacing: 1.5,
+                            ),
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, color: Colors.tealAccent),
+                      onSelected: (value) {},
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[],
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Text(
