@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:zakstreamer/now_playing.dart';
 import 'package:zakstreamer/schedule_service.dart';
 import 'package:zakstreamer/service_locator.dart';
@@ -63,8 +64,22 @@ class NowPlayingActiveWidget extends StatelessWidget {
                     ),
                     PopupMenuButton<String>(
                       icon: const Icon(Icons.more_vert, color: Colors.tealAccent),
-                      onSelected: (value) {},
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[],
+                      onSelected: (value) {
+                        if (value == 'share') {
+                          var shareText =
+                              'Słucham właśnie "${nowPlaying?.title}" w Studenckim Radiu Żak PŁ! Dołącz do mnie na 88,8 MHz!';
+                          Share.share(shareText);
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'share',
+                          child: ListTile(
+                            leading: Icon(Icons.share),
+                            title: Text('Udostępnij audycję'),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
