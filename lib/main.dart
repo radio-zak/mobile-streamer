@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
@@ -18,6 +19,16 @@ Future<void> main() async {
     debugPrint('${record.level.name}: ${record.time}: ${record.message}');
   });
 
+  //Setup RootCA certificate for purposes of NowPlaying
+  try {
+    ByteData rootCACertificate = await rootBundle.load(
+      'assets/HARICA-TLS-Root-2021-RSA.pem',
+    );
+    SecurityContext context = SecurityContext.defaultContext;
+    context.setTrustedCertificatesBytes(rootCACertificate.buffer.asUint8List());
+  } catch (e) {
+    log.severe('Failed loading Root CA certificate', e);
+  }
   try {
     await setupServiceLocator();
   } catch (e) {
@@ -28,13 +39,13 @@ Future<void> main() async {
   } catch (e) {
     log.severe('Notifications service failed', e);
   }
-  try { 
+  try {
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.music());
   } catch (e) {
     log.severe('Failed configuring audio session', e);
   }
-  try { 
+  try {
     runApp(const ZakStreamer());
   } catch (e) {
     log.severe('Streamer failed', e);
