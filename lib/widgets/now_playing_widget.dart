@@ -72,8 +72,11 @@ class NowPlayingActiveWidget extends StatelessWidget {
                 Text(
                   nowPlaying!.title,
                   textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
+                        fontSize: 20.0, // Reduced font size
                       ),
                 ),
                 if (nowPlaying.hosts.isNotEmpty)
@@ -82,6 +85,8 @@ class NowPlayingActiveWidget extends StatelessWidget {
                     child: Text(
                       'Prowadzący: ${nowPlaying.hosts}',
                       textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(
                         context,
                       ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
