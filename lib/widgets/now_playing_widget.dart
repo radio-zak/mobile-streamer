@@ -15,20 +15,20 @@ class NowPlayingWidget extends StatelessWidget {
       builder: (_, nowPlaying, __) {
         switch (nowPlaying) {
           case NowPlayingState.loading:
-            return Center(
-              child: const CircularProgressIndicator(color: Colors.tealAccent),
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.tealAccent),
             );
           case NowPlayingState.inactive:
             return Container();
           case NowPlayingState.active:
-            return NowPlayingActiveWidget();
+            return const NowPlayingActiveWidget();
         }
       },
     );
   }
 }
 
-class NowPlayingActiveWidget extends NowPlayingWidget {
+class NowPlayingActiveWidget extends StatelessWidget {
   const NowPlayingActiveWidget({super.key});
 
   @override
@@ -48,20 +48,33 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
               mainAxisSize: MainAxisSize.min,
               key: ValueKey(nowPlaying?.title),
               children: [
-                Text(
-                  'TERAZ GRAMY',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Colors.tealAccent,
-                    letterSpacing: 1.5,
-                  ),
+                Row(
+                  children: [
+                    const SizedBox(width: 48.0), // Spacer to balance the button on the right
+                    Expanded(
+                      child: Text(
+                        'TERAZ GRAMY',
+                        textAlign: TextAlign.center, // Center the text
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: Colors.tealAccent,
+                              letterSpacing: 1.5,
+                            ),
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, color: Colors.tealAccent),
+                      onSelected: (value) {},
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[],
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Text(
                   nowPlaying!.title,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 if (nowPlaying.hosts.isNotEmpty)
                   Padding(
