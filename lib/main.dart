@@ -21,6 +21,7 @@ Future<void> main() async {
 
   //Setup RootCA certificate for purposes of NowPlaying
   try {
+    log.info('Loading root certificate');
     ByteData rootCACertificate = await rootBundle.load(
       'assets/HARICA-TLS-Root-2021-RSA.pem',
     );
@@ -30,22 +31,26 @@ Future<void> main() async {
     log.severe('Failed loading Root CA certificate', e);
   }
   try {
+    log.info('Setting up service locator');
     await setupServiceLocator();
   } catch (e) {
     log.severe('Service locator failed', e);
   }
   try {
+    log.info('Starting notification service');
     await Notifications.init();
   } catch (e) {
     log.severe('Notifications service failed', e);
   }
   try {
+    log.info('Initializing audio session');
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.music());
   } catch (e) {
     log.severe('Failed configuring audio session', e);
   }
   try {
+    log.info('Initializing application...');
     runApp(const ZakStreamer());
   } catch (e) {
     log.severe('Streamer failed', e);
