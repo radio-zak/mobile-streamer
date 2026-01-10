@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
+import 'package:zakstreamer/widgets/error_banner.dart';
 import 'package:zakstreamer/widgets/play_button.dart';
 import 'package:zakstreamer/widgets/now_playing_widget.dart';
 import 'page_manager.dart';
@@ -28,13 +29,13 @@ Future<void> main() async {
   } catch (e) {
     log.severe('Notifications service failed', e);
   }
-  try { 
+  try {
     final session = await AudioSession.instance;
     await session.configure(AudioSessionConfiguration.music());
   } catch (e) {
     log.severe('Failed configuring audio session', e);
   }
-  try { 
+  try {
     runApp(const ZakStreamer());
   } catch (e) {
     log.severe('Streamer failed', e);
@@ -57,12 +58,11 @@ class _ZakStreamerState extends State<ZakStreamer> {
     getIt<PageManager>().init();
     Notifications.requestPermission();
 
-    _notificationSubscription = Notifications.onNotificationTapped.stream
-        .listen((payload) {
-          if (payload == 'reconnect') {
-            getIt<PageManager>().play();
-          }
-        });
+    _notificationSubscription = Notifications.onNotificationTapped.stream.listen((payload) {
+      if (payload == 'reconnect') {
+        getIt<PageManager>().play();
+      }
+    });
   }
 
   @override
@@ -91,34 +91,53 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pageManager = getIt<PageManager>();
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 36, horizontal: 12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 140, child: NowPlayingWidget()),
-              const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
-              const PlayButton(),
-              TextButton(
-                child: const Text(
-                  'POKAŻ RAMÓWKĘ',
-                  style: TextStyle(color: Colors.tealAccent),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SchedulePage(),
+      body: Stack(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 12),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 140, child: NowPlayingWidget()),
+                  const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
+                  const PlayButton(),
+                  TextButton(
+                    child: const Text(
+                      'POKAŻ RAMÓWKĘ',
+                      style: TextStyle(color: Colors.tealAccent),
                     ),
-                  );
-                },
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SchedulePage(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          ValueListenableBuilder<String>(
+            valueListenable: pageManager.errorNotifier,
+            builder: (context, message, child) {
+              if (message.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: ErrorBanner(message: message),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
