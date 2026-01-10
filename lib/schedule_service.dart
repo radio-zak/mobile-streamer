@@ -25,10 +25,16 @@ class ScheduleEntry {
       final endHour = int.parse(endTimeParts[0]);
       final endMinute = int.parse(endTimeParts[1]);
 
-      final startTime = DateTime(now.year, now.month, now.day, startHour, startMinute);
+      final startTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        startHour,
+        startMinute,
+      );
       // The end time could be on the next day
       var endTime = DateTime(now.year, now.month, now.day, endHour, endMinute);
-      
+
       if (endTime.isBefore(startTime)) {
         endTime = endTime.add(const Duration(days: 1));
       }
@@ -59,23 +65,28 @@ class ScheduleService {
   Future<Map<String, List<ScheduleEntry>>> fetchSchedule() async {
     final scheduleMap = <String, List<ScheduleEntry>>{};
     final headers = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
+      'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
     };
 
     for (var dayName in _dayPaths.keys) {
       final path = _dayPaths[dayName]!;
-      final response = await http.get(Uri.parse(_baseUrl + path), headers: headers);
+      final response = await http.get(
+        Uri.parse(_baseUrl + path),
+        headers: headers,
+      );
 
       if (response.statusCode == 200) {
         _logger.info('zak.lodz.pl responded with status code 200, parsing...');
         final document = parser.parse(utf8.decode(response.bodyBytes));
         final entries = <ScheduleEntry>[];
-        
+
         final entryElements = document.querySelectorAll('ul#ramowka > li.row');
 
         for (var entryElement in entryElements) {
-          final time = entryElement.querySelector('div.godziny')?.text.trim() ?? '';
-          
+          final time =
+              entryElement.querySelector('div.godziny')?.text.trim() ?? '';
+
           String title = '';
           final aTag = entryElement.querySelector('h3.tytul > a');
           if (aTag != null) {
@@ -87,7 +98,9 @@ class ScheduleService {
           String hosts = '';
           final opisDiv = entryElement.querySelector('div.opis');
           if (opisDiv != null) {
-            final descPrefixSpans = opisDiv.querySelectorAll('span.desc-prefix');
+            final descPrefixSpans = opisDiv.querySelectorAll(
+              'span.desc-prefix',
+            );
             for (var span in descPrefixSpans) {
               if (span.text.trim().startsWith('prowadz')) {
                 final hostSpan = span.nextElementSibling;
@@ -98,7 +111,7 @@ class ScheduleService {
               }
             }
           }
-          
+
           if (time.isNotEmpty && title.isNotEmpty) {
             entries.add(ScheduleEntry(time: time, title: title, hosts: hosts));
           }
