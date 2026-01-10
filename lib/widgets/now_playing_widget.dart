@@ -74,6 +74,8 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
                 Text(
                   nowPlaying!.title,
                   textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 if (nowPlaying.hosts.isNotEmpty)
@@ -82,6 +84,8 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
                     child: Text(
                       'Prowadzący: ${nowPlaying.hosts}',
                       textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ),
