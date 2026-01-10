@@ -3,31 +3,52 @@ import 'package:zakstreamer/widgets/play_button.dart';
 import 'package:zakstreamer/widgets/now_playing_widget.dart';
 import 'package:zakstreamer/widgets/primary_text_button.dart';
 import 'package:zakstreamer/pages/schedule_page.dart';
+import 'package:zakstreamer/widgets/error_banner.dart';
+import 'package:zakstreamer/page_manager.dart';
+import 'package:zakstreamer/service_locator.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
+  HomePage({super.key});
+  final pageManager = getIt<PageManager>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 36, horizontal: 12),
-          child: OrientationBuilder(
-            builder: (context, orientation) {
-              return orientation == Orientation.portrait
-                  ? HomePagePortrait()
-                  : HomePageLandscape();
+      body: Stack(
+        children: [
+          Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 36, horizontal: 12),
+              child: OrientationBuilder(
+                builder: (context, orientation) {
+                  return orientation == Orientation.portrait
+                      ? HomePagePortrait()
+                      : HomePageLandscape();
+                },
+              ),
+            ),
+          ),
+          ValueListenableBuilder<String>(
+            valueListenable: pageManager.errorNotifier,
+            builder: (context, message, child) {
+              if (message.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: ErrorBanner(message: message),
+              );
             },
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
 class HomePageLandscape extends HomePage {
-  const HomePageLandscape({super.key});
+  HomePageLandscape({super.key});
   @override
   Widget build(context) {
     return Row(
@@ -59,7 +80,7 @@ class HomePageLandscape extends HomePage {
 }
 
 class HomePagePortrait extends HomePage {
-  const HomePagePortrait({super.key});
+  HomePagePortrait({super.key});
 
   @override
   Widget build(BuildContext context) {

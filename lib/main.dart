@@ -156,7 +156,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
           bodySmall: GoogleFonts.sora(),
         ),
       ),
-      home: const HomePage(),
+      home: HomePage(),
     );
   }
 }
