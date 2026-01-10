@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:logging/logging.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
 
@@ -43,6 +44,7 @@ class ScheduleEntry {
 }
 
 class ScheduleService {
+  final _logger = Logger('Main');
   final _baseUrl = 'https://www.zak.lodz.pl';
   final _dayPaths = {
     'Poniedziałek': '/ramowka/plan/1/poniedzialek/',
@@ -65,6 +67,7 @@ class ScheduleService {
       final response = await http.get(Uri.parse(_baseUrl + path), headers: headers);
 
       if (response.statusCode == 200) {
+        _logger.info('zak.lodz.pl responded with status code 200, parsing...');
         final document = parser.parse(utf8.decode(response.bodyBytes));
         final entries = <ScheduleEntry>[];
         
@@ -104,12 +107,14 @@ class ScheduleService {
           scheduleMap[dayName] = entries;
         }
       } else {
-        print('Failed to load schedule for $dayName. Status code: ${response.statusCode}');
+        _logger.severe(
+          'Failed to load schedule for $dayName. Status code: ${response.statusCode}',
+        );
       }
     }
 
     if (scheduleMap.isEmpty) {
-      throw Exception('Failed to fetch or parse schedule from any of the daily pages.');
+      _logger.severe('Failed to fetch schedule from zak.lodz.pl');
     }
 
     // Sort the final map to ensure the days are in the correct order
@@ -119,7 +124,7 @@ class ScheduleService {
         sortedScheduleMap[day] = scheduleMap[day]!;
       }
     }
-
+    _logger.info("Schedule fetched");
     return sortedScheduleMap;
   }
 }
