@@ -65,9 +65,9 @@ class NowPlaying {
       }
     }
 
+    nowPlayingNotifier.value = NowPlayingState.active;
     // Only notify listeners and update metadata if the show has actually changed.
     if (nowPlayingContents.value?.title != liveEntry?.title) {
-      nowPlayingNotifier.value = NowPlayingState.active;
       _logger.info("Updating notification metadata with fetched schedule data");
       nowPlayingContents.value = liveEntry;
       _audioHandler.customAction('updateMetadata', {
