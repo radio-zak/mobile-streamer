@@ -7,11 +7,12 @@ class ErrorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: 4.0,
-      color: const Color(0xFF2a2a2a),
-      child: SafeArea(
-        bottom: false,
+    return Padding(
+      padding: const EdgeInsets.only(top: 48, left: 16, right: 16),
+      child: Material(
+        borderRadius: BorderRadius.circular(12.0),
+        elevation: 4.0,
+        color: const Color(0xFF2a2a2a),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           child: Row(
@@ -24,7 +25,7 @@ class ErrorBanner extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      'Brak sieci',
+                      'Błąd połączenia',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,

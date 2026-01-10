@@ -133,7 +133,10 @@ class HomePage extends StatelessWidget {
                 top: 0,
                 left: 0,
                 right: 0,
-                child: ErrorBanner(message: message),
+                child: SafeArea(
+                  bottom: false,
+                  child: ErrorBanner(message: message),
+                ),
               );
             },
           ),
