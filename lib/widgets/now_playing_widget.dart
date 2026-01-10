@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:zakstreamer/now_playing.dart';
 import 'package:zakstreamer/schedule_service.dart';
 import 'package:zakstreamer/service_locator.dart';
@@ -63,8 +64,25 @@ class NowPlayingActiveWidget extends StatelessWidget {
                     ),
                     PopupMenuButton<String>(
                       icon: const Icon(Icons.more_vert, color: Colors.tealAccent),
-                      onSelected: (value) {},
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[],
+                      onSelected: (value) {
+                        if (value == 'report_problem') {
+                          final Uri emailLaunchUri = Uri(
+                            scheme: 'mailto',
+                            path: 'kacper.zielinski@zak.lodz.pl',
+                            query: 'subject=Zgłoszenie problemu z aplikacją radia',
+                          );
+                          launchUrl(emailLaunchUri);
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'report_problem',
+                          child: ListTile(
+                            leading: Icon(Icons.warning),
+                            title: Text('Zgłoś problem'),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -76,7 +94,7 @@ class NowPlayingActiveWidget extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20.0, // Reduced font size
+                        fontSize: 20.0,
                       ),
                 ),
                 if (nowPlaying.hosts.isNotEmpty)
@@ -87,9 +105,10 @@ class NowPlayingActiveWidget extends StatelessWidget {
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: Colors.white70),
                     ),
                   ),
               ],
