@@ -29,6 +29,26 @@ class _StatisticsPageState extends State<StatisticsPage> {
     });
   }
 
+  String _formatTotalTime(int totalSeconds) {
+    final duration = Duration(seconds: totalSeconds);
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+
+    if (hours > 0) {
+      return '$hours godzin $minutes minut';
+    } else {
+      return '$minutes minut';
+    }
+  }
+
+  String _formatInstallDate(DateTime? date) {
+    if (date == null) return 'Brak danych';
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final year = date.year;
+    return '$day.$month.$year';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,9 +60,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Słuchasz Żaka już łącznie: $_totalListeningTime sekund'),
+            Text('Słuchasz Żaka już łącznie: ${_formatTotalTime(_totalListeningTime)}'),
             const SizedBox(height: 16),
-            Text('Data instalacji ŻAK Playera: ${_installDate?.toLocal()?.toString() ?? 'Brak danych'}'),
+            Text('Data instalacji ŻAK Playera: ${_formatInstallDate(_installDate)}'),
           ],
         ),
       ),
