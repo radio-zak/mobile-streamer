@@ -55,16 +55,43 @@ class _StatisticsPageState extends State<StatisticsPage> {
       appBar: AppBar(
         title: const Text('Statystyki'),
       ),
-      body: Padding(
+      body: ListView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Słuchasz Żaka już łącznie: ${_formatTotalTime(_totalListeningTime)}'),
-            const SizedBox(height: 16),
-            Text('Data instalacji ŻAK Playera: ${_formatInstallDate(_installDate)}'),
-          ],
-        ),
+        children: [
+          _StatisticRow(
+            label: 'Słuchasz Żaka już łącznie:',
+            value: _formatTotalTime(_totalListeningTime),
+          ),
+          const Divider(),
+          // TODO: Implement other statistics
+          _StatisticRow(
+            label: 'Data instalacji ŻAK Playera:',
+            value: _formatInstallDate(_installDate),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatisticRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _StatisticRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: textTheme.bodyMedium),
+          const SizedBox(height: 4),
+          Text(value, style: textTheme.headlineSmall),
+        ],
       ),
     );
   }
