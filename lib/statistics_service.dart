@@ -26,6 +26,14 @@ class StatisticsService {
     });
   }
 
+  Future<DateTime?> getInstallDate() {
+    return _repository.getInstallDate();
+  }
+
+  Future<int> getTotalListeningTime() {
+    return _repository.getTotalListeningTime();
+  }
+
   void _startTimer() {
     _timer ??= Timer.periodic(const Duration(seconds: 1), (_) {
       _totalListeningTime++;
