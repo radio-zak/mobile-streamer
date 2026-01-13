@@ -5,6 +5,7 @@ class StatisticsRepository {
   static const _totalListeningTimeKey = 'total_listening_time';
   static const _longestSessionKey = 'longest_session';
   static const _shortestSessionKey = 'shortest_session';
+  static const _weekdayListeningKey = 'weekday_listening';
 
   Future<void> saveInstallDate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -47,5 +48,23 @@ class StatisticsRepository {
   Future<int> getShortestSession() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_shortestSessionKey) ?? 0;
+  }
+
+  Future<void> saveWeekdayListening(Map<int, int> weekdayData) async {
+    final prefs = await SharedPreferences.getInstance();
+    final stringData = weekdayData.map((key, value) => MapEntry(key.toString(), value.toString()));
+    // SharedPreferences doesn't support saving maps directly, so we convert it to a list of strings
+    final list = stringData.entries.map((e) => '${e.key}:${e.value}').toList();
+    await prefs.setStringList(_weekdayListeningKey, list);
+  }
+
+  Future<Map<int, int>> getWeekdayListening() async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_weekdayListeningKey);
+    if (list == null) return {};
+    return Map.fromEntries(list.map((e) {
+      final parts = e.split(':');
+      return MapEntry(int.parse(parts[0]), int.parse(parts[1]));
+    }));
   }
 }
