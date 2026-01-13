@@ -13,6 +13,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
   final StatisticsService _statisticsService = getIt<StatisticsService>();
   DateTime? _installDate;
   int _totalListeningTime = 0;
+  int _longestSession = 0;
+  int _shortestSession = 0;
 
   @override
   void initState() {
@@ -23,13 +25,18 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Future<void> _loadStatistics() async {
     final installDate = await _statisticsService.getInstallDate();
     final totalListeningTime = await _statisticsService.getTotalListeningTime();
+    final longestSession = await _statisticsService.getLongestSession();
+    final shortestSession = await _statisticsService.getShortestSession();
     setState(() {
       _installDate = installDate;
       _totalListeningTime = totalListeningTime;
+      _longestSession = longestSession;
+      _shortestSession = shortestSession;
     });
   }
 
-  String _formatTotalTime(int totalSeconds) {
+  String _formatDuration(int totalSeconds) {
+    if (totalSeconds == 0) return 'Brak danych';
     final duration = Duration(seconds: totalSeconds);
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
@@ -60,10 +67,19 @@ class _StatisticsPageState extends State<StatisticsPage> {
         children: [
           _StatisticRow(
             label: 'Słuchasz Żaka już łącznie:',
-            value: _formatTotalTime(_totalListeningTime),
+            value: _formatDuration(_totalListeningTime),
           ),
           const Divider(),
-          // TODO: Implement other statistics
+          _StatisticRow(
+            label: 'Najdłuższa sesja:',
+            value: _formatDuration(_longestSession),
+          ),
+          const Divider(),
+          _StatisticRow(
+            label: 'Najkrótsza sesja:',
+            value: _formatDuration(_shortestSession),
+          ),
+          const Divider(),
           _StatisticRow(
             label: 'Data instalacji ŻAK Playera:',
             value: _formatInstallDate(_installDate),
