@@ -138,7 +138,7 @@ class HomePage extends StatelessWidget {
               TextButton(
                 child: const Text(
                   'STATYSTYKI',
-                  style: TextStyle(color: Colors.tealAccent),
+                  style: TextStyle(color: Colors.white),
                 ),
                 onPressed: () {
                   Navigator.push(
