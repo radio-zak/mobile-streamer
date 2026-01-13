@@ -17,6 +17,6 @@ Future<void> setupServiceLocator() async {
 
   // Statistics
   getIt.registerLazySingleton<StatisticsRepository>(() => StatisticsRepository());
-  getIt.registerLazySingleton<StatisticsService>(
-      () => StatisticsService(getIt<StatisticsRepository>()));
+  getIt.registerLazySingleton<StatisticsService>(() => StatisticsService(
+      getIt<StatisticsRepository>(), getIt<AudioHandler>()));
 }
