@@ -9,13 +9,25 @@ class StatisticsPage extends StatefulWidget {
   State<StatisticsPage> createState() => _StatisticsPageState();
 }
 
+class _StatisticsData {
+  final DateTime? installDate;
+  final int totalListeningTime;
+  final int longestSession;
+  final int shortestSession;
+  final String mostListenedDay;
+
+  const _StatisticsData({
+    required this.installDate,
+    required this.totalListeningTime,
+    required this.longestSession,
+    required this.shortestSession,
+    required this.mostListenedDay,
+  });
+}
+
 class _StatisticsPageState extends State<StatisticsPage> {
   final StatisticsService _statisticsService = getIt<StatisticsService>();
-  DateTime? _installDate;
-  int _totalListeningTime = 0;
-  int _longestSession = 0;
-  int _shortestSession = 0;
-  String _mostListenedDay = 'Brak danych';
+  _StatisticsData? _data;
 
   @override
   void initState() {
@@ -24,22 +36,28 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   Future<void> _loadStatistics() async {
-    final installDate = await _statisticsService.getInstallDate();
-    final totalListeningTime = await _statisticsService.getTotalListeningTime();
-    final longestSession = await _statisticsService.getLongestSession();
-    final shortestSession = await _statisticsService.getShortestSession();
-    final mostListenedDay = await _statisticsService.getMostListenedDay();
+    final results = await Future.wait([
+      _statisticsService.getInstallDate(),
+      _statisticsService.getTotalListeningTime(),
+      _statisticsService.getLongestSession(),
+      _statisticsService.getShortestSession(),
+      _statisticsService.getMostListenedDay(),
+    ]);
+
+    if (!mounted) return;
+
     setState(() {
-      _installDate = installDate;
-      _totalListeningTime = totalListeningTime;
-      _longestSession = longestSession;
-      _shortestSession = shortestSession;
-      _mostListenedDay = mostListenedDay;
+      _data = _StatisticsData(
+        installDate: results[0] as DateTime?,
+        totalListeningTime: results[1] as int,
+        longestSession: results[2] as int,
+        shortestSession: results[3] as int,
+        mostListenedDay: results[4] as String,
+      );
     });
   }
 
   String _formatDuration(int totalSeconds) {
-    if (totalSeconds == 0) return 'Brak danych';
     final duration = Duration(seconds: totalSeconds);
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
@@ -52,7 +70,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   String _formatInstallDate(DateTime? date) {
-    if (date == null) return 'Brak danych';
+    if (date == null) return '';
     final day = date.day.toString().padLeft(2, '0');
     final month = date.month.toString().padLeft(2, '0');
     final year = date.year;
@@ -65,35 +83,47 @@ class _StatisticsPageState extends State<StatisticsPage> {
       appBar: AppBar(
         title: const Text('Statystyki'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          _StatisticRow(
-            label: 'Słuchasz Żaka już łącznie:',
-            value: _formatDuration(_totalListeningTime),
-          ),
-          const Divider(),
-          _StatisticRow(
-            label: 'Najdłuższa sesja:',
-            value: _formatDuration(_longestSession),
-          ),
-          const Divider(),
-          _StatisticRow(
-            label: 'Najkrótsza sesja:',
-            value: _formatDuration(_shortestSession),
-          ),
-          const Divider(),
-          _StatisticRow(
-            label: 'Dzień, kiedy najczęściej słuchasz Żaka to:',
-            value: _mostListenedDay,
-          ),
-          const Divider(),
-          _StatisticRow(
-            label: 'Data instalacji ŻAK Playera:',
-            value: _formatInstallDate(_installDate),
-          ),
-        ],
-      ),
+      body: _data == null
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: const EdgeInsets.all(16.0),
+              children: [
+                if (_data!.totalListeningTime > 0) ...[
+                  _StatisticRow(
+                    label: 'Słuchasz Żaka już łącznie:',
+                    value: _formatDuration(_data!.totalListeningTime),
+                  ),
+                  const Divider(),
+                ],
+                if (_data!.longestSession > 0) ...[
+                  _StatisticRow(
+                    label: 'Najdłuższa sesja:',
+                    value: _formatDuration(_data!.longestSession),
+                  ),
+                  const Divider(),
+                ],
+                if (_data!.shortestSession > 0) ...[
+                  _StatisticRow(
+                    label: 'Najkrótsza sesja:',
+                    value: _formatDuration(_data!.shortestSession),
+                  ),
+                  const Divider(),
+                ],
+                if (_data!.mostListenedDay != 'Brak danych') ...[
+                  _StatisticRow(
+                    label: 'Dzień, kiedy najczęściej słuchasz Żaka to:',
+                    value: _data!.mostListenedDay,
+                  ),
+                  const Divider(),
+                ],
+                if (_data!.installDate != null) ...[
+                  _StatisticRow(
+                    label: 'Data instalacji ŻAK Playera:',
+                    value: _formatInstallDate(_data!.installDate),
+                  ),
+                ],
+              ],
+            ),
     );
   }
 }

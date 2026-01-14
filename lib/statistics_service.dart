@@ -20,12 +20,12 @@ class StatisticsService {
     _totalListeningTime = await _repository.getTotalListeningTime();
     _weekdayListening = await _repository.getWeekdayListening();
 
-    _audioHandler.playbackState.listen((playbackState) {
+    _audioHandler.playbackState.listen((playbackState) async {
       final isPlaying = playbackState.playing;
       if (isPlaying) {
         _startTimers();
       } else {
-        _stopTimers();
+        await _stopTimers();
       }
     });
   }
@@ -80,12 +80,12 @@ class StatisticsService {
     });
   }
 
-  void _stopTimers() {
+  Future<void> _stopTimers() async {
     _totalTimeTimer?.cancel();
     _totalTimeTimer = null;
     _sessionTimer?.cancel();
     _sessionTimer = null;
-    _updateSessionStats();
+    await _updateSessionStats();
     _currentSessionTime = 0;
   }
 
@@ -95,7 +95,8 @@ class StatisticsService {
   }
 
   Future<void> _updateSessionStats() async {
-    if (_currentSessionTime == 0) return;
+    // Ignore sessions shorter than a minute
+    if (_currentSessionTime < 60) return;
 
     final longestSession = await _repository.getLongestSession();
     if (_currentSessionTime > longestSession) {
@@ -108,9 +109,9 @@ class StatisticsService {
     }
   }
 
-  void dispose() {
-    _stopTimers();
-    _repository.saveTotalListeningTime(_totalListeningTime);
-    _repository.saveWeekdayListening(_weekdayListening);
+  Future<void> dispose() async {
+    await _stopTimers();
+    await _repository.saveTotalListeningTime(_totalListeningTime);
+    await _repository.saveWeekdayListening(_weekdayListening);
   }
 }
