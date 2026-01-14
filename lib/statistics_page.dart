@@ -57,15 +57,27 @@ class _StatisticsPageState extends State<StatisticsPage> {
     });
   }
 
+  String _pluralize(int count, String one, String few, String many) {
+    if (count == 1) return one;
+    if (count % 100 >= 11 && count % 100 <= 19) return many;
+    final lastDigit = count % 10;
+    if (lastDigit >= 2 && lastDigit <= 4) return few;
+    return many;
+  }
+
   String _formatDuration(int totalSeconds) {
     final duration = Duration(seconds: totalSeconds);
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
 
+    final hoursString = '$hours ${_pluralize(hours, 'godzina', 'godziny', 'godzin')}';
+    final minutesString = '$minutes ${_pluralize(minutes, 'minuta', 'minuty', 'minut')}';
+
     if (hours > 0) {
-      return '$hours godzin $minutes minut';
+      if (minutes == 0) return hoursString;
+      return '$hoursString $minutesString';
     } else {
-      return '$minutes minut';
+      return minutesString;
     }
   }
 
