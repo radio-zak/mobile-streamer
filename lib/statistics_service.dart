@@ -11,12 +11,14 @@ class StatisticsService {
   Timer? _sessionTimer;
   int _totalListeningTime = 0;
   int _currentSessionTime = 0;
+  Map<int, int> _weekdayListening = {};
 
   StatisticsService(this._repository, this._audioHandler);
 
   Future<void> init() async {
     await _repository.saveInstallDate();
     _totalListeningTime = await _repository.getTotalListeningTime();
+    _weekdayListening = await _repository.getWeekdayListening();
 
     _audioHandler.playbackState.listen((playbackState) {
       final isPlaying = playbackState.playing;
@@ -44,11 +46,33 @@ class StatisticsService {
     return _repository.getShortestSession();
   }
 
+  Future<String> getMostListenedDay() async {
+    if (_weekdayListening.isEmpty) return 'Brak danych';
+
+    final sortedDays = _weekdayListening.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final mostListenedDayIndex = sortedDays.first.key;
+
+    const days = {
+      1: 'Poniedziałek',
+      2: 'Wtorek',
+      3: 'Środa',
+      4: 'Czwartek',
+      5: 'Piątek',
+      6: 'Sobota',
+      7: 'Niedziela',
+    };
+
+    return days[mostListenedDayIndex] ?? 'Brak danych';
+  }
+
   void _startTimers() {
     _totalTimeTimer ??= Timer.periodic(const Duration(seconds: 1), (_) {
       _totalListeningTime++;
+      _updateWeekdayStats();
       if (_totalListeningTime % 10 == 0) {
         _repository.saveTotalListeningTime(_totalListeningTime);
+        _repository.saveWeekdayListening(_weekdayListening);
       }
     });
     _sessionTimer ??= Timer.periodic(const Duration(seconds: 1), (_) {
@@ -63,6 +87,11 @@ class StatisticsService {
     _sessionTimer = null;
     _updateSessionStats();
     _currentSessionTime = 0;
+  }
+
+  void _updateWeekdayStats() {
+    final today = DateTime.now().weekday;
+    _weekdayListening[today] = (_weekdayListening[today] ?? 0) + 1;
   }
 
   Future<void> _updateSessionStats() async {
@@ -82,5 +111,6 @@ class StatisticsService {
   void dispose() {
     _stopTimers();
     _repository.saveTotalListeningTime(_totalListeningTime);
+    _repository.saveWeekdayListening(_weekdayListening);
   }
 }
