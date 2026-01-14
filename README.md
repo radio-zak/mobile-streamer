@@ -3,12 +3,6 @@
 Simple multi-platform radio streaming app. Uses Flutter with just_audio and just_audio_background libraries.  
 Created for Studenckie Radio ŻAK Politechniki Łódzkiej, therefore appropriate branding is applied. Make sure to remove all associated branding if you wish to use this app as scaffolding for your own projects
 
-## License disclaimer
-
-The code of this project is licensed under AGPLv3, all provisions of this license apply.
-
-Assets like the "88,8MHz" logo and all it's variants are the sole propriety of Technical University of Lodz Student Radio ŻAK and, by extension, of the Technical University of Lodz. Use of this assets in forks or other, here not specified works requires specific permission from the maintainer of this project and from the radio station.
-
 ## Developing
 
 To start contributing to this project:
