@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
+import 'package:zakstreamer/statistics_page.dart';
+import 'package:zakstreamer/statistics_service.dart';
 import 'package:zakstreamer/widgets/play_button.dart';
 import 'package:zakstreamer/widgets/now_playing_widget.dart';
 import 'page_manager.dart';
@@ -71,6 +73,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
   void initState() {
     super.initState();
     getIt<PageManager>().init();
+    getIt<StatisticsService>().init();
     Notifications.requestPermission();
 
     _notificationSubscription = Notifications.onNotificationTapped.stream
@@ -128,6 +131,20 @@ class HomePage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const SchedulePage(),
+                    ),
+                  );
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'STATYSTYKI',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const StatisticsPage(),
                     ),
                   );
                 },
