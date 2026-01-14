@@ -15,6 +15,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   int _totalListeningTime = 0;
   int _longestSession = 0;
   int _shortestSession = 0;
+  String _mostListenedDay = 'Brak danych';
 
   @override
   void initState() {
@@ -27,11 +28,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final totalListeningTime = await _statisticsService.getTotalListeningTime();
     final longestSession = await _statisticsService.getLongestSession();
     final shortestSession = await _statisticsService.getShortestSession();
+    final mostListenedDay = await _statisticsService.getMostListenedDay();
     setState(() {
       _installDate = installDate;
       _totalListeningTime = totalListeningTime;
       _longestSession = longestSession;
       _shortestSession = shortestSession;
+      _mostListenedDay = mostListenedDay;
     });
   }
 
@@ -78,6 +81,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
           _StatisticRow(
             label: 'Najkrótsza sesja:',
             value: _formatDuration(_shortestSession),
+          ),
+          const Divider(),
+          _StatisticRow(
+            label: 'Dzień, kiedy najczęściej słuchasz Żaka to:',
+            value: _mostListenedDay,
           ),
           const Divider(),
           _StatisticRow(
