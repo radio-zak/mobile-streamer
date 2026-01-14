@@ -1,0 +1,117 @@
+import 'dart:async';
+
+import 'package:audio_service/audio_service.dart';
+import 'package:flutter/foundation.dart';
+import 'statistics_repository.dart';
+
+class StatisticsService {
+  final StatisticsRepository _repository;
+  final AudioHandler _audioHandler;
+  Timer? _totalTimeTimer;
+  Timer? _sessionTimer;
+  int _totalListeningTime = 0;
+  int _currentSessionTime = 0;
+  Map<int, int> _weekdayListening = {};
+
+  StatisticsService(this._repository, this._audioHandler);
+
+  Future<void> init() async {
+    await _repository.saveInstallDate();
+    _totalListeningTime = await _repository.getTotalListeningTime();
+    _weekdayListening = await _repository.getWeekdayListening();
+
+    _audioHandler.playbackState.listen((playbackState) async {
+      final isPlaying = playbackState.playing;
+      if (isPlaying) {
+        _startTimers();
+      } else {
+        await _stopTimers();
+      }
+    });
+  }
+
+  Future<DateTime?> getInstallDate() {
+    return _repository.getInstallDate();
+  }
+
+  Future<int> getTotalListeningTime() {
+    return _repository.getTotalListeningTime();
+  }
+
+  Future<int> getLongestSession() {
+    return _repository.getLongestSession();
+  }
+
+  Future<int> getShortestSession() {
+    return _repository.getShortestSession();
+  }
+
+  Future<String> getMostListenedDay() async {
+    if (_weekdayListening.isEmpty) return 'Brak danych';
+
+    final sortedDays = _weekdayListening.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final mostListenedDayIndex = sortedDays.first.key;
+
+    const days = {
+      1: 'Poniedziałek',
+      2: 'Wtorek',
+      3: 'Środa',
+      4: 'Czwartek',
+      5: 'Piątek',
+      6: 'Sobota',
+      7: 'Niedziela',
+    };
+
+    return days[mostListenedDayIndex] ?? 'Brak danych';
+  }
+
+  void _startTimers() {
+    _totalTimeTimer ??= Timer.periodic(const Duration(seconds: 1), (_) {
+      _totalListeningTime++;
+      _updateWeekdayStats();
+      if (_totalListeningTime % 10 == 0) {
+        _repository.saveTotalListeningTime(_totalListeningTime);
+        _repository.saveWeekdayListening(_weekdayListening);
+      }
+    });
+    _sessionTimer ??= Timer.periodic(const Duration(seconds: 1), (_) {
+      _currentSessionTime++;
+    });
+  }
+
+  Future<void> _stopTimers() async {
+    _totalTimeTimer?.cancel();
+    _totalTimeTimer = null;
+    _sessionTimer?.cancel();
+    _sessionTimer = null;
+    await _updateSessionStats();
+    _currentSessionTime = 0;
+  }
+
+  void _updateWeekdayStats() {
+    final today = DateTime.now().weekday;
+    _weekdayListening[today] = (_weekdayListening[today] ?? 0) + 1;
+  }
+
+  Future<void> _updateSessionStats() async {
+    // Ignore sessions shorter than a minute
+    if (_currentSessionTime < 60) return;
+
+    final longestSession = await _repository.getLongestSession();
+    if (_currentSessionTime > longestSession) {
+      await _repository.saveLongestSession(_currentSessionTime);
+    }
+
+    final shortestSession = await _repository.getShortestSession();
+    if (_currentSessionTime < shortestSession || shortestSession == 0) {
+      await _repository.saveShortestSession(_currentSessionTime);
+    }
+  }
+
+  Future<void> dispose() async {
+    await _stopTimers();
+    await _repository.saveTotalListeningTime(_totalListeningTime);
+    await _repository.saveWeekdayListening(_weekdayListening);
+  }
+}
