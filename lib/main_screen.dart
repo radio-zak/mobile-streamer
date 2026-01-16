@@ -13,6 +13,19 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _bottomNavIndex = 0;
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   final List<Widget> _pages = [
     const HomePage(),
@@ -31,7 +44,13 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_bottomNavIndex],
+      body: PageView(
+        controller: _pageController,
+        children: _pages,
+        onPageChanged: (index) {
+          setState(() => _bottomNavIndex = index);
+        },
+      ),
       bottomNavigationBar: AnimatedBottomNavigationBar(
         icons: iconList,
         activeIndex: _bottomNavIndex,
@@ -39,7 +58,13 @@ class _MainScreenState extends State<MainScreen> {
         notchSmoothness: NotchSmoothness.verySmoothEdge,
         leftCornerRadius: 32,
         rightCornerRadius: 32,
-        onTap: (index) => setState(() => _bottomNavIndex = index),
+        onTap: (index) {
+          _pageController.animateToPage(
+            index,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.ease,
+          );
+        },
         backgroundColor: Colors.black,
         activeColor: Colors.tealAccent,
         inactiveColor: Colors.grey,
