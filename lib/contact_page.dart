@@ -24,7 +24,6 @@ class ContactPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kontakt'),
-        backgroundColor: Colors.teal[900],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
