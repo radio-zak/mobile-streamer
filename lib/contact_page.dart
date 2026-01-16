@@ -4,12 +4,18 @@ import 'package:url_launcher/url_launcher.dart';
 class ContactPage extends StatelessWidget {
   const ContactPage({super.key});
 
-  Future<void> _launchUrl(String url) async {
+  Future<void> _launchUrl(BuildContext context, String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
-      // TODO: Handle error
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Nie można otworzyć linku.'),
+          ),
+        );
+      }
     }
   }
 
@@ -27,14 +33,14 @@ class ContactPage extends StatelessWidget {
             icon: Icons.phone,
             label: 'Telefon antenowy',
             value: '(+48 42) 63 13 888',
-            onTap: () => _launchUrl('tel:+48426313888'),
+            onTap: () => _launchUrl(context, 'tel:+48426313888'),
           ),
           const SizedBox(height: 16),
           _ContactInfoTile(
             icon: Icons.email,
             label: 'E-mail',
             value: 'radio@zak.lodz.pl',
-            onTap: () => _launchUrl('mailto:radio@zak.lodz.pl'),
+            onTap: () => _launchUrl(context, 'mailto:radio@zak.lodz.pl'),
           ),
           const Divider(height: 48),
           Padding(
@@ -51,7 +57,7 @@ class ContactPage extends StatelessWidget {
             icon: Icons.phone_in_talk,
             label: 'Redakcja',
             value: '(+48 42) 63 12 844',
-            onTap: () => _launchUrl('tel:+48426312844'),
+            onTap: () => _launchUrl(context, 'tel:+48426312844'),
           ),
         ],
       ),
