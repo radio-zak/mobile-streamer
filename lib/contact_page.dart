@@ -29,17 +29,18 @@ class ContactPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         children: [
           _ContactInfoTile(
-            icon: Icons.phone_in_talk,
-            label: 'Telefony redakcyjne',
-            value: '(+48 42) 63 12 844',
-            onTap: () => _launchUrl(context, 'tel:+48426312844'),
+            icon: Icons.phone_in_talk_rounded,
+            label: 'Telefon antenowy',
+            value: '(+48 42) 63 13 888',
+            onTap: () => _launchUrl(context, 'tel:+48426313888'),
+            isLive: true,
           ),
           const SizedBox(height: 16),
           _ContactInfoTile(
             icon: Icons.phone,
-            label: 'Telefon antenowy',
-            value: '(+48 42) 63 13 888',
-            onTap: () => _launchUrl(context, 'tel:+48426313888'),
+            label: 'Telefony redakcyjne',
+            value: '(+48 42) 63 12 844',
+            onTap: () => _launchUrl(context, 'tel:+48426312844'),
           ),
           const Divider(height: 32),
           _ContactInfoTile(
@@ -65,19 +66,41 @@ class _ContactInfoTile extends StatelessWidget {
   final String label;
   final String? value;
   final VoidCallback onTap;
+  final bool isLive;
 
   const _ContactInfoTile({
     required this.icon,
     required this.label,
     this.value,
     required this.onTap,
+    this.isLive = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: Icon(icon, color: Colors.tealAccent, size: 32),
-      title: Text(label, style: Theme.of(context).textTheme.titleLarge),
+      title: Row(
+        children: [
+          Text(label, style: Theme.of(context).textTheme.titleLarge),
+          if (isLive)
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.red[700],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  'LIVE',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                ),
+              ),
+            ),
+        ],
+      ),
       subtitle: value != null
           ? Text(
               value!,
