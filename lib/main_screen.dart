@@ -41,7 +41,7 @@ class _MainScreenState extends State<MainScreen> {
         rightCornerRadius: 32,
         onTap: (index) => setState(() => _bottomNavIndex = index),
         backgroundColor: Colors.black,
-        activeColor: Colors.white,
+        activeColor: Colors.tealAccent,
         inactiveColor: Colors.grey,
       ),
     );
