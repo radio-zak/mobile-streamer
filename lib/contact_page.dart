@@ -28,6 +28,11 @@ class ContactPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          const Text(
+            'Masz newsa, pytanie lub chcesz się po prostu z nami skontaktować? Użyj jednej z poniższych metod. Czekamy na Twoją wiadomość!',
+            style: TextStyle(fontSize: 16),
+          ),
+          const SizedBox(height: 32),
           _ContactInfoTile(
             icon: Icons.phone_in_talk_rounded,
             label: 'Telefon antenowy',
