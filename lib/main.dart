@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
+import 'package:zakstreamer/main_screen.dart';
 import 'package:zakstreamer/statistics_page.dart';
 import 'package:zakstreamer/statistics_service.dart';
 import 'package:zakstreamer/widgets/play_button.dart';
@@ -100,7 +101,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData.dark(),
-      home: const HomePage(),
+      home: const MainScreen(),
     );
   }
 }
