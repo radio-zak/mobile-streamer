@@ -41,6 +41,12 @@ class ContactPage extends StatelessWidget {
             value: 'radio@zak.lodz.pl',
             onTap: () => _launchUrl(context, 'mailto:radio@zak.lodz.pl'),
           ),
+          const SizedBox(height: 16),
+          _ContactInfoTile(
+            icon: Icons.message,
+            label: 'Napisz przez Messenger',
+            onTap: () => _launchUrl(context, 'http://m.me/studentradiozak'),
+          ),
           const Divider(height: 48),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
@@ -67,13 +73,13 @@ class ContactPage extends StatelessWidget {
 class _ContactInfoTile extends StatelessWidget {
   final IconData icon;
   final String label;
-  final String value;
+  final String? value;
   final VoidCallback onTap;
 
   const _ContactInfoTile({
     required this.icon,
     required this.label,
-    required this.value,
+    this.value,
     required this.onTap,
   });
 
@@ -81,14 +87,16 @@ class _ContactInfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: Icon(icon, color: Colors.tealAccent, size: 32),
-      title: Text(label),
-      subtitle: Text(
-        value,
-        style: Theme.of(context)
-            .textTheme
-            .titleMedium
-            ?.copyWith(color: Colors.white),
-      ),
+      title: Text(label, style: Theme.of(context).textTheme.titleLarge),
+      subtitle: value != null
+          ? Text(
+              value!,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(color: Colors.white70),
+            )
+          : null,
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
     );
