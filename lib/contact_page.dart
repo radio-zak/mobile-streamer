@@ -29,12 +29,19 @@ class ContactPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         children: [
           _ContactInfoTile(
+            icon: Icons.phone_in_talk,
+            label: 'Telefony redakcyjne',
+            value: '(+48 42) 63 12 844',
+            onTap: () => _launchUrl(context, 'tel:+48426312844'),
+          ),
+          const SizedBox(height: 16),
+          _ContactInfoTile(
             icon: Icons.phone,
             label: 'Telefon antenowy',
             value: '(+48 42) 63 13 888',
             onTap: () => _launchUrl(context, 'tel:+48426313888'),
           ),
-          const SizedBox(height: 16),
+          const Divider(height: 32),
           _ContactInfoTile(
             icon: Icons.email,
             label: 'E-mail',
@@ -46,23 +53,6 @@ class ContactPage extends StatelessWidget {
             icon: Icons.message,
             label: 'Napisz przez Messenger',
             onTap: () => _launchUrl(context, 'http://m.me/studentradiozak'),
-          ),
-          const Divider(height: 48),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-            child: Text(
-              'Telefony redakcyjne',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(color: Colors.tealAccent),
-            ),
-          ),
-          _ContactInfoTile(
-            icon: Icons.phone_in_talk,
-            label: 'Redakcja',
-            value: '(+48 42) 63 12 844',
-            onTap: () => _launchUrl(context, 'tel:+48426312844'),
           ),
         ],
       ),
