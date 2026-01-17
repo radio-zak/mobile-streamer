@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
+import 'package:zakstreamer/contact_page.dart';
 import 'package:zakstreamer/widgets/play_button.dart';
 import 'package:zakstreamer/widgets/now_playing_widget.dart';
 import 'page_manager.dart';
@@ -110,7 +111,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 36, horizontal: 12),
+          padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -128,6 +129,20 @@ class HomePage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const SchedulePage(),
+                    ),
+                  );
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'KONTAKT',
+                  style: TextStyle(color: Colors.tealAccent),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ContactPage(),
                     ),
                   );
                 },
