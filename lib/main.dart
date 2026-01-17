@@ -3,10 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
-import 'package:zakstreamer/widgets/play_button.dart';
-import 'package:zakstreamer/widgets/now_playing_widget.dart';
+import 'package:zakstreamer/main_screen.dart';
+import 'package:zakstreamer/statistics_service.dart';
 import 'page_manager.dart';
-import 'schedule_page.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
 import 'notifications.dart';
@@ -71,6 +70,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
   void initState() {
     super.initState();
     getIt<PageManager>().init();
+    getIt<StatisticsService>().init();
     Notifications.requestPermission();
 
     _notificationSubscription = Notifications.onNotificationTapped.stream
@@ -97,45 +97,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData.dark(),
-      home: const HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 36, horizontal: 12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 140, child: NowPlayingWidget()),
-              const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
-              const PlayButton(),
-              TextButton(
-                child: const Text(
-                  'POKAŻ RAMÓWKĘ',
-                  style: TextStyle(color: Colors.tealAccent),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SchedulePage(),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+      home: const MainScreen(),
     );
   }
 }
