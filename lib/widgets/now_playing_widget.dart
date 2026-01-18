@@ -50,18 +50,15 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
               children: [
                 Text(
                   'TERAZ GRAMY',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Colors.tealAccent,
-                    letterSpacing: 1.5,
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   nowPlaying!.title,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 if (nowPlaying.hosts.isNotEmpty)
                   Padding(
@@ -69,9 +66,7 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
                     child: Text(
                       'Prowadzący: ${nowPlaying.hosts}',
                       textAlign: TextAlign.center,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                      style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ),
               ],
