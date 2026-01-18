@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
@@ -96,7 +97,41 @@ class _ZakStreamerState extends State<ZakStreamer> {
     ]);
     return MaterialApp(
       title: 'Żak Streamer',
-      theme: ThemeData.dark(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.tealAccent,
+          surface: Color(0x4A4A4A4A),
+          primary: Color.fromARGB(255, 0, 230, 255),
+          secondary: Color.fromARGB(255, 45, 71, 74),
+          brightness: Brightness.dark,
+        ),
+        textTheme: TextTheme(
+          displayLarge: GoogleFonts.sora(),
+          displayMedium: GoogleFonts.sora(),
+          titleLarge: GoogleFonts.sora(fontWeight: FontWeight.bold),
+          titleMedium: GoogleFonts.sora(fontWeight: FontWeight.bold),
+          titleSmall: GoogleFonts.sora(fontWeight: FontWeight.bold),
+          displaySmall: GoogleFonts.sora(),
+          labelLarge: GoogleFonts.sora(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFBBBBBB),
+          ),
+          labelMedium: GoogleFonts.sora(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFBBBBBB),
+          ),
+          labelSmall: GoogleFonts.sora(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFBBBBBB),
+          ),
+          headlineLarge: GoogleFonts.sora(),
+          headlineMedium: GoogleFonts.sora(),
+          headlineSmall: GoogleFonts.sora(),
+          bodyLarge: GoogleFonts.sora(),
+          bodyMedium: GoogleFonts.sora(),
+          bodySmall: GoogleFonts.sora(),
+        ),
+      ),
       home: const HomePage(),
     );
   }
@@ -116,12 +151,25 @@ class HomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 140, child: NowPlayingWidget()),
-              const Text('Wciśnij Kropkę, aby włączyć alternatywę.'),
+              Text(
+                'Wciśnij Kropkę, aby włączyć alternatywę.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               const PlayButton(),
               TextButton(
-                child: const Text(
-                  'POKAŻ RAMÓWKĘ',
-                  style: TextStyle(color: Colors.tealAccent),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  spacing: 12,
+                  children: [
+                    Icon(Icons.list, size: 36),
+                    Text(
+                      'ZOBACZ RAMÓWKĘ',
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
                 ),
                 onPressed: () {
                   Navigator.push(
