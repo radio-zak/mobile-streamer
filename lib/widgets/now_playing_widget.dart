@@ -43,33 +43,36 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
           transitionBuilder: (Widget child, Animation<double> animation) {
             return FadeTransition(opacity: animation, child: child);
           },
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              key: ValueKey(nowPlaying?.title),
-              children: [
-                Text(
-                  'TERAZ GRAMY',
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  nowPlaying!.title,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                if (nowPlaying.hosts.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
-                    child: Text(
-                      'Prowadzący: ${nowPlaying.hosts}',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.labelLarge,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                key: ValueKey(nowPlaying?.title),
+                children: [
+                  Text(
+                    'TERAZ GRAMY',
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    nowPlaying!.title,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  if (nowPlaying.hosts.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        'Prowadzący: ${nowPlaying.hosts}',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         );
