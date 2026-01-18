@@ -13,18 +13,18 @@ class PlayButton extends StatelessWidget {
       builder: (_, value, __) {
         switch (value) {
           case ButtonState.loading:
-            return const SizedBox(
+            return SizedBox(
               width: 300,
               height: 300,
               child: CircularProgressIndicator(
                 strokeWidth: 15,
                 strokeCap: StrokeCap.round,
-                color: Colors.tealAccent,
+                color: Theme.of(context).colorScheme.primary,
               ),
             );
           case ButtonState.paused:
             return Opacity(
-              opacity: 0.4,
+              opacity: 0.5,
               child: SizedBox(
                 width: 300,
                 height: 300,
@@ -47,9 +47,11 @@ class PlayButton extends StatelessWidget {
                         borderRadius: BorderRadius.circular(255),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.tealAccent.withOpacity(0.5),
-                            blurRadius: 25,
-                            spreadRadius: 5,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withAlpha(164),
+                            blurRadius: 64,
+                            spreadRadius: 0,
                           ),
                         ],
                       ),

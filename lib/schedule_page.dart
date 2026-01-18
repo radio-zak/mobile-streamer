@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'service_locator.dart';
 import 'schedule_service.dart';
+import 'package:zakstreamer/widgets/live_chip.dart';
 
 class SchedulePage extends StatefulWidget {
   const SchedulePage({super.key});
@@ -87,15 +88,23 @@ class _SchedulePageState extends State<SchedulePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ramówka')),
+      appBar: AppBar(
+        toolbarHeight: 80,
+        title: Text(
+          'Ramówka',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+      ),
       body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Colors.tealAccent),
+      return Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.primary,
+        ),
       );
     }
     if (_error != null) {
@@ -105,12 +114,18 @@ class _SchedulePageState extends State<SchedulePage>
           child: Text(
             'Nie udało się załadować ramówki.\nBłąd: $_error',
             textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
       );
     }
     if (_schedule == null || _schedule!.isEmpty) {
-      return const Center(child: Text('Brak danych ramówki.'));
+      return Center(
+        child: Text(
+          'Brak danych ramówki.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      );
     }
 
     final schedule = _schedule!;
@@ -118,17 +133,14 @@ class _SchedulePageState extends State<SchedulePage>
 
     return Column(
       children: [
-        TabBar(
-          tabAlignment: TabAlignment.start,
-          controller: _tabController,
-          isScrollable: true,
-          indicatorColor: Colors.tealAccent,
-          labelStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.tealAccent,
+        Container(
+          color: Theme.of(context).colorScheme.surface,
+          child: TabBar(
+            tabAlignment: TabAlignment.start,
+            controller: _tabController,
+            isScrollable: true,
+            tabs: days.map((day) => Tab(text: day)).toList(),
           ),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
-          tabs: days.map((day) => Tab(text: day)).toList(),
         ),
         Expanded(
           child: TabBarView(
@@ -140,7 +152,8 @@ class _SchedulePageState extends State<SchedulePage>
               return ScrollablePositionedList.separated(
                 itemScrollController: _scrollControllers[dayIndex],
                 itemCount: entries.length,
-                separatorBuilder: (context, index) => const Divider(height: 0),
+                separatorBuilder: (context, index) =>
+                    const Divider(height: 0, color: Color(0xFF888888)),
                 itemBuilder: (context, index) {
                   final entry = entries[index];
                   // The check is now simple and stable, based on pre-calculated state
@@ -149,8 +162,8 @@ class _SchedulePageState extends State<SchedulePage>
 
                   return Container(
                     color: isLiveNow
-                        ? Colors.teal.withOpacity(0.25)
-                        : Colors.transparent,
+                        ? Theme.of(context).colorScheme.primaryFixedDim
+                        : Theme.of(context).colorScheme.surface,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 12,
@@ -161,26 +174,39 @@ class _SchedulePageState extends State<SchedulePage>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+
+                                children: [
+                                  Text(
+                                    '${entry.time}',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleSmall,
+                                  ),
+                                  isLiveNow ? LiveChip() : Container(),
+                                ],
+                              ),
                               Text(
-                                '${entry.time} - ${entry.title}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: isLiveNow
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                ),
+                                '${entry.title}',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineSmall,
                               ),
                               if (entry.hosts.isNotEmpty)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4.0),
                                   child: Text(
                                     'Prowadzący: ${entry.hosts}',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: isLiveNow
-                                          ? Colors.white
-                                          : Colors.white70,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall!
+                                        .copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.tertiary,
+                                        ),
                                   ),
                                 ),
                             ],
