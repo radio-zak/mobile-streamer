@@ -89,6 +89,12 @@ class _ZakStreamerState extends State<ZakStreamer> {
     super.dispose();
   }
 
+  final surfaceColor = Color.fromARGB(255, 34, 34, 34);
+  final primaryColor = Color.fromARGB(255, 0, 230, 255);
+  final primaryDimmedColor = Color.fromARGB(255, 45, 71, 74);
+  final textPrimaryColor = Colors.white;
+  final textGreyedColor = Color(0xFFBBBBBB);
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -98,12 +104,36 @@ class _ZakStreamerState extends State<ZakStreamer> {
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.tealAccent,
-          surface: Color(0x4A4A4A4A),
-          primary: Color.fromARGB(255, 0, 230, 255),
-          secondary: Color.fromARGB(255, 45, 71, 74),
+        appBarTheme: AppBarThemeData(
+          actionsIconTheme: IconThemeData(color: textPrimaryColor),
+          iconTheme: IconThemeData(color: textPrimaryColor),
+          backgroundColor: surfaceColor,
+          foregroundColor: surfaceColor,
+        ),
+        tabBarTheme: TabBarThemeData(
+          indicatorColor: primaryColor,
+          labelStyle: TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.normal,
+          ),
+          labelColor: primaryColor,
+          unselectedLabelStyle: TextStyle(
+            color: textGreyedColor,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+        colorScheme: ColorScheme(
+          surface: surfaceColor,
+          onSurface: textPrimaryColor,
+          primary: primaryColor,
+          onPrimary: textPrimaryColor,
+          secondary: textGreyedColor,
+          onSecondary: textPrimaryColor,
+          primaryFixedDim: primaryDimmedColor,
+          tertiary: textGreyedColor,
           brightness: Brightness.dark,
+          onError: Colors.red,
+          error: Colors.red,
         ),
         textTheme: TextTheme(
           displayLarge: GoogleFonts.sora(),
@@ -114,19 +144,19 @@ class _ZakStreamerState extends State<ZakStreamer> {
           displaySmall: GoogleFonts.sora(),
           labelLarge: GoogleFonts.sora(
             fontWeight: FontWeight.bold,
-            color: Color(0xFFBBBBBB),
+            color: textGreyedColor,
           ),
           labelMedium: GoogleFonts.sora(
             fontWeight: FontWeight.bold,
-            color: Color(0xFFBBBBBB),
+            color: textGreyedColor,
           ),
           labelSmall: GoogleFonts.sora(
             fontWeight: FontWeight.bold,
-            color: Color(0xFFBBBBBB),
+            color: textGreyedColor,
           ),
           headlineLarge: GoogleFonts.sora(),
           headlineMedium: GoogleFonts.sora(),
-          headlineSmall: GoogleFonts.sora(),
+          headlineSmall: GoogleFonts.sora(fontSize: 16),
           bodyLarge: GoogleFonts.sora(),
           bodyMedium: GoogleFonts.sora(),
           bodySmall: GoogleFonts.sora(),
