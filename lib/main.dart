@@ -11,6 +11,7 @@ import 'schedule_page.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
 import 'notifications.dart';
+import 'package:uni_links/uni_links.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +69,7 @@ class ZakStreamer extends StatefulWidget {
 class _ZakStreamerState extends State<ZakStreamer> {
   static const platform = MethodChannel('app.channel.shared.data');
   StreamSubscription? _notificationSubscription;
+  StreamSubscription? _linkSubscription;
 
   @override
   void initState() {
@@ -83,6 +85,28 @@ class _ZakStreamerState extends State<ZakStreamer> {
         });
 
     platform.setMethodCallHandler(_handleMethod);
+    _initUniLinks();
+  }
+
+  Future<void> _initUniLinks() async {
+    try {
+      final initialUri = await getInitialUri();
+      if (initialUri != null && initialUri.scheme == 'zakstreamer' && initialUri.host == 'play') {
+        getIt<PageManager>().play();
+      }
+    } on PlatformException {
+      debugPrint('Failed to get initial uri.');
+    } on FormatException {
+      debugPrint('Bad format in initial uri.');
+    }
+
+    _linkSubscription = uriLinkStream.listen((Uri? uri) {
+    if (uri != null && uri.scheme == 'zakstreamer' && uri.host == 'play') {
+    getIt<PageManager>().play();
+    }
+    }, onError: (err) {
+    debugPrint('uriLinkStream error: $err');
+    });
   }
 
   Future<dynamic> _handleMethod(MethodCall call) async {
@@ -99,6 +123,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
   @override
   void dispose() {
     _notificationSubscription?.cancel();
+    _linkSubscription?.cancel();
     getIt<PageManager>().dispose();
     super.dispose();
   }

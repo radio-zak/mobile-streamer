@@ -4,6 +4,13 @@
     <!-- The "PLAY_MUSIC" BII can be used to start music playback. -->
     <action intentName="actions.intent.PLAY_MUSIC">
         <!-- The fulfillment specifies the deep link to be triggered. -->
-        <fulfillment urlTemplate="https://zak.lodz.pl/play" />
+        <fulfillment urlTemplate="zakstreamer://play" />
+
+        <!-- Define our station as a specific entity to help the Assistant -->
+        <entity-set entity-class="music.Artist">
+             <entity
+                identifier="RADIO_ZAK"
+                name="radio żak|żak|zak|zaka|żaka|żak streamer" />
+        </entity-set>
     </action>
 </actions>
