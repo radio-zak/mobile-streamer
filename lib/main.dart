@@ -97,10 +97,6 @@ class _ZakStreamerState extends State<ZakStreamer> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData(
@@ -176,41 +172,101 @@ class HomePage extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 36, horizontal: 12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 140, child: NowPlayingWidget()),
-              Text(
-                'Wciśnij Kropkę, aby włączyć alternatywę.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const PlayButton(),
-              TextButton(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  spacing: 12,
-                  children: [
-                    Icon(Icons.list, size: 36),
-                    Text(
-                      'ZOBACZ RAMÓWKĘ',
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SchedulePage(),
-                    ),
-                  );
-                },
-              ),
-            ],
+          child: OrientationBuilder(
+            builder: (context, orientation) {
+              return orientation == Orientation.portrait
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const SizedBox(height: 140, child: NowPlayingWidget()),
+                        Text(
+                          'Wciśnij Kropkę, aby włączyć alternatywę.',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const PlayButton(),
+                        TextButton(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            spacing: 12,
+                            children: [
+                              Icon(Icons.list, size: 36),
+                              Text(
+                                'ZOBACZ RAMÓWKĘ',
+                                style: Theme.of(context).textTheme.titleMedium!
+                                    .copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    ),
+                              ),
+                            ],
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SchedulePage(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            const SizedBox(
+                              height: 140,
+                              child: NowPlayingWidget(),
+                            ),
+                            Text(
+                              'Wciśnij Kropkę, aby włączyć alternatywę.',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            TextButton(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                spacing: 12,
+                                children: [
+                                  Icon(Icons.list, size: 36),
+                                  Text(
+                                    'ZOBACZ RAMÓWKĘ',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium!
+                                        .copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SchedulePage(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [const PlayButton()],
+                        ),
+                      ],
+                    );
+            },
           ),
         ),
       ),
