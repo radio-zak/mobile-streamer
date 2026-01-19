@@ -46,3 +46,5 @@ app.*.map.json
 
 *.secret.json
 .secrets
+.env
+.env.*
