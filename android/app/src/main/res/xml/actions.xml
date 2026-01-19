@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file is used to declare capabilities for App Actions. -->
+<actions>
+    <!-- The "PLAY_MUSIC" BII can be used to start music playback. -->
+    <action intentName="actions.intent.PLAY_MUSIC">
+        <!-- The fulfillment specifies the deep link to be triggered. -->
+        <fulfillment urlTemplate="https://zak.lodz.pl/play" />
+    </action>
+</actions>
