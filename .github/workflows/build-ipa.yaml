@@ -13,7 +13,7 @@ on:
 
 env:
   FLUTTER_CHANNEL: "stable"
-  RUBY_VERSION: "3.3.10"
+  RUBY_VERSION: "4.0.1"
   ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
   ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
   ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
@@ -40,9 +40,11 @@ jobs:
           ruby-version: ${{ env.RUBY_VERSION }}
           bundler-cache: true
 
-      - name: Bundle install Gemfile 
+      - name: Bundle install Gemfile and Podfile
         timeout-minutes: 5
-        run: bundle install 
+        run: |
+          bundle install 
+          bundle exec pod install
         working-directory: ios
 
       - name: Run Flutter tasks
