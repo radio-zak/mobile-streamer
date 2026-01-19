@@ -40,11 +40,10 @@ jobs:
           ruby-version: ${{ env.RUBY_VERSION }}
           bundler-cache: true
 
-      - name: Bundle install Gemfile and Podfile
+      - name: Bundle install Gemfile 
         timeout-minutes: 5
         run: |
           bundle install 
-          bundle exec pod install
         working-directory: ios
 
       - name: Run Flutter tasks
@@ -60,6 +59,10 @@ jobs:
 
       - name: Fetch deps
         run: flutter pub get
+
+      - name: Run pod install 
+        run: bundle exec pod install 
+        working-directory: ios
 
       - name: Build and push to TestFlight
         run: |
