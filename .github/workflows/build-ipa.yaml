@@ -1,0 +1,90 @@
+on:
+  push:
+    tags:
+      - "**-alpha*"
+    paths-ignore:
+      - CHANGELOG.md
+      - LICENSE
+      - README.md
+      - cliff.toml
+      - .gitignore
+      - .github/**
+      - .vscode/**
+
+env:
+  FLUTTER_CHANNEL: "stable"
+  RUBY_VERSION: "3.3.10"
+  ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+  ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+  ASC_KEY_P8: $ {{ secrets.ASC_KEY_P8 }}
+  MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+
+jobs:
+  build_aab:
+    name: Build iOS test release
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+
+      - name: Bundle install Gemfile 
+        timeout-minutes: 5
+        run: bundle install 
+        working-directory: ios
+
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          flutter-version-file: "pubspec.yaml"
+
+      - name: Generate version code
+        id: version-code
+        run: |
+          echo -n "code=$(git rev-list --count ${{ github.ref }})" >> $GITHUB_OUTPUT
+
+      - name: Fetch deps
+        run: flutter pub get
+
+      - name: Build app
+        run: |
+          echo "Building application with version name ${{ github.ref_name }} and version code ${{ steps.version-code.outputs.code }}"
+          flutter build ipa --build-name ${{ github.ref_name }} --build-number ${{ steps.version-code.outputs.code }}
+
+      - name: Push to TestFlight
+        run: |
+          bundle exec fastlane alpha
+        working-directory: ios
+
+      - uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --output CHANGELOG.md
+
+      - uses: ncipollo/release-action@v1
+        with:
+          bodyFile: "CHANGELOG.md"
+          draft: true
+          prerelease: true
+
+      - uses: ryancyq/github-signed-commit@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
+        with:
+          files: CHANGELOG.md
+          commit-message: "docs: update CHANGELOG.md"
+          branch-name: main

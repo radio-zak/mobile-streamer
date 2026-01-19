@@ -11,8 +11,11 @@ class Notifications {
   static Future<void> init() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/launcher_icon');
-    const InitializationSettings initializationSettings = InitializationSettings(
+    final DarwinInitializationSettings initializationSettingsDarwin = 
+        DarwinInitializationSettings(requestSoundPermission: true, requestBadgePermission: true, requestAlertPermission: true);
+    final InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin
     );
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,

@@ -1,0 +1,47 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  before_all do 
+    setup_ci
+    load_asc_api_token
+  end 
+
+  lane :load_asc_api_token do
+    app_store_connect_api_key(
+     key_id: ENV["ASC_KEY_ID"],
+     issuer_id: ENV["ASC_ISSUER_ID"],
+     key_content: ENV["ASC_KEY_P8"],
+     is_key_content_base64: true,
+     in_house: false,
+    )
+  end
+
+  lane :alpha do 
+    api_key = lane_context[SharedValues::APP_STORE_CONNECT_API_KEY]
+    sync_code_signing(
+     api_key: api_key,
+     type: "appstore",
+     readonly: true,
+    )
+    build_app(
+      skip_build_archive: true,
+      archive_path: "../build/ios/archive/Runner.xcarchive",
+    )
+    upload_to_testflight(api_key: api_key)
+  end
+end
