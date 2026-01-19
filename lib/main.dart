@@ -66,6 +66,7 @@ class ZakStreamer extends StatefulWidget {
 }
 
 class _ZakStreamerState extends State<ZakStreamer> {
+  static const platform = MethodChannel('app.channel.shared.data');
   StreamSubscription? _notificationSubscription;
 
   @override
@@ -80,6 +81,19 @@ class _ZakStreamerState extends State<ZakStreamer> {
             getIt<PageManager>().play();
           }
         });
+
+    platform.setMethodCallHandler(_handleMethod);
+  }
+
+  Future<dynamic> _handleMethod(MethodCall call) async {
+    switch (call.method) {
+      case 'play':
+        getIt<PageManager>().play();
+        break;
+      default:
+        // ignore: avoid_print
+        print('Unknown method ${call.method}');
+    }
   }
 
   @override
