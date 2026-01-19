@@ -1,3 +1,5 @@
+name: Build alpha IPA
+
 on:
   push:
     tags:
@@ -68,23 +70,3 @@ jobs:
         run: |
           bundle exec fastlane alpha version_name:"${{ github.ref_name }}" version_code:${{ steps.version-code.outputs.code }}
         working-directory: ios
-
-      - uses: orhun/git-cliff-action@v4
-        with:
-          config: cliff.toml
-          args: --output CHANGELOG.md
-
-      - uses: ncipollo/release-action@v1
-        with:
-          bodyFile: "CHANGELOG.md"
-          draft: true
-          prerelease: true
-
-      - uses: ryancyq/github-signed-commit@v1
-        env:
-          GH_TOKEN: ${{ github.token }}
-        continue-on-error: true
-        with:
-          files: CHANGELOG.md
-          commit-message: "docs: update CHANGELOG.md"
-          branch-name: main
