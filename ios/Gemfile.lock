@@ -249,6 +249,7 @@ GEM
       ffi
     optparse (0.8.1)
     os (1.1.4)
+    ostruct (0.6.3)
     plist (3.7.2)
     prism (1.8.0)
     public_suffix (4.0.7)
@@ -313,6 +314,7 @@ DEPENDENCIES
   cocoapods (~> 1.16.2)
   cocoapods-keys
   fastlane
+  ostruct
 
 CHECKSUMS
   CFPropertyList (3.0.8) sha256=2c99d0d980536d3d7ab252f7bd59ac8be50fbdd1ff487c98c949bb66bb114261
@@ -409,6 +411,7 @@ CHECKSUMS
   og-corefoundation (0.2.3) sha256=084eac2c8bcd87f6c49c51b709bde798845fe71caed8a95529be8bb4f208bf76
   optparse (0.8.1) sha256=42bea10d53907ccff4f080a69991441d611fbf8733b60ed1ce9ee365ce03bd1a
   os (1.1.4) sha256=57816d6a334e7bd6aed048f4b0308226c5fb027433b67d90a9ab435f35108d3f
+  ostruct (0.6.3) sha256=95a2ed4a4bd1d190784e666b47b2d3f078e4a9efda2fccf18f84ddc6538ed912
   plist (3.7.2) sha256=d37a4527cc1116064393df4b40e1dbbc94c65fa9ca2eec52edf9a13616718a42
   prism (1.8.0) sha256=84453a16ef5530ea62c5f03ec16b52a459575ad4e7b9c2b360fd8ce2c39c1254
   public_suffix (4.0.7) sha256=8be161e2421f8d45b0098c042c06486789731ea93dc3a896d30554ee38b573b8
