@@ -77,11 +77,12 @@ platform :ios do
   end
 
   lane :production do |options|
-    build_number = options[:version_code]
+    api_key = lane_context[SharedValues::APP_STORE_CONNECT_API_KEY]
     deliver(
-      build_number: build_number,
+      app_version: options[:app_version],
+      api_key: api_key,
       submit_for_review: false, 
-      automatic_release: true,
+      automatic_release: false,
       skip_metadata: true,
       skip_screenshots: true,
       skip_binary_upload: true
