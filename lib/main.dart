@@ -126,7 +126,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
           primaryFixedDim: primaryDimmedColor,
           tertiary: textGreyedColor,
           brightness: Brightness.dark,
-          onError: Colors.red,
+          onError: textPrimaryColor,
           error: Colors.red,
         ),
         textTheme: TextTheme(
