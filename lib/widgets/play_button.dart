@@ -4,13 +4,13 @@ import 'package:zakstreamer/service_locator.dart';
 import 'package:simple_animations/animation_builder/custom_animation_builder.dart';
 
 class PlayButton extends StatelessWidget {
-  const PlayButton({Key? key}) : super(key: key);
+  const PlayButton({super.key});
   @override
   Widget build(BuildContext context) {
     final pageManager = getIt<PageManager>();
     return ValueListenableBuilder<ButtonState>(
       valueListenable: pageManager.playButtonNotifier,
-      builder: (_, value, __) {
+      builder: (_, value, _) {
         switch (value) {
           case ButtonState.loading:
             return SizedBox(

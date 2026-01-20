@@ -40,9 +40,9 @@ class Streamer extends BaseAudioHandler {
     mediaItem.add(getMediaItem[0]);
 
     _audioPlayer.errorStream.listen((PlayerException e) async {
-      if (_bufferingErrorActive)
+      if (_bufferingErrorActive) {
         return; // Ignore if a buffering error is already active
-
+      }
       log.severe('PlayerException code: ${e.code}, message: ${e.message}');
       _isConnecting = false;
       _connectionTimer?.cancel();
