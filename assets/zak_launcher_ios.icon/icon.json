@@ -4,7 +4,7 @@
     {
       "layers" : [
         {
-          "glass" : true,
+          "glass" : false,
           "image-name" : "zak-kropka-niebieska-biale.png",
           "name" : "zak-kropka-niebieska-biale",
           "position" : {
