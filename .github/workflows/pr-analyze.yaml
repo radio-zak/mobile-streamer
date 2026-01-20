@@ -144,6 +144,7 @@ jobs:
     needs: preflight
     env:
       RUBY_VERSION: "4.0.1"
+      XCODE_VERSION: "26.2"
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
@@ -155,6 +156,12 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
+      - name: Select Xcode version
+        run: sudo xcode-select -switch /Applications/Xcode_$XCODE_VERSION.app
+
+      - name: Check Xcode version
+        run: /usr/bin/xcodebuild -version
 
       - name: Setup SSH key
         uses: webfactory/ssh-agent@v0.9.1
