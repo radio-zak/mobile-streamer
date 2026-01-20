@@ -4,13 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
-import 'package:zakstreamer/widgets/play_button.dart';
-import 'package:zakstreamer/widgets/now_playing_widget.dart';
 import 'page_manager.dart';
-import 'schedule_page.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
 import 'notifications.dart';
+import 'package:zakstreamer/pages/home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -159,117 +157,6 @@ class _ZakStreamerState extends State<ZakStreamer> {
         ),
       ),
       home: const HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 36, horizontal: 12),
-          child: OrientationBuilder(
-            builder: (context, orientation) {
-              return orientation == Orientation.portrait
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        const SizedBox(height: 140, child: NowPlayingWidget()),
-                        Text(
-                          'Wciśnij Kropkę, aby włączyć alternatywę.',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const PlayButton(),
-                        TextButton(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            spacing: 12,
-                            children: [
-                              Icon(Icons.list, size: 36),
-                              Text(
-                                'ZOBACZ RAMÓWKĘ',
-                                style: Theme.of(context).textTheme.titleMedium!
-                                    .copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                    ),
-                              ),
-                            ],
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SchedulePage(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            const SizedBox(
-                              height: 140,
-                              child: NowPlayingWidget(),
-                            ),
-                            Text(
-                              'Wciśnij Kropkę, aby włączyć alternatywę.',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            TextButton(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                spacing: 12,
-                                children: [
-                                  Icon(Icons.list, size: 36),
-                                  Text(
-                                    'ZOBACZ RAMÓWKĘ',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium!
-                                        .copyWith(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.primary,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SchedulePage(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [const PlayButton()],
-                        ),
-                      ],
-                    );
-            },
-          ),
-        ),
-      ),
     );
   }
 }
