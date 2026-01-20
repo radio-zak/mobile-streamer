@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'service_locator.dart';
-import 'schedule_service.dart';
-import 'package:zakstreamer/widgets/live_chip.dart';
+import 'package:zakstreamer/service_locator.dart';
+import 'package:zakstreamer/schedule_service.dart';
+import 'package:zakstreamer/widgets/schedule_list_entry.dart';
+import 'package:logging/logging.dart';
 
 class SchedulePage extends StatefulWidget {
   const SchedulePage({super.key});
@@ -17,6 +18,8 @@ class _SchedulePageState extends State<SchedulePage>
   Map<String, List<ScheduleEntry>>? _schedule;
   Object? _error;
   bool _isLoading = true;
+
+  final log = Logger('Main');
 
   TabController? _tabController;
   final List<ItemScrollController> _scrollControllers = List.generate(
@@ -70,7 +73,7 @@ class _SchedulePageState extends State<SchedulePage>
         }
       });
     } catch (e, stackTrace) {
-      print('Error fetching schedule: $e\n$stackTrace');
+      log.severe('Error fetching schedule: $e\n$stackTrace');
       if (!mounted) return;
       setState(() {
         _error = e;
@@ -153,67 +156,18 @@ class _SchedulePageState extends State<SchedulePage>
                 itemScrollController: _scrollControllers[dayIndex],
                 itemCount: entries.length,
                 separatorBuilder: (context, index) =>
-                    const Divider(height: 0, color: Color(0xFF888888)),
+                    const Divider(height: 1, color: Color(0xFF888888)),
                 itemBuilder: (context, index) {
                   final entry = entries[index];
                   // The check is now simple and stable, based on pre-calculated state
                   final bool isLiveNow =
                       (dayIndex == _liveDayIndex && index == _liveShowIndex);
 
-                  return Container(
-                    color: isLiveNow
-                        ? Theme.of(context).colorScheme.primaryFixedDim
-                        : Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-
-                                children: [
-                                  Text(
-                                    '${entry.time}',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleSmall,
-                                  ),
-                                  isLiveNow ? LiveChip() : Container(),
-                                ],
-                              ),
-                              Text(
-                                '${entry.title}',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineSmall,
-                              ),
-                              if (entry.hosts.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 4.0),
-                                  child: Text(
-                                    'Prowadzący: ${entry.hosts}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall!
-                                        .copyWith(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.tertiary,
-                                        ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  return ScheduleListEntry(
+                    isLiveNow: isLiveNow,
+                    entryTime: entry.time,
+                    entryTitle: entry.title,
+                    entryHosts: entry.hosts,
                   );
                 },
               );
