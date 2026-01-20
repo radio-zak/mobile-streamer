@@ -28,18 +28,17 @@ class ErrorBanner extends StatelessWidget {
                   children: [
                     Text(
                       'Błąd połączenia',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                      style: theme.textTheme.titleSmall!.copyWith(
                         color: theme.colorScheme.onError,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       message,
-                      style: TextStyle(
-                          color: theme.colorScheme.onError.withOpacity(0.8),
-                          fontSize: 14),
+                      style: theme.textTheme.bodySmall!.copyWith(
+                        color: theme.colorScheme.onError,
+                        fontSize: 14,
+                      ),
                     ),
                   ],
                 ),
