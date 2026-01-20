@@ -2,7 +2,7 @@ name: Generate changelog for alpha version
 
 on:
   workflow_dispatch:
-  workflow_call:
+  workflow_run:
     workflows:
       - Build alpha AAB 
     types:
