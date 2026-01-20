@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ErrorBanner extends StatelessWidget {
-  const ErrorBanner({Key? key, required this.message}) : super(key: key);
+  const ErrorBanner({super.key, required this.message});
 
   final String message;
 
@@ -18,8 +18,11 @@ class ErrorBanner extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           child: Row(
             children: [
-              Icon(Icons.signal_wifi_off_rounded,
-                  color: theme.colorScheme.onError, size: 36),
+              Icon(
+                Icons.signal_wifi_off_rounded,
+                color: theme.colorScheme.onError,
+                size: 36,
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
