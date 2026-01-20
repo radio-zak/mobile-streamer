@@ -3,8 +3,22 @@ name: Test PR
 on:
   pull_request:
     branches: [main]
+    paths-ignore:
+      - .vscode/**
+      - CHANGELOG.md
+      - LICENSE
+      - README.md
+      - cliff.toml
+      - .gitignore
   push:
     branches: [main]
+    paths-ignore:
+      - .vscode/**
+      - CHANGELOG.md
+      - LICENSE
+      - README.md
+      - cliff.toml
+      - .gitignore
 
 env:
   FLUTTER_CHANNEL: "stable"
