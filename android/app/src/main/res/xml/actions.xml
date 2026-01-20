@@ -7,8 +7,26 @@
         <fulfillment urlTemplate="zakstreamer://play" />
 
         <!-- Define our station as a specific entity to help the Assistant -->
-        <entity-set entity-class="music.Artist">
+        <entity-set entity-class="music.RadioStation">
              <entity
+                identifier="RADIO_ZAK"
+                name="radio żak|żak|zak|zaka|żaka|żak streamer" />
+        </entity-set>
+    </action>
+
+    <!-- The "TUNE_TO" BII is more specific for radio stations. -->
+    <action intentName="actions.intent.TUNE_TO">
+        <fulfillment urlTemplate="zakstreamer://play" />
+        <entity-set entity-class="music.RadioStation">
+             <entity
+                identifier="RADIO_ZAK"
+                name="radio żak|żak|zak|zaka|żaka|żak streamer" />
+        </entity-set>
+    </action>
+    <action intentName="actions.intent.OPEN_APP_FEATURE">
+        <fulfillment urlTemplate="zakstreamer://play" />
+        <entity-set entity-class="music.RadioStation">
+            <entity
                 identifier="RADIO_ZAK"
                 name="radio żak|żak|zak|zaka|żaka|żak streamer" />
         </entity-set>
