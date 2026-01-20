@@ -9,14 +9,14 @@ on:
       - completed 
    
 jobs:
-  name: alpha-changelogs
-  runs-on: ubuntu-latest
-  if: ${{ github.event.workflow_run.conclusion == 'success' }}
-  steps:
+  alpha-changelogs:
+    name: Generate alpha changelog
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
       - uses: actions/checkout@v6 
         with:
           fetch-depth: 0 
-          ref: 'main'
 
       - uses: orhun/git-cliff-action@v4
         with:
@@ -28,11 +28,3 @@ jobs:
           bodyFile: "CHANGELOG.md"
           draft: true
           prerelease: true
-
-      - uses: ryancyq/github-signed-commit@v1
-        env:
-          GH_TOKEN: ${{ github.token }}
-        with:
-          files: CHANGELOG.md
-          commit-message: "docs: update CHANGELOG.md"
-          branch-name: main
