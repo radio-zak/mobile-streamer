@@ -12,7 +12,7 @@ class NowPlayingWidget extends StatelessWidget {
 
     return ValueListenableBuilder<NowPlayingState>(
       valueListenable: pageManager.nowPlayingNotifier,
-      builder: (_, nowPlaying, __) {
+      builder: (_, nowPlaying, _) {
         switch (nowPlaying) {
           case NowPlayingState.loading:
             return Center(
@@ -39,7 +39,7 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
 
     return ValueListenableBuilder<ScheduleEntry?>(
       valueListenable: pageManager.nowPlayingContents,
-      builder: (_, nowPlaying, __) {
+      builder: (_, nowPlaying, _) {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 750),
           transitionBuilder: (Widget child, Animation<double> animation) {
