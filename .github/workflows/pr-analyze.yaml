@@ -48,6 +48,7 @@ jobs:
   preflight:
     name: Generate tags
     runs-on: ubuntu-latest
+    needs: lint
     steps:
       - uses: actions/checkout@v6
         with:
