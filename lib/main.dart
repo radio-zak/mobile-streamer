@@ -13,6 +13,9 @@ import 'package:flutter/services.dart';
 import 'notifications.dart';
 import 'package:uni_links/uni_links.dart';
 
+// Global navigation key
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final log = Logger('Main');
@@ -88,12 +91,22 @@ class _ZakStreamerState extends State<ZakStreamer> {
     _initUniLinks();
   }
 
+  Future<void> _handleLink(Uri? uri) async {
+    if (uri == null) return;
+
+    if (uri.scheme == 'zakstreamer' && uri.host == 'play') {
+      getIt<PageManager>().play();
+    } else if (uri.scheme == 'zakstreamer' && uri.host == 'schedule') {
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (context) => const SchedulePage()),
+      );
+    }
+  }
+
   Future<void> _initUniLinks() async {
     try {
       final initialUri = await getInitialUri();
-      if (initialUri != null && initialUri.scheme == 'zakstreamer' && initialUri.host == 'play') {
-        getIt<PageManager>().play();
-      }
+      _handleLink(initialUri);
     } on PlatformException {
       debugPrint('Failed to get initial uri.');
     } on FormatException {
@@ -101,9 +114,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
     }
 
     _linkSubscription = uriLinkStream.listen((Uri? uri) {
-    if (uri != null && uri.scheme == 'zakstreamer' && uri.host == 'play') {
-    getIt<PageManager>().play();
-    }
+      _handleLink(uri);
     }, onError: (err) {
     debugPrint('uriLinkStream error: $err');
     });
@@ -137,6 +148,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey, // Set the navigator key
       title: 'Żak Streamer',
       theme: ThemeData(
         appBarTheme: AppBarThemeData(

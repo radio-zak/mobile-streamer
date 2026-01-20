@@ -9,7 +9,7 @@
         android:shortcutLongLabel="@string/shortcut_play_long">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="com.zak.streamer"
+            android:targetPackage="com.srzak.zakstreamer"
             android:targetClass="com.ryanheise.audioservice.AudioServiceActivity"
             android:data="zakstreamer://play"/>
         <categories android:name="android.shortcut.conversation" />
@@ -23,7 +23,7 @@
         android:shortcutLongLabel="@string/shortcut_schedule_long">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="com.zak.streamer"
+            android:targetPackage="com.srzak.zakstreamer"
             android:targetClass="com.ryanheise.audioservice.AudioServiceActivity"
             android:data="zakstreamer://schedule"/>
         <categories android:name="android.shortcut.conversation" />
