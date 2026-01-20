@@ -1,0 +1,165 @@
+name: Test PR
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  FLUTTER_CHANNEL: "stable"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          flutter-version-file: "pubspec.yaml"
+
+      - name: Install deps
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze code
+        run: dart analyze
+
+  preflight:
+    name: Generate tags
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Generate version code
+        id: version-code
+        run: |
+          echo -n "code=$(git rev-list --count ${{ github.ref }})" >> $GITHUB_OUTPUT
+          echo -n "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+
+  build_aab:
+    name: Build AAB
+    runs-on: ubuntu-latest
+    needs: preflight
+    env:
+      VERSION_NAME: ${{ needs.preflight.outputs.tag }}
+      VERSION_CODE: ${{ needs.preflight.outputs.code }}
+      RUBY_VERSION: "3.3.10"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+          working-directory: "android"
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "22"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          log-accepted-android-sdk-licenses: false
+
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          flutter-version-file: "pubspec.yaml"
+
+      - name: Create service account json
+        run: |
+          echo -n "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" | base64 --decode > android/zak-streamer.secret.json
+
+      - name: Create keystore.jks
+        run: |
+          echo -n "${{ secrets.ANDROID_SIGNING_KEY }}" | base64 --decode > android/keystore.jks
+
+      - name: Create key.properties
+        run: |
+          cat <<EOF > android/key.properties 
+          storePassword=${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+          keyAlias=upload
+          storeFile=../keystore.jks
+          EOF
+
+      - name: Fetch deps
+        run: flutter pub get
+
+      - name: Check flutter environment
+        run: flutter --version
+
+      - name: Build app
+        run: |
+          echo "Building application with version name $VERSION_NAME and version code $VERSION_CODE"
+          flutter build appbundle --build-name $VERSION_NAME --build-number $VERSION_CODE
+
+  build_ipa:
+    name: Build iOS test release
+    runs-on: macos-latest
+    needs: preflight
+    env:
+      RUBY_VERSION: "4.0.1"
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      VERSION_NAME: ${{ needs.preflight.outputs.tag }}
+      VERSION_CODE: ${{ needs.preflight.outputs.code }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+          bundler-cache: true
+
+      - name: Bundle install Gemfile
+        timeout-minutes: 5
+        run: |
+          bundle install
+        working-directory: ios
+
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          flutter-version-file: "pubspec.yaml"
+
+      - name: Fetch deps
+        run: flutter pub get
+
+      - name: Run pod install
+        run: bundle exec pod install
+        working-directory: ios
+
+      - name: Build
+        run: |
+          bundle exec fastlane alpha version_name:"$VERSION_NAME" version_code:$VERSION_CODE
+        working-directory: ios
