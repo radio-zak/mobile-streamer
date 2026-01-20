@@ -11,6 +11,10 @@ import 'schedule_page.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
 import 'notifications.dart';
+import 'package:uni_links/uni_links.dart';
+
+// Global navigation key
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,7 +70,9 @@ class ZakStreamer extends StatefulWidget {
 }
 
 class _ZakStreamerState extends State<ZakStreamer> {
+  static const platform = MethodChannel('app.channel.shared.data');
   StreamSubscription? _notificationSubscription;
+  StreamSubscription? _linkSubscription;
 
   @override
   void initState() {
@@ -80,11 +86,55 @@ class _ZakStreamerState extends State<ZakStreamer> {
             getIt<PageManager>().play();
           }
         });
+
+    platform.setMethodCallHandler(_handleMethod);
+    _initUniLinks();
+  }
+
+  Future<void> _handleLink(Uri? uri) async {
+    if (uri == null) return;
+
+    if (uri.scheme == 'zakstreamer' && uri.host == 'play') {
+      getIt<PageManager>().play();
+    } else if (uri.scheme == 'zakstreamer' && uri.host == 'schedule') {
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (context) => const SchedulePage()),
+      );
+    }
+  }
+
+  Future<void> _initUniLinks() async {
+    try {
+      final initialUri = await getInitialUri();
+      _handleLink(initialUri);
+    } on PlatformException {
+      debugPrint('Failed to get initial uri.');
+    } on FormatException {
+      debugPrint('Bad format in initial uri.');
+    }
+
+    _linkSubscription = uriLinkStream.listen((Uri? uri) {
+      _handleLink(uri);
+    }, onError: (err) {
+    debugPrint('uriLinkStream error: $err');
+    });
+  }
+
+  Future<dynamic> _handleMethod(MethodCall call) async {
+    switch (call.method) {
+      case 'play':
+        getIt<PageManager>().play();
+        break;
+      default:
+        // ignore: avoid_print
+        print('Unknown method ${call.method}');
+    }
   }
 
   @override
   void dispose() {
     _notificationSubscription?.cancel();
+    _linkSubscription?.cancel();
     getIt<PageManager>().dispose();
     super.dispose();
   }
@@ -98,6 +148,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey, // Set the navigator key
       title: 'Żak Streamer',
       theme: ThemeData(
         appBarTheme: AppBarThemeData(

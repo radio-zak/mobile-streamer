@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shortcut_play_short">Stream</string>
+    <string name="shortcut_play_long">Uruchom stream</string>
+    <string name="shortcut_schedule_short">Ramówka</string>
+    <string name="shortcut_schedule_long">Zobacz ramówkę</string>
+</resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:shortcutId="play_stream"
+        android:enabled="true"
+        android:icon="@drawable/ic_play_arrow"
+        android:shortcutShortLabel="@string/shortcut_play_short"
+        android:shortcutLongLabel="@string/shortcut_play_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.srzak.zakstreamer"
+            android:targetClass="com.ryanheise.audioservice.AudioServiceActivity"
+            android:data="zakstreamer://play"/>
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="open_schedule"
+        android:enabled="true"
+        android:icon="@drawable/ic_schedule"
+        android:shortcutShortLabel="@string/shortcut_schedule_short"
+        android:shortcutLongLabel="@string/shortcut_schedule_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.srzak.zakstreamer"
+            android:targetClass="com.ryanheise.audioservice.AudioServiceActivity"
+            android:data="zakstreamer://schedule"/>
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+</shortcuts>
