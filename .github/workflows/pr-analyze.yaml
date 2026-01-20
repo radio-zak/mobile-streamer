@@ -51,7 +51,7 @@ jobs:
     needs: lint
     outputs:
       code: ${{ steps.version-code.outputs.code }}
-      tag: ${{ steps.version-code.outputs.tag }}
+      tag: ${{ steps.version-tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -61,7 +61,16 @@ jobs:
         id: version-code
         run: |
           echo -n "code=$(git rev-list --count ${{ github.ref }})" >> $GITHUB_OUTPUT
-          echo -n "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+
+      - name: Generate version tag
+        id: version-tag
+        run: |
+          echo -n "tag=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_OUTPUT
+
+      - name: Check generated version code
+        run: |
+          echo ${{ steps.version-code.outputs.code }}
+          echo ${{ steps.version-tag.outputs.tag }}
 
   build_aab:
     name: Build AAB
