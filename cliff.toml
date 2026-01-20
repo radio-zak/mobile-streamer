@@ -6,7 +6,6 @@
 # See https://keats.github.io/tera/docs/#introduction
 header = """
 # Changelog\n
-All notable changes to this project will be documented in this file.\n
 """
 # A Tera template to be rendered for each release in the changelog.
 # See https://keats.github.io/tera/docs/#introduction
@@ -52,19 +51,19 @@ filter_unconventional = false
 # Assigns commits to groups.
 # Optionally sets the commit's scope and can decide to exclude commits from further processing.
 commit_parsers = [
-    { message = "^feat", group = "Features" },
-    { message = "^fix", group = "Bug Fixes" },
-    { message = "^doc", group = "Documentation" },
-    { message = "^perf", group = "Performance" },
-    { message = "^refactor", group = "Refactor" },
-    { message = "^style", group = "Styling" },
-    { message = "^test", group = "Testing" },
-    { message = "^chore\\(deps.*\\)", skip = true },
-    { message = "^chore\\(pr\\)", skip = true },
-    { message = "^chore\\(pull\\)", skip = true },
-    { message = "^chore\\(release\\): prepare for", skip = true },
-    { message = "^chore|^ci", group = "Miscellaneous Tasks" },
-    { body = ".*security", group = "Security" },
+  { message = "^feat", group = "Features" },
+  { message = "^fix", group = "Bug Fixes" },
+  { message = "^doc", group = "Documentation" },
+  { message = "^perf", group = "Performance" },
+  { message = "^refactor", group = "Refactor" },
+  { message = "^style", group = "Styling" },
+  { message = "^test", group = "Testing" },
+  { message = "^chore\\(deps.*\\)", skip = true },
+  { message = "^chore\\(pr\\)", skip = true },
+  { message = "^chore\\(pull\\)", skip = true },
+  { message = "^chore\\(release\\): prepare for", skip = true },
+  { message = "^chore|^ci", group = "Miscellaneous Tasks" },
+  { body = ".*security", group = "Security" },
 ]
 # Exclude commits that are not matched by any commit parser.
 filter_commits = false
