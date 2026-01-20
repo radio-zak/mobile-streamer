@@ -1,4 +1,4 @@
-name: Build alpha AAB
+name: Build alpha releases and upload to stores
 
 on:
   push:
