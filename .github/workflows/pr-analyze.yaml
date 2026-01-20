@@ -60,7 +60,7 @@ jobs:
       - name: Generate version code
         id: version-code
         run: |
-          echo -n "code=$(git rev-list --count ${{ github.ref }})" >> $GITHUB_OUTPUT
+          echo -n "code=2137" >> $GITHUB_OUTPUT
 
       - name: Generate version tag
         id: version-tag
