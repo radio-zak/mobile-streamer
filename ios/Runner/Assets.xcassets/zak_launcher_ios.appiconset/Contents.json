@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "zak_launcher_ios.png",
+      "filename" : "zak_launcher_ios_noalpha.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
