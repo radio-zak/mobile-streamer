@@ -53,6 +53,10 @@ class PageManager {
     });
   }
 
+  void clearError() {
+    errorNotifier.value = '';
+  }
+
   void play() => {_audioHandler.play(), _nowPlaying.updateNowPlaying()};
   void pause() => _audioHandler.pause();
 
