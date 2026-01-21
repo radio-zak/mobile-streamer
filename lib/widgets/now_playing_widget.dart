@@ -50,16 +50,38 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
             child: Column(
               key: ValueKey(nowPlaying?.title),
               children: [
-                Text(
-                  'TERAZ GRAMY',
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                Row(
+                  children: [
+                    const SizedBox(
+                      width: 48.0,
+                    ), // Spacer to balance the button on the right
+                    Expanded(
+                      child: Text(
+                        'TERAZ GRAMY',
+                        textAlign: TextAlign.center, // Center the text
+                        style: Theme.of(context).textTheme.titleMedium!
+                            .copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      onSelected: (value) {},
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[],
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Text(
                   nowPlaying!.title,
                   textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 if (nowPlaying.hosts.isNotEmpty)
@@ -68,6 +90,8 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
                     child: Text(
                       'Prowadzący: ${nowPlaying.hosts}',
                       textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ),
