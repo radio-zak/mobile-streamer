@@ -81,7 +81,7 @@ void main() {
     });
 
     tearDown(() {
-      // Clean up timers and resources
+      // Clean up timers and resources by stopping the streamer
       streamer.stop();
       // Clean up the mock handler
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
