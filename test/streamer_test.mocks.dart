@@ -9,6 +9,7 @@ import 'package:audio_session/audio_session.dart' as _i5;
 import 'package:just_audio/just_audio.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i4;
+import 'package:zakstreamer/network_checker.dart' as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -862,4 +863,21 @@ class MockAudioPlayer extends _i1.Mock implements _i2.AudioPlayer {
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
+}
+
+/// A class which mocks [NetworkChecker].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockNetworkChecker extends _i1.Mock implements _i6.NetworkChecker {
+  MockNetworkChecker() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Future<bool> isConnected() =>
+      (super.noSuchMethod(
+            Invocation.method(#isConnected, []),
+            returnValue: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
 }

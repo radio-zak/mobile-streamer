@@ -5,6 +5,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
 
+import 'network_checker.dart';
 import 'notifications.dart';
 
 Future<AudioHandler> initAudioService() async {
@@ -28,6 +29,7 @@ Future<AudioHandler> initAudioService() async {
 class Streamer extends BaseAudioHandler {
   final log = Logger('Streamer');
   late final AudioPlayer _audioPlayer;
+  late final NetworkChecker _networkChecker;
   Timer? _connectionTimer;
   Timer? _bufferingTimer;
   bool _isConnecting = false;
@@ -35,8 +37,9 @@ class Streamer extends BaseAudioHandler {
 
   final mediaLibrary = MediaLibrary();
 
-  Streamer({AudioPlayer? audioPlayer}) {
+  Streamer({AudioPlayer? audioPlayer, NetworkChecker? networkChecker}) {
     _audioPlayer = audioPlayer ?? AudioPlayer();
+    _networkChecker = networkChecker ?? NetworkChecker();
   }
 
   Future<void> init() async {
@@ -80,18 +83,10 @@ class Streamer extends BaseAudioHandler {
   }
 
   Future<String> _determineStreamErrorMessage() async {
-    try {
-      // Actively check for internet connectivity.
-      final socket = await Socket.connect(
-        '8.8.8.8',
-        53,
-        timeout: const Duration(seconds: 3),
-      );
-      socket.destroy();
-      // If connection succeeds, it's a server/stream issue.
+    final hasConnection = await _networkChecker.isConnected();
+    if (hasConnection) {
       return 'Strumień jest obecnie niedostępny. Spróbuj ponownie później.';
-    } on SocketException catch (_) {
-      // If connection fails, there is no internet.
+    } else {
       return 'Brak połączenia z internetem. Sprawdź ustawienia sieci.';
     }
   }
