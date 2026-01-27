@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mockito/annotations.dart';
@@ -13,36 +14,53 @@ import 'streamer_test.mocks.dart';
 // Generate mocks for AudioPlayer and NetworkChecker
 @GenerateMocks([AudioPlayer, NetworkChecker])
 void main() {
+  // This binding is necessary for mocking platform channels like local_notifications.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('Streamer', () {
     late Streamer streamer;
     late MockAudioPlayer mockAudioPlayer;
     late MockNetworkChecker mockNetworkChecker;
     late StreamController<PlaybackEvent> playbackEventController;
 
+    // Mock the platform channel for flutter_local_notifications
+    const MethodChannel channel =
+        MethodChannel('dexterous.com/flutter/local_notifications');
+
     setUp(() {
       mockAudioPlayer = MockAudioPlayer();
       mockNetworkChecker = MockNetworkChecker();
       playbackEventController = StreamController<PlaybackEvent>.broadcast();
 
+      // Mock the notifications channel to prevent LateInitializationError
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+        return null;
+      });
+
       // Mock the behavior of the AudioPlayer streams and methods
       when(mockAudioPlayer.playerStateStream)
           .thenAnswer((_) => Stream.value(PlayerState(false, ProcessingState.idle)));
-      when(mockAudioPlayer.playbackEventStream).thenAnswer((_) => playbackEventController.stream);
+      when(mockAudioPlayer.playbackEventStream)
+          .thenAnswer((_) => playbackEventController.stream);
       when(mockAudioPlayer.durationStream).thenAnswer((_) => const Stream.empty());
       when(mockAudioPlayer.positionStream).thenAnswer((_) => const Stream.empty());
-      when(mockAudioPlayer.bufferedPositionStream).thenAnswer((_) => const Stream.empty());
+      when(mockAudioPlayer.bufferedPositionStream)
+          .thenAnswer((_) => const Stream.empty());
 
-      when(mockAudioPlayer.sequenceStateStream).thenAnswer((_) => Stream.value(SequenceState(
-            sequence: [],
-            currentIndex: 0,
-            shuffleModeEnabled: false,
-            shuffleIndices: [],
-            loopMode: LoopMode.off,
-          )));
+      when(mockAudioPlayer.sequenceStateStream)
+          .thenAnswer((_) => Stream.value(SequenceState(
+                sequence: [],
+                currentIndex: 0,
+                shuffleModeEnabled: false,
+                shuffleIndices: [],
+                loopMode: LoopMode.off,
+              )));
       when(mockAudioPlayer.sequenceStream).thenAnswer((_) => Stream.value([]));
 
       // Mock methods that return Futures
-      when(mockAudioPlayer.setAudioSource(any, initialIndex: anyNamed('initialIndex')))
+      when(mockAudioPlayer.setAudioSource(any,
+              initialIndex: anyNamed('initialIndex')))
           .thenAnswer((_) async => null);
       when(mockAudioPlayer.play()).thenAnswer((_) async {});
       when(mockAudioPlayer.pause()).thenAnswer((_) async {});
@@ -57,21 +75,28 @@ void main() {
         networkChecker: mockNetworkChecker,
       );
       // Add a default media item for the tests
-      streamer.mediaItem.add(const MediaItem(id: 'live', title: 'Live Stream', isLive: true));
+      streamer.mediaItem
+          .add(const MediaItem(id: 'live', title: 'Live Stream', isLive: true));
       when(mockAudioPlayer.playing).thenReturn(true);
     });
 
     tearDown(() {
+      // Clean up timers and resources
+      streamer.stop();
+      // Clean up the mock handler
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null);
       playbackEventController.close();
     });
 
     test('init() correctly sets the audio source', () async {
       await streamer.init();
-      final verification =
-          verify(mockAudioPlayer.setAudioSource(captureAny, initialIndex: anyNamed('initialIndex')));
+      final verification = verify(mockAudioPlayer.setAudioSource(captureAny,
+          initialIndex: anyNamed('initialIndex')));
       final captured = verification.captured.first as ConcatenatingAudioSource;
       final firstSource = captured.children.first as UriAudioSource;
-      expect(firstSource.uri.toString(), equals("http://ra.man.lodz.pl:8000/radiozak6.mp3"));
+      expect(firstSource.uri.toString(),
+          equals("http://ra.man.lodz.pl:8000/radiozak6.mp3"));
     });
 
     test('play() calls audioPlayer.play()', () async {
@@ -90,30 +115,40 @@ void main() {
     });
 
     test('handles stream error when OFFLINE', () async {
-      // Arrange: Pretend we are offline
+      // Arrange: Initialize streamer and pretend we are offline
+      await streamer.init();
       when(mockNetworkChecker.isConnected()).thenAnswer((_) async => false);
 
       // Act: Simulate the live stream unexpectedly completing
-      playbackEventController.add(PlaybackEvent(processingState: ProcessingState.completed));
+      playbackEventController
+          .add(PlaybackEvent(processingState: ProcessingState.completed));
 
       // Assert: Expect an error event with the 'no internet' message
-      expect(
+      await expectLater(
         streamer.customEvent,
-        emits({'type': 'error', 'message': 'Brak połączenia z internetem. Sprawdź ustawienia sieci.'}),
+        emits({
+          'type': 'error',
+          'message': 'Brak połączenia z internetem. Sprawdź ustawienia sieci.'
+        }),
       );
     });
 
     test('handles stream error when ONLINE', () async {
-      // Arrange: Pretend we are online (this is the default in setUp)
+      // Arrange: Initialize streamer and pretend we are online
+      await streamer.init();
       when(mockNetworkChecker.isConnected()).thenAnswer((_) async => true);
 
       // Act: Simulate the live stream unexpectedly completing
-      playbackEventController.add(PlaybackEvent(processingState: ProcessingState.completed));
+      playbackEventController
+          .add(PlaybackEvent(processingState: ProcessingState.completed));
 
       // Assert: Expect an error event with the 'stream unavailable' message
-      expect(
+      await expectLater(
         streamer.customEvent,
-        emits({'type': 'error', 'message': 'Strumień jest obecnie niedostępny. Spróbuj ponownie później.'}),
+        emits({
+          'type': 'error',
+          'message': 'Strumień jest obecnie niedostępny. Spróbuj ponownie później.'
+        }),
       );
     });
   });
