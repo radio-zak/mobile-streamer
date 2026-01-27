@@ -10,6 +10,7 @@ import 'package:just_audio/just_audio.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i4;
 import 'package:zakstreamer/network_checker.dart' as _i6;
+import 'package:zakstreamer/notifications.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -48,6 +49,12 @@ class _FakePlayerState_3 extends _i1.SmartFake implements _i2.PlayerState {
 
 class _FakeSequenceState_4 extends _i1.SmartFake implements _i2.SequenceState {
   _FakeSequenceState_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeStreamController_5<T> extends _i1.SmartFake
+    implements _i3.StreamController<T> {
+  _FakeStreamController_5(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -880,4 +887,60 @@ class MockNetworkChecker extends _i1.Mock implements _i6.NetworkChecker {
             returnValue: _i3.Future<bool>.value(false),
           )
           as _i3.Future<bool>);
+}
+
+/// A class which mocks [NotificationsManager].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockNotificationsManager extends _i1.Mock
+    implements _i7.NotificationsManager {
+  MockNotificationsManager() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.StreamController<String?> get onNotificationTapped =>
+      (super.noSuchMethod(
+            Invocation.getter(#onNotificationTapped),
+            returnValue: _FakeStreamController_5<String?>(
+              this,
+              Invocation.getter(#onNotificationTapped),
+            ),
+          )
+          as _i3.StreamController<String?>);
+
+  @override
+  _i3.Future<void> init() =>
+      (super.noSuchMethod(
+            Invocation.method(#init, []),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> requestPermission() =>
+      (super.noSuchMethod(
+            Invocation.method(#requestPermission, []),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> showNotification({
+    required String? title,
+    required String? body,
+    String? payload,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#showNotification, [], {
+              #title: title,
+              #body: body,
+              #payload: payload,
+            }),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 }

@@ -1,42 +1,31 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:zakstreamer/network_checker.dart';
+import 'package:zakstreamer/notifications.dart';
 import 'package:zakstreamer/streamer.dart';
 
 import 'streamer_test.mocks.dart';
 
-// Generate mocks for AudioPlayer and NetworkChecker
-@GenerateMocks([AudioPlayer, NetworkChecker])
+// Generate mocks for all dependencies
+@GenerateMocks([AudioPlayer, NetworkChecker, NotificationsManager])
 void main() {
-  // This binding is necessary for mocking platform channels like local_notifications.
-  TestWidgetsFlutterBinding.ensureInitialized();
-
   group('Streamer', () {
     late Streamer streamer;
     late MockAudioPlayer mockAudioPlayer;
     late MockNetworkChecker mockNetworkChecker;
+    late MockNotificationsManager mockNotificationsManager;
     late StreamController<PlaybackEvent> playbackEventController;
-
-    // Mock the platform channel for flutter_local_notifications
-    const MethodChannel channel =
-        MethodChannel('dexterous.com/flutter/local_notifications');
 
     setUp(() {
       mockAudioPlayer = MockAudioPlayer();
       mockNetworkChecker = MockNetworkChecker();
+      mockNotificationsManager = MockNotificationsManager();
       playbackEventController = StreamController<PlaybackEvent>.broadcast();
-
-      // Mock the notifications channel to prevent LateInitializationError
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-        return null;
-      });
 
       // Mock the behavior of the AudioPlayer streams and methods
       when(mockAudioPlayer.playerStateStream)
@@ -69,10 +58,18 @@ void main() {
       // Default mock behavior for network checker (assume online)
       when(mockNetworkChecker.isConnected()).thenAnswer((_) async => true);
 
-      // Create the Streamer instance, injecting the mocks
+      // Mock notifications to do nothing
+      when(mockNotificationsManager.showNotification(
+        title: anyNamed('title'),
+        body: anyNamed('body'),
+        payload: anyNamed('payload'),
+      )).thenAnswer((_) async {});
+
+      // Create the Streamer instance, injecting ALL mocks
       streamer = Streamer(
         audioPlayer: mockAudioPlayer,
         networkChecker: mockNetworkChecker,
+        notificationsManager: mockNotificationsManager,
       );
       // Add a default media item for the tests
       streamer.mediaItem
@@ -81,11 +78,8 @@ void main() {
     });
 
     tearDown(() {
-      // Clean up timers and resources by stopping the streamer
+      // Clean up timers and resources
       streamer.stop();
-      // Clean up the mock handler
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(channel, null);
       playbackEventController.close();
     });
 
