@@ -8,8 +8,13 @@ import 'package:logging/logging.dart';
 import 'notifications.dart';
 
 Future<AudioHandler> initAudioService() async {
-  return await AudioService.init(
-    builder: () => Streamer(),
+  return await AudioService.init<AudioHandler>(
+    builder: () {
+      final streamer = Streamer();
+      // Fire and forget initialization.
+      streamer.init();
+      return streamer;
+    },
     config: const AudioServiceConfig(
       androidShowNotificationBadge: true,
       androidNotificationChannelId: 'com.zakstreamer.notification',
@@ -22,74 +27,89 @@ Future<AudioHandler> initAudioService() async {
 
 class Streamer extends BaseAudioHandler {
   final log = Logger('Streamer');
-  final _audioPlayer = AudioPlayer();
+  late final AudioPlayer _audioPlayer;
   Timer? _connectionTimer;
   Timer? _bufferingTimer;
   bool _isConnecting = false;
   bool _bufferingErrorActive = false;
 
   final mediaLibrary = MediaLibrary();
-  Streamer() {
-    final getMediaItem = mediaLibrary.items[MediaLibrary.albumsRootId]!;
 
-    final streamSources = List<AudioSource>.empty(growable: true);
-    for (var item in getMediaItem) {
-      streamSources.add(AudioSource.uri(Uri.parse(item.id)));
-    }
-    _audioPlayer.setAudioSources(streamSources, initialIndex: 0);
-    mediaItem.add(getMediaItem[0]);
-
-    _audioPlayer.errorStream.listen((PlayerException e) async {
-      if (_bufferingErrorActive) {
-        return; // Ignore if a buffering error is already active
-      }
-      log.severe('PlayerException code: ${e.code}, message: ${e.message}');
-      _isConnecting = false;
-      _connectionTimer?.cancel();
-      _bufferingTimer?.cancel();
-
-      final errorMessage = await _mapErrorToMessage(e);
-
-      customEvent.add({'type': 'error', 'message': errorMessage});
-
-      Notifications.showNotification(
-        title: 'Błąd połączenia',
-        body: errorMessage,
-        payload: 'reconnect',
-      );
-    });
-
-    _notifyAudioHandlerAboutPlaybackEvents();
+  Streamer({AudioPlayer? audioPlayer}) {
+    _audioPlayer = audioPlayer ?? AudioPlayer();
   }
 
-  Future<String> _mapErrorToMessage(PlayerException e) async {
-    if (e.message != null &&
-        e.message!.toLowerCase().contains('source error')) {
-      try {
-        // Actively check for internet connectivity.
-        final socket = await Socket.connect(
-          '8.8.8.8',
-          53,
-          timeout: const Duration(seconds: 3),
-        );
-        socket.destroy();
-        // If connection succeeds, it's a server/stream issue.
-        return 'Strumień jest obecnie niedostępny. Spróbuj ponownie później.';
-      } on SocketException catch (_) {
-        // If connection fails, there is no internet.
-        return 'Brak połączenia z internetem. Sprawdź ustawienia sieci.';
-      }
+  Future<void> init() async {
+    final getMediaItem = mediaLibrary.items[MediaLibrary.albumsRootId]!;
+    final streamSources =
+        getMediaItem.map((item) => AudioSource.uri(Uri.parse(item.id))).toList();
+
+    try {
+      await _audioPlayer.setAudioSource(
+        ConcatenatingAudioSource(children: streamSources),
+        initialIndex: 0,
+      );
+      mediaItem.add(getMediaItem[0]);
+      _notifyAudioHandlerAboutPlaybackEvents();
+    } on PlayerException catch (e, stacktrace) {
+      log.severe('Error setting audio source', e, stacktrace);
+      _handleStreamError(); // Handle as a generic stream error
+    } catch (e, stacktrace) {
+      log.severe('Error during streamer initialization', e, stacktrace);
     }
-    // Fallback for any other unexpected errors.
-    return 'Wystąpił nieoczekiwany błąd odtwarzania. Spróbuj ponownie.';
+  }
+
+  Future<void> _handleStreamError() async {
+    if (_bufferingErrorActive) {
+      return; // Ignore if a buffering error is already active
+    }
+    log.severe('A stream error occurred.');
+    _isConnecting = false;
+    _connectionTimer?.cancel();
+    _bufferingTimer?.cancel();
+
+    final errorMessage = await _determineStreamErrorMessage();
+
+    customEvent.add({'type': 'error', 'message': errorMessage});
+
+    Notifications.showNotification(
+      title: 'Błąd połączenia',
+      body: errorMessage,
+      payload: 'reconnect',
+    );
+  }
+
+  Future<String> _determineStreamErrorMessage() async {
+    try {
+      // Actively check for internet connectivity.
+      final socket = await Socket.connect(
+        '8.8.8.8',
+        53,
+        timeout: const Duration(seconds: 3),
+      );
+      socket.destroy();
+      // If connection succeeds, it's a server/stream issue.
+      return 'Strumień jest obecnie niedostępny. Spróbuj ponownie później.';
+    } on SocketException catch (_) {
+      // If connection fails, there is no internet.
+      return 'Brak połączenia z internetem. Sprawdź ustawienia sieci.';
+    }
   }
 
   void _notifyAudioHandlerAboutPlaybackEvents() {
     _audioPlayer.playbackEventStream.listen((PlaybackEvent event) {
       final playing = _audioPlayer.playing;
 
-      final successfullyConnected =
-          playing &&
+      // For live streams, unexpectedly entering the 'completed' state is an error.
+      if (event.processingState == ProcessingState.completed &&
+          mediaItem.value?.isLive == true) {
+        if (!_audioPlayer.playing) return; // Ignore if already paused/stopped
+        log.warning('Live stream completed unexpectedly, handling as error.');
+        _handleStreamError();
+        return; // Stop processing this event further
+      }
+
+      final successfullyConnected = playing &&
           (event.processingState == ProcessingState.ready ||
               event.processingState == ProcessingState.buffering);
 
@@ -136,21 +156,6 @@ class Streamer extends BaseAudioHandler {
   }
 
   @override
-  Future<void> customAction(String name, [Map<String, dynamic>? extras]) async {
-    if (name == 'updateMetadata') {
-      final title = extras?['title'] as String?;
-      final artist = extras?['artist'] as String?;
-
-      if (title != null && artist != null) {
-        final currentItem = mediaItem.value;
-        if (currentItem != null) {
-          mediaItem.add(currentItem.copyWith(title: title, artist: artist));
-        }
-      }
-    }
-  }
-
-  @override
   Future<void> play() async {
     customEvent.add({'type': 'clear_error'});
     _bufferingErrorActive = false; // Reset flag
@@ -167,14 +172,16 @@ class Streamer extends BaseAudioHandler {
         );
       }
     });
-    await _audioPlayer.seek(null);
-    await _audioPlayer.play();
+    try {
+      await _audioPlayer.play();
+    } on PlayerException catch (e) {
+      log.severe('Error on play()', e);
+      _handleStreamError();
+    }
   }
 
   @override
   Future<void> pause() async {
-    customEvent.add({'type': 'clear_error'});
-    _bufferingErrorActive = false; // Reset flag
     _isConnecting = false;
     _connectionTimer?.cancel();
     _bufferingTimer?.cancel();
@@ -183,8 +190,6 @@ class Streamer extends BaseAudioHandler {
 
   @override
   Future<void> stop() async {
-    customEvent.add({'type': 'clear_error'});
-    _bufferingErrorActive = false; // Reset flag
     _isConnecting = false;
     _connectionTimer?.cancel();
     _bufferingTimer?.cancel();
@@ -193,7 +198,7 @@ class Streamer extends BaseAudioHandler {
 
   @override
   Future<void> onTaskRemoved() async {
-    await _audioPlayer.stop();
+    await stop();
   }
 
   @override
@@ -201,8 +206,7 @@ class Streamer extends BaseAudioHandler {
     String parentMediaId, [
     Map<String, dynamic>? options,
   ]) async {
-    final mediaChildren = mediaLibrary.items[parentMediaId]!;
-    return mediaChildren;
+    return mediaLibrary.items[parentMediaId]!;
   }
 
   @override
@@ -210,8 +214,13 @@ class Streamer extends BaseAudioHandler {
     String mediaId, [
     Map<String, dynamic>? extras,
   ]) async {
-    _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(mediaId)));
-    await _audioPlayer.play();
+    try {
+      await _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(mediaId)));
+      await _audioPlayer.play();
+    } on PlayerException catch (e) {
+      log.severe('Error in playFromMediaId', e);
+      _handleStreamError();
+    }
   }
 }
 

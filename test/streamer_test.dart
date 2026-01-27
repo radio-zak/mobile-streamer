@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mockito/annotations.dart';
@@ -8,6 +9,7 @@ import 'package:zakstreamer/streamer.dart';
 
 import 'streamer_test.mocks.dart';
 
+// Generate mocks for AudioPlayer
 @GenerateMocks([AudioPlayer])
 void main() {
   group('Streamer', () {
@@ -16,33 +18,48 @@ void main() {
 
     setUp(() {
       mockAudioPlayer = MockAudioPlayer();
-      // Mock the stream controllers
-      when(mockAudioPlayer.playbackStateStream).thenAnswer((_) => Stream.value(PlaybackState(true, ProcessingState.idle)));
-      when(mockAudioPlayer.processingStateStream).thenAnswer((_) => Stream.value(ProcessingState.idle));
-      when(mockAudioPlayer.playingStream).thenAnswer((_) => Stream.value(false));
-      when(mockAudioPlayer.durationStream).thenAnswer((_) => Stream.value(Duration.zero));
-      when(mockAudioPlayer.positionStream).thenAnswer((_) => Stream.value(Duration.zero));
-      when(mockAudioPlayer.bufferedPositionStream).thenAnswer((_) => Stream.value(Duration.zero));
-      when(mockAudioPlayer.sequenceStateStream).thenAnswer((_) => Stream.value(null));
-      when(mockAudioPlayer.sequenceStream).thenAnswer((_) => Stream.value(null));
-      when(mockAudioPlayer.icyMetadataStream).thenAnswer((_) => Stream.value(null));
 
-      // Mock the setAudioSource method to complete successfully
-      when(mockAudioPlayer.setAudioSource(any)).thenAnswer((_) async => Duration.zero);
+      // Mock the behavior of the AudioPlayer streams and methods
+      when(mockAudioPlayer.playerStateStream)
+          .thenAnswer((_) => Stream.value(PlayerState(false, ProcessingState.idle)));
+      when(mockAudioPlayer.playbackEventStream).thenAnswer((_) => const Stream.empty());
+      when(mockAudioPlayer.durationStream).thenAnswer((_) => const Stream.empty());
+      when(mockAudioPlayer.positionStream).thenAnswer((_) => const Stream.empty());
+      when(mockAudioPlayer.bufferedPositionStream).thenAnswer((_) => const Stream.empty());
 
+      // Provide a valid, non-null SequenceState using all required named parameters
+      when(mockAudioPlayer.sequenceStateStream).thenAnswer((_) => Stream.value(SequenceState(
+            sequence: [],
+            currentIndex: 0,
+            shuffleModeEnabled: false,
+            shuffleIndices: [],
+            loopMode: LoopMode.off,
+          )));
+      when(mockAudioPlayer.sequenceStream).thenAnswer((_) => Stream.value([]));
+
+      // Mock methods that return Futures
+      when(mockAudioPlayer.setAudioSource(any, initialIndex: anyNamed('initialIndex')))
+          .thenAnswer((_) async => null);
+      when(mockAudioPlayer.play()).thenAnswer((_) async {});
+
+      // Create the Streamer instance, injecting the mock AudioPlayer
       streamer = Streamer(audioPlayer: mockAudioPlayer);
     });
 
-    test('correctly sets audio source on initialization', () async {
-      // The Streamer's constructor is called in setUp.
-      // We need to wait for the asynchronous operations within the constructor to complete.
+    test('init() correctly sets the audio source', () async {
+      // Act: Call the asynchronous initialization method
       await streamer.init();
 
-      // Verify that setAudioSource was called with the correct URL.
-      final verificationResult = verify(mockAudioPlayer.setAudioSource(captureAny));
-      final captured = verificationResult.captured.single as LockCachingAudioSource;
+      // Assert: Verify that setAudioSource was called on the mock player
+      final verification =
+          verify(mockAudioPlayer.setAudioSource(captureAny, initialIndex: anyNamed('initialIndex')));
 
-      expect(captured.uri.toString(), equals('https://stream.radiozak.pl:8443/zak.aac'));
+      // Check the captured audio source
+      final captured = verification.captured.first as ConcatenatingAudioSource;
+      final firstSource = captured.children.first as UriAudioSource;
+
+      // Ensure it's the correct URL from the MediaLibrary
+      expect(firstSource.uri.toString(), equals("http://ra.man.lodz.pl:8000/radiozak6.mp3"));
     });
   });
 }
