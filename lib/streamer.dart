@@ -30,6 +30,7 @@ class Streamer extends BaseAudioHandler {
   final log = Logger('Streamer');
   late final AudioPlayer _audioPlayer;
   late final NetworkChecker _networkChecker;
+  late final NotificationsManager _notificationsManager;
   Timer? _connectionTimer;
   Timer? _bufferingTimer;
   bool _isConnecting = false;
@@ -37,9 +38,14 @@ class Streamer extends BaseAudioHandler {
 
   final mediaLibrary = MediaLibrary();
 
-  Streamer({AudioPlayer? audioPlayer, NetworkChecker? networkChecker}) {
+  Streamer({
+    AudioPlayer? audioPlayer,
+    NetworkChecker? networkChecker,
+    NotificationsManager? notificationsManager,
+  }) {
     _audioPlayer = audioPlayer ?? AudioPlayer();
     _networkChecker = networkChecker ?? NetworkChecker();
+    _notificationsManager = notificationsManager ?? NotificationsManager();
   }
 
   Future<void> init() async {
@@ -75,7 +81,7 @@ class Streamer extends BaseAudioHandler {
 
     customEvent.add({'type': 'error', 'message': errorMessage});
 
-    Notifications.showNotification(
+    _notificationsManager.showNotification(
       title: 'Błąd połączenia',
       body: errorMessage,
       payload: 'reconnect',
@@ -122,7 +128,7 @@ class Streamer extends BaseAudioHandler {
               _bufferingErrorActive = true;
               final message = 'Połączenie ze strumieniem zostało przerwane.';
               customEvent.add({'type': 'error', 'message': message});
-              Notifications.showNotification(
+              _notificationsManager.showNotification(
                 title: 'Utrata połączenia',
                 body: message,
                 payload: 'reconnect',
@@ -160,7 +166,7 @@ class Streamer extends BaseAudioHandler {
         _isConnecting = false;
         final message = 'Przekroczono czas oczekiwania na połączenie.';
         customEvent.add({'type': 'error', 'message': message});
-        Notifications.showNotification(
+        _notificationsManager.showNotification(
           title: 'Błąd połączenia',
           body: message,
           payload: 'reconnect',
