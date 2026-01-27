@@ -41,6 +41,7 @@ void main() {
       when(mockAudioPlayer.setAudioSource(any, initialIndex: anyNamed('initialIndex')))
           .thenAnswer((_) async => null);
       when(mockAudioPlayer.play()).thenAnswer((_) async {});
+      when(mockAudioPlayer.pause()).thenAnswer((_) async {});
 
       // Create the Streamer instance, injecting the mock AudioPlayer
       streamer = Streamer(audioPlayer: mockAudioPlayer);
@@ -60,6 +61,16 @@ void main() {
 
       // Ensure it's the correct URL from the MediaLibrary
       expect(firstSource.uri.toString(), equals("http://ra.man.lodz.pl:8000/radiozak6.mp3"));
+    });
+
+    test('play() calls audioPlayer.play()', () async {
+      await streamer.play();
+      verify(mockAudioPlayer.play()).called(1);
+    });
+
+    test('pause() calls audioPlayer.pause()', () async {
+      await streamer.pause();
+      verify(mockAudioPlayer.pause()).called(1);
     });
   });
 }
