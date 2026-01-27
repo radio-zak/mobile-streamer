@@ -104,7 +104,8 @@ class Streamer extends BaseAudioHandler {
       // For live streams, unexpectedly entering the 'completed' state is an error.
       if (event.processingState == ProcessingState.completed &&
           mediaItem.value?.isLive == true) {
-        if (!_audioPlayer.playing) return; // Ignore if already paused/stopped
+        // This check is WRONG, if player is not playing then something bad happened.
+        // if (!_audioPlayer.playing) return;
         log.warning('Live stream completed unexpectedly, handling as error.');
         _handleStreamError();
         return; // Stop processing this event further
@@ -174,6 +175,8 @@ class Streamer extends BaseAudioHandler {
       }
     });
     try {
+      // Seek to null to force reconnection for live streams that have completed.
+      await _audioPlayer.seek(null);
       await _audioPlayer.play();
     } on PlayerException catch (e) {
       log.severe('Error on play()', e);
