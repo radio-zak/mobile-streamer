@@ -42,6 +42,7 @@ void main() {
           .thenAnswer((_) async => null);
       when(mockAudioPlayer.play()).thenAnswer((_) async {});
       when(mockAudioPlayer.pause()).thenAnswer((_) async {});
+      when(mockAudioPlayer.stop()).thenAnswer((_) async {});
 
       // Create the Streamer instance, injecting the mock AudioPlayer
       streamer = Streamer(audioPlayer: mockAudioPlayer);
@@ -71,6 +72,11 @@ void main() {
     test('pause() calls audioPlayer.pause()', () async {
       await streamer.pause();
       verify(mockAudioPlayer.pause()).called(1);
+    });
+
+    test('stop() calls audioPlayer.stop()', () async {
+      await streamer.stop();
+      verify(mockAudioPlayer.stop()).called(1);
     });
   });
 }
