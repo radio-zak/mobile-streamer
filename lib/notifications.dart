@@ -2,13 +2,12 @@ import 'dart:async';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-class Notifications {
-  static final _flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+class NotificationsManager {
+  final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  static final onNotificationTapped = StreamController<String?>.broadcast();
+  final onNotificationTapped = StreamController<String?>.broadcast();
 
-  static Future<void> init() async {
+  Future<void> init() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/launcher_icon');
     final DarwinInitializationSettings initializationSettingsDarwin =
@@ -30,7 +29,7 @@ class Notifications {
     );
   }
 
-  static Future<void> requestPermission() async {
+  Future<void> requestPermission() async {
     await _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
@@ -38,7 +37,7 @@ class Notifications {
         ?.requestNotificationsPermission();
   }
 
-  static Future<void> showNotification({
+  Future<void> showNotification({
     required String title,
     required String body,
     String? payload,

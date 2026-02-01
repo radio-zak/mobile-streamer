@@ -37,7 +37,8 @@ Future<void> main() async {
   }
   try {
     log.info('Starting notification service');
-    await Notifications.init();
+    // Use an instance of the new manager
+    await NotificationsManager().init();
   } catch (e) {
     log.severe('Notifications service failed', e);
   }
@@ -65,14 +66,20 @@ class ZakStreamer extends StatefulWidget {
 
 class _ZakStreamerState extends State<ZakStreamer> {
   StreamSubscription? _notificationSubscription;
+  // Create an instance of the manager
+  final _notificationsManager = NotificationsManager();
 
   @override
   void initState() {
     super.initState();
     getIt<PageManager>().init();
-    Notifications.requestPermission();
+    // Use the instance to request permission
+    _notificationsManager.requestPermission();
 
-    _notificationSubscription = Notifications.onNotificationTapped.stream
+    // Use the instance to listen for taps
+    _notificationSubscription = _notificationsManager
+        .onNotificationTapped
+        .stream
         .listen((payload) {
           if (payload == 'reconnect') {
             getIt<PageManager>().play();
