@@ -49,14 +49,12 @@ class Streamer extends BaseAudioHandler {
 
   Future<void> init() async {
     final getMediaItem = mediaLibrary.items[MediaLibrary.albumsRootId]!;
-    final streamSources =
-        getMediaItem.map((item) => AudioSource.uri(Uri.parse(item.id))).toList();
+    final streamSources = getMediaItem
+        .map((item) => AudioSource.uri(Uri.parse(item.id)))
+        .toList();
 
     try {
-      await _audioPlayer.setAudioSources(
-        streamSources,
-        initialIndex: 0,
-      );
+      await _audioPlayer.setAudioSources(streamSources, initialIndex: 0);
       mediaItem.add(getMediaItem[0]);
       _notifyAudioHandlerAboutPlaybackEvents();
     } on PlayerException catch (e, stacktrace) {
@@ -110,7 +108,8 @@ class Streamer extends BaseAudioHandler {
         return; // Stop processing this event further
       }
 
-      final successfullyConnected = playing &&
+      final successfullyConnected =
+          playing &&
           (event.processingState == ProcessingState.ready ||
               event.processingState == ProcessingState.buffering);
 

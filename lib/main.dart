@@ -77,7 +77,9 @@ class _ZakStreamerState extends State<ZakStreamer> {
     _notificationsManager.requestPermission();
 
     // Use the instance to listen for taps
-    _notificationSubscription = _notificationsManager.onNotificationTapped.stream
+    _notificationSubscription = _notificationsManager
+        .onNotificationTapped
+        .stream
         .listen((payload) {
           if (payload == 'reconnect') {
             getIt<PageManager>().play();

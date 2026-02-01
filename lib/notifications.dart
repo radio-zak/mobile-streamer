@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationsManager {
-  final _flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   final onNotificationTapped = StreamController<String?>.broadcast();
 
