@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
@@ -54,8 +53,8 @@ class Streamer extends BaseAudioHandler {
         getMediaItem.map((item) => AudioSource.uri(Uri.parse(item.id))).toList();
 
     try {
-      await _audioPlayer.setAudioSource(
-        ConcatenatingAudioSource(children: streamSources),
+      await _audioPlayer.setAudioSources(
+        streamSources,
         initialIndex: 0,
       );
       mediaItem.add(getMediaItem[0]);
