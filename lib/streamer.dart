@@ -27,6 +27,7 @@ class Streamer extends BaseAudioHandler {
   Timer? _bufferingTimer;
   bool _isConnecting = false;
   bool _bufferingErrorActive = false;
+  StreamSubscription? _playbackEventSubscription;
 
   final mediaLibrary = MediaLibrary();
   Streamer() {
@@ -85,7 +86,10 @@ class Streamer extends BaseAudioHandler {
   }
 
   void _notifyAudioHandlerAboutPlaybackEvents() {
-    _audioPlayer.playbackEventStream.listen((PlaybackEvent event) {
+    // Cancel any existing subscription to prevent duplicate listeners
+    _playbackEventSubscription?.cancel();
+
+    _playbackEventSubscription = _audioPlayer.playbackEventStream.listen((PlaybackEvent event) {
       final playing = _audioPlayer.playing;
 
       final successfullyConnected =
