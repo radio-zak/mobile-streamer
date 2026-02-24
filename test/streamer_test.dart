@@ -32,6 +32,8 @@ void main() {
       when(mockAudioPlayer.pause()).thenAnswer((_) async {});
       when(mockAudioPlayer.stop()).thenAnswer((_) async {});
       when(mockAudioPlayer.seek(any)).thenAnswer((_) async {});
+      when(mockAudioPlayer.setAudioSource(any)).thenAnswer((_) async {});
+      when(mockAudioPlayer.dispose()).thenAnswer((_) async {});
 
       // Mock properties and streams
       when(mockAudioPlayer.playing).thenReturn(false);
@@ -52,6 +54,10 @@ void main() {
 
       // Create Streamer with mock
       streamer = Streamer(audioPlayer: mockAudioPlayer);
+    });
+
+    tearDown(() async {
+      await streamer.stop();
     });
 
     test('Streamer initializes with default media item', () async {
