@@ -91,7 +91,9 @@ class Streamer extends BaseAudioHandler {
     // Cancel any existing subscription to prevent duplicate listeners
     _playbackEventSubscription?.cancel();
 
-    _playbackEventSubscription = _audioPlayer.playbackEventStream.listen((PlaybackEvent event) {
+    _playbackEventSubscription = _audioPlayer.playbackEventStream.listen((
+      PlaybackEvent event,
+    ) {
       final playing = _audioPlayer.playing;
 
       final successfullyConnected =
