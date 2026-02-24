@@ -23,9 +23,7 @@ void main() {
       when(mockAudioPlayer.setAudioSources(
         any,
         initialIndex: anyNamed('initialIndex'),
-      )).thenAnswer((_) async {
-        // Return immediately, don't actually call platform
-      });
+      )).thenAnswer((_) async => null);
 
       // Mock other async methods
       when(mockAudioPlayer.play()).thenAnswer((_) async {});
