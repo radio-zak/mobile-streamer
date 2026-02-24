@@ -110,6 +110,19 @@ void main() {
       expect(customEvents.first, isMap);
       expect(customEvents.first['type'], equals('clear_error'));
     });
+
+    test('mediaLibrary contains correct stream URLs', () async {
+      // Arrange
+      final mediaLib = streamer.mediaLibrary;
+
+      // Act
+      final streamItems = mediaLib.items[MediaLibrary.albumsRootId]!;
+
+      // Assert: Should have at least one stream item
+      expect(streamItems.isNotEmpty, isTrue);
+      expect(streamItems.first.id, contains('radiozak'));
+      expect(streamItems.first.isLive, isTrue);
+    });
   });
 }
 
