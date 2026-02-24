@@ -80,8 +80,8 @@ void main() {
       // Act
       await streamer.pause();
 
-      // Assert: No timers should be active
-      expect(true, true); // Placeholder
+      // Assert: Verify pause was called
+      verify(mockAudioPlayer.pause()).called(1);
     });
 
     test('stop() cancels all resources', () async {
