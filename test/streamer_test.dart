@@ -69,8 +69,8 @@ void main() {
       await streamer.play();
 
       // Assert: customEvent should contain clear_error
-      // This is implicitly tested by the fact that play() runs without error
-      expect(true, true); // Placeholder - improved assertions in next tests
+      verify(mockAudioPlayer.play()).called(1);
+      verify(mockAudioPlayer.seek(null)).called(1);
     });
 
     test('pause() cancels timers', () async {
