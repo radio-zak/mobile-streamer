@@ -20,10 +20,12 @@ void main() {
       mockAudioPlayer = MockAudioPlayer();
 
       // Mock setAudioSources to return completed future immediately
-      when(mockAudioPlayer.setAudioSources(
-        any,
-        initialIndex: anyNamed('initialIndex'),
-      )).thenAnswer((_) async => null);
+      when(
+        mockAudioPlayer.setAudioSources(
+          any,
+          initialIndex: anyNamed('initialIndex'),
+        ),
+      ).thenAnswer((_) async => null);
 
       // Mock other async methods
       when(mockAudioPlayer.play()).thenAnswer((_) async => null);
@@ -38,17 +40,28 @@ void main() {
       when(mockAudioPlayer.processingState).thenReturn(ProcessingState.idle);
 
       // Mock streams - return empty streams
-      when(mockAudioPlayer.playerStateStream)
-          .thenAnswer((_) => Stream.value(PlayerState(false, ProcessingState.idle)));
-      when(mockAudioPlayer.playbackEventStream)
-          .thenAnswer((_) => const Stream.empty());
-      when(mockAudioPlayer.sequenceStateStream)
-          .thenAnswer((_) => const Stream.empty());
-      when(mockAudioPlayer.sequenceStream).thenAnswer((_) => const Stream.empty());
+      when(mockAudioPlayer.playerStateStream).thenAnswer(
+        (_) => Stream.value(PlayerState(false, ProcessingState.idle)),
+      );
+      when(
+        mockAudioPlayer.playbackEventStream,
+      ).thenAnswer((_) => const Stream.empty());
+      when(
+        mockAudioPlayer.sequenceStateStream,
+      ).thenAnswer((_) => const Stream.empty());
+      when(
+        mockAudioPlayer.sequenceStream,
+      ).thenAnswer((_) => const Stream.empty());
       when(mockAudioPlayer.errorStream).thenAnswer((_) => const Stream.empty());
-      when(mockAudioPlayer.durationStream).thenAnswer((_) => const Stream.empty());
-      when(mockAudioPlayer.positionStream).thenAnswer((_) => const Stream.empty());
-      when(mockAudioPlayer.bufferedPositionStream).thenAnswer((_) => const Stream.empty());
+      when(
+        mockAudioPlayer.durationStream,
+      ).thenAnswer((_) => const Stream.empty());
+      when(
+        mockAudioPlayer.positionStream,
+      ).thenAnswer((_) => const Stream.empty());
+      when(
+        mockAudioPlayer.bufferedPositionStream,
+      ).thenAnswer((_) => const Stream.empty());
 
       // Create Streamer with mock
       streamer = Streamer(audioPlayer: mockAudioPlayer);
@@ -131,11 +144,6 @@ void main() {
         customEvents.add(event);
       });
 
-      final exception = PlayerException(
-        code: 'source_error',
-        message: 'Source error occurred',
-      );
-
       // Act
       // Simulate error by calling the error stream listener
       // Note: We need to manually trigger the error handling since we mocked errorStream
@@ -191,6 +199,3 @@ void main() {
     });
   });
 }
-
-
-
