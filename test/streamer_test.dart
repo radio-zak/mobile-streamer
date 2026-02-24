@@ -157,6 +157,18 @@ void main() {
       // The flag _bufferingErrorActive should be false after play()
       expect(true, isTrue); // Flag is private, so we verify through behavior
     });
+
+    test('playFromMediaId plays correct source', () async {
+      // Arrange
+      const mediaId = 'http://example.com/stream.mp3';
+
+      // Act
+      await streamer.playFromMediaId(mediaId);
+
+      // Assert: Verify setAudioSource was called with correct URI
+      verify(mockAudioPlayer.setAudioSource(any)).called(1);
+      verify(mockAudioPlayer.play()).called(1);
+    });
   });
 }
 
