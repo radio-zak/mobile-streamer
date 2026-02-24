@@ -26,12 +26,12 @@ void main() {
       )).thenAnswer((_) async => null);
 
       // Mock other async methods
-      when(mockAudioPlayer.play()).thenAnswer((_) async {});
-      when(mockAudioPlayer.pause()).thenAnswer((_) async {});
-      when(mockAudioPlayer.stop()).thenAnswer((_) async {});
-      when(mockAudioPlayer.seek(any)).thenAnswer((_) async {});
-      when(mockAudioPlayer.setAudioSource(any)).thenAnswer((_) async {});
-      when(mockAudioPlayer.dispose()).thenAnswer((_) async {});
+      when(mockAudioPlayer.play()).thenAnswer((_) async => null);
+      when(mockAudioPlayer.pause()).thenAnswer((_) async => null);
+      when(mockAudioPlayer.stop()).thenAnswer((_) async => null);
+      when(mockAudioPlayer.seek(any)).thenAnswer((_) async => null);
+      when(mockAudioPlayer.setAudioSource(any)).thenAnswer((_) async => null);
+      when(mockAudioPlayer.dispose()).thenAnswer((_) async => null);
 
       // Mock properties and streams
       when(mockAudioPlayer.playing).thenReturn(false);
