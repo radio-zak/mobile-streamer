@@ -94,6 +94,22 @@ void main() {
       // Assert: Verify stop was called
       verify(mockAudioPlayer.stop()).called(1);
     });
+
+    test('customEvent emits clear_error on play', () async {
+      // Arrange
+      final customEvents = <dynamic>[];
+      streamer.customEvent.listen((event) {
+        customEvents.add(event);
+      });
+
+      // Act
+      await streamer.play();
+
+      // Assert: customEvent should contain clear_error
+      expect(customEvents.isNotEmpty, isTrue);
+      expect(customEvents.first, isMap);
+      expect(customEvents.first['type'], equals('clear_error'));
+    });
   });
 }
 
