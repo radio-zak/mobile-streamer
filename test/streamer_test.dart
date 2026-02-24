@@ -91,8 +91,8 @@ void main() {
       // Act
       await streamer.stop();
 
-      // Assert: Resources cleaned up
-      expect(true, true); // Placeholder
+      // Assert: Verify stop was called
+      verify(mockAudioPlayer.stop()).called(1);
     });
   });
 }
