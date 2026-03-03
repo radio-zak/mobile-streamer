@@ -9,6 +9,7 @@ import 'service_locator.dart';
 import 'package:flutter/services.dart';
 import 'notifications.dart';
 import 'package:zakstreamer/pages/home_page.dart';
+import 'favorite_notifications_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,6 +85,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
   void dispose() {
     _notificationSubscription?.cancel();
     getIt<PageManager>().dispose();
+    getIt<FavoriteNotificationsService>().dispose();
     super.dispose();
   }
 

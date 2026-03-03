@@ -55,4 +55,3 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     );
   }
 }
-

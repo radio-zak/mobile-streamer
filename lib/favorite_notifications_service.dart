@@ -60,7 +60,9 @@ class FavoriteNotificationsService {
           final startTime = _parseStartTime(entry.time);
           if (startTime != null) {
             // Check for 30 minutes before
-            final thirtyMinBefore = startTime.subtract(const Duration(minutes: 30));
+            final thirtyMinBefore = startTime.subtract(
+              const Duration(minutes: 30),
+            );
             if (_shouldNotify(now, thirtyMinBefore, 'thirty')) {
               _sendNotification(
                 title: 'Zbliża się Twoja ulubiona audycja!',
@@ -70,7 +72,9 @@ class FavoriteNotificationsService {
             }
 
             // Check for 5 minutes before
-            final fiveMinBefore = startTime.subtract(const Duration(minutes: 5));
+            final fiveMinBefore = startTime.subtract(
+              const Duration(minutes: 5),
+            );
             if (_shouldNotify(now, fiveMinBefore, 'five')) {
               _sendNotification(
                 title: 'Za 5 minut: ${entry.title}',
@@ -108,7 +112,11 @@ class FavoriteNotificationsService {
 
   /// Checks if a notification should be sent
   /// Returns true if we're within 2 minutes of the target time and haven't sent it yet
-  bool _shouldNotify(DateTime now, DateTime targetTime, String notificationType) {
+  bool _shouldNotify(
+    DateTime now,
+    DateTime targetTime,
+    String notificationType,
+  ) {
     if (now.isBefore(targetTime)) {
       return false; // Too early
     }
@@ -160,8 +168,8 @@ class FavoriteNotificationsService {
 
   /// Refreshes the favorites and restarts checking
   Future<void> refreshFavorites() async {
-    _sentNotifications.clear(); // Clear sent notifications to allow resending if needed
+    _sentNotifications
+        .clear(); // Clear sent notifications to allow resending if needed
     await _checkForUpcomingFavorites();
   }
 }
-
