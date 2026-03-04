@@ -76,10 +76,13 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
 
     // Get favorites list from SharedPreferences
     final favorites = prefs.getStringList('favorite_shows') ?? [];
+    _log.info('Background task: Found ${favorites.length} favorite shows');
     if (favorites.isEmpty) {
       _log.info('Background task: No favorite shows, skipping check');
       return;
     }
+
+    _log.info('Background task: Favorites to check: ${favorites.join(", ")}');
 
     // Try to fetch schedule with retry logic using background-compatible method
     Map<String, List<dynamic>>? schedule;
@@ -128,45 +131,60 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
       return;
     }
 
-    final todayIndex = (DateTime.now().weekday - 1).clamp(0, 6);
+    _log.info('Background task: Schedule fetched successfully');
 
-    // Safe access to today's key
-    if (todayIndex >= schedule.keys.length) {
-      _log.warning('Schedule has only ${schedule.keys.length} days, today index is $todayIndex');
-      return;
-    }
-
-    final todayKey = schedule.keys.elementAt(todayIndex);
-    final entriesToday = schedule[todayKey] ?? [];
     final now = DateTime.now();
+    final todayIndex = (now.weekday - 1).clamp(0, 6);
 
-    // Check each favorite show
-    for (final entry in entriesToday) {
-      if (favorites.contains(entry.title)) {
-        final startTime = _parseStartTime(entry.time);
-        if (startTime != null) {
-          // Check for 30 minutes before
-          final thirtyMinBefore = startTime.subtract(const Duration(minutes: 30));
-          if (_shouldNotifyBackground(now, thirtyMinBefore, 'thirty_${entry.title}', prefs)) {
-            _log.info('Background: Sending 30-min notification for ${entry.title}');
-            await Notifications.showNotification(
-              title: 'Zbliża się Twoja ulubiona audycja!',
-              body: '${entry.title} za 30 minut (${entry.time})',
-              payload: 'favorite_show',
-            );
-            await prefs.setString('notified_thirty_${entry.title}', now.toString().split(' ')[0]);
-          }
+    // Check today and tomorrow for upcoming shows
+    for (int dayOffset = 0; dayOffset < 2; dayOffset++) {
+      final checkIndex = (todayIndex + dayOffset) % 7;
 
-          // Check for 5 minutes before
-          final fiveMinBefore = startTime.subtract(const Duration(minutes: 5));
-          if (_shouldNotifyBackground(now, fiveMinBefore, 'five_${entry.title}', prefs)) {
-            _log.info('Background: Sending 5-min notification for ${entry.title}');
-            await Notifications.showNotification(
-              title: 'Za 5 minut: ${entry.title}',
-              body: 'Twoja ulubiona audycja zaczyna się za 5 minut!',
-              payload: 'favorite_show',
-            );
-            await prefs.setString('notified_five_${entry.title}', now.toString().split(' ')[0]);
+      // Safe access to day's key
+      if (checkIndex >= schedule.keys.length) {
+        _log.warning('Schedule has only ${schedule.keys.length} days, index is $checkIndex');
+        continue;
+      }
+
+      final dayKey = schedule.keys.elementAt(checkIndex);
+      final entries = schedule[dayKey] ?? [];
+
+      // Check each favorite show
+      for (final entry in entries) {
+        if (favorites.contains(entry.title)) {
+          final startTime = _parseStartTime(entry.time);
+          if (startTime != null) {
+            // For tomorrow, adjust the time
+            var adjustedStartTime = startTime;
+            if (dayOffset == 1) {
+              adjustedStartTime = startTime.add(const Duration(days: 1));
+            }
+
+            // Check for 30 minutes before
+            final thirtyMinBefore = adjustedStartTime.subtract(const Duration(minutes: 30));
+            final thirtyMinNotifId = 'thirty_${entry.title}_${entry.time}';
+            if (_shouldNotifyBackground(now, thirtyMinBefore, thirtyMinNotifId, prefs)) {
+              _log.info('Background: Sending 30-min notification for "${entry.title}" at ${entry.time}');
+              await Notifications.showNotification(
+                title: 'Zbliża się Twoja ulubiona audycja!',
+                body: '${entry.title} za 30 minut (${entry.time})',
+                payload: 'favorite_show',
+              );
+              await prefs.setString(thirtyMinNotifId, now.toString().split(' ')[0]);
+            }
+
+            // Check for 5 minutes before
+            final fiveMinBefore = adjustedStartTime.subtract(const Duration(minutes: 5));
+            final fiveMinNotifId = 'five_${entry.title}_${entry.time}';
+            if (_shouldNotifyBackground(now, fiveMinBefore, fiveMinNotifId, prefs)) {
+              _log.info('Background: Sending 5-min notification for "${entry.title}" at ${entry.time}');
+              await Notifications.showNotification(
+                title: 'Za 5 minut: ${entry.title}',
+                body: 'Twoja ulubiona audycja zaczyna się za 5 minut!',
+                payload: 'favorite_show',
+              );
+              await prefs.setString(fiveMinNotifId, now.toString().split(' ')[0]);
+            }
           }
         }
       }
