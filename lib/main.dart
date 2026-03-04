@@ -46,6 +46,8 @@ Future<void> main() async {
   try {
     log.info('Initializing background schedule tasks');
     await initializeBackgroundTasks();
+    // Also restore any previously enabled background tasks after app restart
+    await restoreBackgroundTasksIfNeeded();
   } catch (e) {
     log.severe('Background service initialization failed', e);
   }

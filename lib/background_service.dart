@@ -9,6 +9,9 @@ import 'schedule_service.dart';
 
 final _log = Logger('BackgroundService');
 
+// SharedPreferences key to track if background tasks are initialized
+const String _backgroundTasksEnabledKey = 'background_tasks_enabled';
+
 /// Initializes background tasks for schedule notifications
 Future<void> initializeBackgroundTasks() async {
   await Workmanager().initialize(
@@ -23,7 +26,28 @@ Future<void> initializeBackgroundTasks() async {
     initialDelay: const Duration(minutes: 5),
   );
 
+  // Mark that background tasks are enabled
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool(_backgroundTasksEnabledKey, true);
+
   _log.info('Background schedule check initialized');
+}
+
+/// Checks if background tasks need to be restored and restores them if needed
+/// This is called on app startup to ensure background tasks persist after process kill
+Future<void> restoreBackgroundTasksIfNeeded() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final areEnabled = prefs.getBool(_backgroundTasksEnabledKey) ?? false;
+
+    if (areEnabled) {
+      _log.info('Restoring background tasks after app restart');
+      // Re-initialize background tasks
+      await initializeBackgroundTasks();
+    }
+  } catch (e) {
+    _log.warning('Failed to restore background tasks: $e');
+  }
 }
 
 /// Background task dispatcher - called by Workmanager
