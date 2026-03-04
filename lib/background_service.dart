@@ -165,10 +165,12 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
             final thirtyMinNotifId = 'thirty_${entry.title}_${entry.time}';
             if (_shouldNotifyBackground(now, thirtyMinBefore, thirtyMinNotifId, prefs)) {
               _log.info('Background: Sending 30-min notification for "${entry.title}" at ${entry.time}');
+              final notifHash = ('30min_${entry.title}').hashCode.abs();
               await Notifications.showNotification(
                 title: 'Zbliża się Twoja ulubiona audycja!',
                 body: '${entry.title} za 30 minut (${entry.time})',
                 payload: 'favorite_show',
+                notificationId: notifHash,
               );
               await prefs.setString(thirtyMinNotifId, now.toString().split(' ')[0]);
             }
@@ -178,10 +180,12 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
             final fiveMinNotifId = 'five_${entry.title}_${entry.time}';
             if (_shouldNotifyBackground(now, fiveMinBefore, fiveMinNotifId, prefs)) {
               _log.info('Background: Sending 5-min notification for "${entry.title}" at ${entry.time}');
+              final notifHash = ('5min_${entry.title}').hashCode.abs();
               await Notifications.showNotification(
                 title: 'Za 5 minut: ${entry.title}',
                 body: 'Twoja ulubiona audycja zaczyna się za 5 minut!',
                 payload: 'favorite_show',
+                notificationId: notifHash,
               );
               await prefs.setString(fiveMinNotifId, now.toString().split(' ')[0]);
             }
@@ -192,6 +196,9 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
   } catch (e, stackTrace) {
     _log.severe('Error checking for upcoming favorites: $e', stackTrace);
   }
+
+  // Cleanup old notification tracking entries
+  _cleanupOldNotificationEntries();
 }
 
 /// Parses start time from schedule entry (e.g., "10:00 - 12:00")
@@ -211,6 +218,38 @@ DateTime? _parseStartTime(String timeString) {
   } catch (e) {
     _log.warning('Failed to parse time: $timeString, error: $e');
     return null;
+  }
+}
+
+/// Cleans up old notification tracking entries from SharedPreferences
+Future<void> _cleanupOldNotificationEntries() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now().toString().split(' ')[0];
+
+    // Get all keys from SharedPreferences
+    final allKeys = prefs.getKeys();
+
+    // Filter keys that are notification tracking entries (start with "thirty_" or "five_")
+    final notificationKeys = allKeys.where(
+      (key) => key.startsWith('thirty_') || key.startsWith('five_')
+    ).toList();
+
+    int removedCount = 0;
+    for (final key in notificationKeys) {
+      final value = prefs.getString(key);
+      // Remove if it's from a previous day
+      if (value != null && value != today) {
+        await prefs.remove(key);
+        removedCount++;
+      }
+    }
+
+    if (removedCount > 0) {
+      _log.info('Cleaned up $removedCount old notification tracking entries');
+    }
+  } catch (e) {
+    _log.warning('Failed to cleanup old notification entries: $e');
   }
 }
 

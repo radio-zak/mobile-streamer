@@ -42,6 +42,7 @@ class Notifications {
     required String title,
     required String body,
     String? payload,
+    int? notificationId,
   }) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
@@ -54,8 +55,12 @@ class Notifications {
     const NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
     );
+
+    // Generate a unique ID based on title if not provided
+    final id = notificationId ?? title.hashCode;
+
     await _flutterLocalNotificationsPlugin.show(
-      0,
+      id,
       title,
       body,
       platformChannelSpecifics,
