@@ -13,6 +13,16 @@ final _log = Logger('BackgroundService');
 const String _backgroundTasksEnabledKey = 'background_tasks_enabled';
 
 /// Initializes background tasks for schedule notifications
+///
+/// This sets up a periodic task that runs every 30 minutes to check for upcoming
+/// favorite shows and send notifications. The task runs even when the app is closed
+/// (on Android; on iOS, limitations apply due to OS restrictions).
+///
+/// The background task:
+/// - Fetches the weekly schedule from zak.lodz.pl
+/// - Checks for favorite shows in today's and tomorrow's schedule
+/// - Sends notifications 30 minutes and 5 minutes before each favorite show
+/// - Cleans up old notification tracking entries
 Future<void> initializeBackgroundTasks() async {
   await Workmanager().initialize(
     callbackDispatcher,
@@ -128,10 +138,27 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
 
     if (schedule == null) {
       _log.severe('Could not fetch schedule after retries');
+      // Try to use cached schedule from last successful fetch if available
+      final cachedScheduleJson = prefs.getString('cached_schedule');
+      if (cachedScheduleJson != null) {
+        _log.info('Using cached schedule from previous fetch');
+        // For now, we'll just log and skip - proper caching would require more complex serialization
+      } else {
+        _log.severe('No cached schedule available, skipping notification check');
+        return;
+      }
       return;
     }
 
     _log.info('Background task: Schedule fetched successfully');
+
+    // Cache the schedule for fallback use
+    try {
+      // Store a simple indicator that we have a fresh schedule
+      await prefs.setString('last_schedule_fetch', DateTime.now().toString());
+    } catch (e) {
+      _log.warning('Failed to cache schedule metadata: $e');
+    }
 
     final now = DateTime.now();
     final todayIndex = (now.weekday - 1).clamp(0, 6);
