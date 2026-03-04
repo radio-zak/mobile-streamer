@@ -30,16 +30,20 @@ class ScheduleListEntry extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       entryTime,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    const SizedBox(width: 8),
-                    if (isLiveNow) const LiveChip(),
-                    FavoriteButton(showTitle: entryTitle),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isLiveNow) const LiveChip(),
+                        FavoriteButton(showTitle: entryTitle),
+                      ],
+                    ),
                   ],
                 ),
                 Text(
