@@ -24,9 +24,7 @@ const String _backgroundTasksEnabledKey = 'background_tasks_enabled';
 /// - Sends notifications 30 minutes and 5 minutes before each favorite show
 /// - Cleans up old notification tracking entries
 Future<void> initializeBackgroundTasks() async {
-  await Workmanager().initialize(
-    callbackDispatcher,
-  );
+  await Workmanager().initialize(callbackDispatcher);
 
   // Schedule periodic task every 30 minutes
   await Workmanager().registerPeriodicTask(
@@ -146,7 +144,9 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
         _log.info('Using cached schedule from previous fetch');
         // For now, we'll just log and skip - proper caching would require more complex serialization
       } else {
-        _log.severe('No cached schedule available, skipping notification check');
+        _log.severe(
+          'No cached schedule available, skipping notification check',
+        );
         return;
       }
       return;
@@ -171,7 +171,9 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
 
       // Safe access to day's key
       if (checkIndex >= schedule.keys.length) {
-        _log.warning('Schedule has only ${schedule.keys.length} days, index is $checkIndex');
+        _log.warning(
+          'Schedule has only ${schedule.keys.length} days, index is $checkIndex',
+        );
         continue;
       }
 
@@ -190,10 +192,19 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
             }
 
             // Check for 30 minutes before
-            final thirtyMinBefore = adjustedStartTime.subtract(const Duration(minutes: 30));
+            final thirtyMinBefore = adjustedStartTime.subtract(
+              const Duration(minutes: 30),
+            );
             final thirtyMinNotifId = 'thirty_${entry.title}_${entry.time}';
-            if (_shouldNotifyBackground(now, thirtyMinBefore, thirtyMinNotifId, prefs)) {
-              _log.info('Background: Sending 30-min notification for "${entry.title}" at ${entry.time}');
+            if (_shouldNotifyBackground(
+              now,
+              thirtyMinBefore,
+              thirtyMinNotifId,
+              prefs,
+            )) {
+              _log.info(
+                'Background: Sending 30-min notification for "${entry.title}" at ${entry.time}',
+              );
               final notifHash = ('30min_${entry.title}').hashCode.abs();
               await Notifications.showNotification(
                 title: 'Zbliża się Twoja ulubiona audycja!',
@@ -201,15 +212,27 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
                 payload: 'favorite_show',
                 notificationId: notifHash,
               );
-              await prefs.setString(thirtyMinNotifId, now.toString().split(' ')[0]);
+              await prefs.setString(
+                thirtyMinNotifId,
+                now.toString().split(' ')[0],
+              );
               notificationsSent++;
             }
 
             // Check for 5 minutes before
-            final fiveMinBefore = adjustedStartTime.subtract(const Duration(minutes: 5));
+            final fiveMinBefore = adjustedStartTime.subtract(
+              const Duration(minutes: 5),
+            );
             final fiveMinNotifId = 'five_${entry.title}_${entry.time}';
-            if (_shouldNotifyBackground(now, fiveMinBefore, fiveMinNotifId, prefs)) {
-              _log.info('Background: Sending 5-min notification for "${entry.title}" at ${entry.time}');
+            if (_shouldNotifyBackground(
+              now,
+              fiveMinBefore,
+              fiveMinNotifId,
+              prefs,
+            )) {
+              _log.info(
+                'Background: Sending 5-min notification for "${entry.title}" at ${entry.time}',
+              );
               final notifHash = ('5min_${entry.title}').hashCode.abs();
               await Notifications.showNotification(
                 title: 'Za 5 minut: ${entry.title}',
@@ -217,7 +240,10 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
                 payload: 'favorite_show',
                 notificationId: notifHash,
               );
-              await prefs.setString(fiveMinNotifId, now.toString().split(' ')[0]);
+              await prefs.setString(
+                fiveMinNotifId,
+                now.toString().split(' ')[0],
+              );
               notificationsSent++;
             }
           }
@@ -264,9 +290,9 @@ Future<void> _cleanupOldNotificationEntries() async {
     final allKeys = prefs.getKeys();
 
     // Filter keys that are notification tracking entries (start with "thirty_" or "five_")
-    final notificationKeys = allKeys.where(
-      (key) => key.startsWith('thirty_') || key.startsWith('five_')
-    ).toList();
+    final notificationKeys = allKeys
+        .where((key) => key.startsWith('thirty_') || key.startsWith('five_'))
+        .toList();
 
     int removedCount = 0;
     for (final key in notificationKeys) {
@@ -287,7 +313,12 @@ Future<void> _cleanupOldNotificationEntries() async {
 }
 
 /// Checks if notification should be sent (within 2 minutes of target time)
-bool _shouldNotifyBackground(DateTime now, DateTime targetTime, String notificationId, SharedPreferences prefs) {
+bool _shouldNotifyBackground(
+  DateTime now,
+  DateTime targetTime,
+  String notificationId,
+  SharedPreferences prefs,
+) {
   if (now.isBefore(targetTime)) {
     return false; // Too early
   }
@@ -342,9 +373,9 @@ Future<void> resetNotificationTracking() async {
     final allKeys = prefs.getKeys();
 
     // Remove all notification tracking entries
-    final notificationKeys = allKeys.where(
-      (key) => key.startsWith('thirty_') || key.startsWith('five_')
-    ).toList();
+    final notificationKeys = allKeys
+        .where((key) => key.startsWith('thirty_') || key.startsWith('five_'))
+        .toList();
 
     for (final key in notificationKeys) {
       await prefs.remove(key);
@@ -367,4 +398,3 @@ Future<void> triggerBackgroundTaskManually() async {
     _log.severe('Manual background task execution failed: $e');
   }
 }
-

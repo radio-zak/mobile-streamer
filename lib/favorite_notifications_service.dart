@@ -73,7 +73,9 @@ class FavoriteNotificationsService {
 
       // Safe access to today's key
       if (today >= schedule.keys.length) {
-        _logger.warning('Schedule has only ${schedule.keys.length} days, today index is $today');
+        _logger.warning(
+          'Schedule has only ${schedule.keys.length} days, today index is $today',
+        );
         return;
       }
 
@@ -193,7 +195,8 @@ class FavoriteNotificationsService {
 
   /// Refreshes the favorites and restarts checking
   Future<void> refreshFavorites() async {
-    _sentNotifications.clear(); // Clear sent notifications to allow resending if needed
+    _sentNotifications
+        .clear(); // Clear sent notifications to allow resending if needed
     await resetNotificationTracking(); // Reset background service tracking
     await _checkForUpcomingFavorites();
   }
@@ -201,7 +204,9 @@ class FavoriteNotificationsService {
   /// Checks if the schedule cache is still valid
   bool _isScheduleCacheValid() {
     if (_scheduleCacheTime == null) return false;
-    return DateTime.now().isBefore(_scheduleCacheTime!.add(_scheduleCacheDuration));
+    return DateTime.now().isBefore(
+      _scheduleCacheTime!.add(_scheduleCacheDuration),
+    );
   }
 
   /// Fetches the schedule with retry logic and caches the result
@@ -233,9 +238,9 @@ class FavoriteNotificationsService {
           // Last resort: try fetchScheduleBackground() if all retries failed
           try {
             _logger.info('Trying background fetch method as fallback...');
-            final schedule = await scheduleService.fetchScheduleBackground().timeout(
-              const Duration(seconds: 30),
-            );
+            final schedule = await scheduleService
+                .fetchScheduleBackground()
+                .timeout(const Duration(seconds: 30));
 
             // Cache the schedule and update the cache time
             _scheduleCache = schedule;

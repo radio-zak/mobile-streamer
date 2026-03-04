@@ -142,7 +142,9 @@ class ScheduleService {
         sortedScheduleMap[day] = [];
       }
     }
-    _logger.info("Schedule fetched (${sortedScheduleMap.values.where((e) => e.isNotEmpty).length}/7 days have entries)");
+    _logger.info(
+      "Schedule fetched (${sortedScheduleMap.values.where((e) => e.isNotEmpty).length}/7 days have entries)",
+    );
     return sortedScheduleMap;
   }
 
@@ -150,12 +152,10 @@ class ScheduleService {
   /// Used by background_service.dart since it doesn't have access to HARICA certificate
   Future<Map<String, List<ScheduleEntry>>> fetchScheduleBackground() async {
     try {
-      // Create HTTP client with disabled certificate verification for background isolate
-      final client = http.Client();
-
       // For background isolate, we'll use a custom HttpClient that accepts all certificates
       final httpClient = HttpClient();
-      httpClient.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      httpClient.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
 
       final scheduleMap = <String, List<ScheduleEntry>>{};
 
@@ -166,22 +166,32 @@ class ScheduleService {
 
           final request = httpClient.getUrl(uri);
           final resolvedRequest = await request;
-          resolvedRequest.headers.add('User-Agent',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36');
+          resolvedRequest.headers.add(
+            'User-Agent',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
+          );
 
           final response = await resolvedRequest.close();
 
           if (response.statusCode == 200) {
-            _logger.info('zak.lodz.pl (background) responded with status code 200, parsing...');
+            _logger.info(
+              'zak.lodz.pl (background) responded with status code 200, parsing...',
+            );
 
-            final bodyBytes = await response.fold<List<int>>(<int>[], (acc, chunk) => acc..addAll(chunk));
+            final bodyBytes = await response.fold<List<int>>(
+              <int>[],
+              (acc, chunk) => acc..addAll(chunk),
+            );
             final document = parser.parse(utf8.decode(bodyBytes));
             final entries = <ScheduleEntry>[];
 
-            final entryElements = document.querySelectorAll('ul#ramowka > li.row');
+            final entryElements = document.querySelectorAll(
+              'ul#ramowka > li.row',
+            );
 
             for (var entryElement in entryElements) {
-              final time = entryElement.querySelector('div.godziny')?.text.trim() ?? '';
+              final time =
+                  entryElement.querySelector('div.godziny')?.text.trim() ?? '';
               String title = '';
               final aTag = entryElement.querySelector('h3.tytul > a');
               if (aTag != null) {
@@ -203,7 +213,9 @@ class ScheduleService {
               }
 
               if (time.isNotEmpty && title.isNotEmpty) {
-                entries.add(ScheduleEntry(time: time, title: title, hosts: hosts));
+                entries.add(
+                  ScheduleEntry(time: time, title: title, hosts: hosts),
+                );
               }
             }
             if (entries.isNotEmpty) {
@@ -222,7 +234,9 @@ class ScheduleService {
       httpClient.close();
 
       if (scheduleMap.isEmpty) {
-        _logger.severe('Failed to fetch schedule from zak.lodz.pl (background)');
+        _logger.severe(
+          'Failed to fetch schedule from zak.lodz.pl (background)',
+        );
       }
 
       // IMPORTANT: Always return all 7 days in order, even if some are empty
@@ -236,7 +250,9 @@ class ScheduleService {
           sortedScheduleMap[day] = [];
         }
       }
-      _logger.info("Schedule fetched (background, ${sortedScheduleMap.values.where((e) => e.isNotEmpty).length}/7 days have entries)");
+      _logger.info(
+        "Schedule fetched (background, ${sortedScheduleMap.values.where((e) => e.isNotEmpty).length}/7 days have entries)",
+      );
       return sortedScheduleMap;
     } catch (e) {
       _logger.severe('Error in fetchScheduleBackground: $e');
@@ -244,4 +260,3 @@ class ScheduleService {
     }
   }
 }
-
