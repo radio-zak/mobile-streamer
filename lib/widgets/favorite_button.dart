@@ -43,15 +43,22 @@ class _FavoriteButtonState extends State<FavoriteButton> {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        _isFavorite ? Icons.favorite : Icons.favorite_border,
-        color: _isFavorite
-            ? Theme.of(context).colorScheme.error
-            : Theme.of(context).colorScheme.onSurface,
+    return SizedBox(
+      width: 24,
+      height: 24,
+      child: IconButton(
+        icon: Icon(
+          _isFavorite ? Icons.favorite : Icons.favorite_border,
+          color: _isFavorite
+              ? Theme.of(context).colorScheme.error
+              : Theme.of(context).colorScheme.onSurface,
+          size: 16,
+        ),
+        onPressed: _toggleFavorite,
+        tooltip: _isFavorite ? 'Usuń z ulubionych' : 'Dodaj do ulubionych',
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(),
       ),
-      onPressed: _toggleFavorite,
-      tooltip: _isFavorite ? 'Usuń z ulubionych' : 'Dodaj do ulubionych',
     );
   }
 }

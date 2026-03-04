@@ -22,7 +22,7 @@ class ScheduleListEntry extends StatelessWidget {
       color: isLiveNow
           ? Theme.of(context).colorScheme.primaryFixedDim
           : Theme.of(context).colorScheme.surface,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Row(
         children: [
           Expanded(
@@ -30,18 +30,16 @@ class ScheduleListEntry extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       entryTime,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    Row(
-                      children: [
-                        if (isLiveNow) LiveChip(),
-                        FavoriteButton(showTitle: entryTitle),
-                      ],
-                    ),
+                    const SizedBox(width: 8),
+                    if (isLiveNow) const LiveChip(),
+                    FavoriteButton(showTitle: entryTitle),
                   ],
                 ),
                 Text(
