@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'background_service.dart';
 
 class FavoritesService {
   static const String _favoritesKey = 'favorite_shows';
@@ -18,6 +19,8 @@ class FavoritesService {
         favorites.add(showTitle);
         await _prefs.setStringList(_favoritesKey, favorites);
         _logger.info('Added favorite: $showTitle');
+        // Reset notification tracking so user gets notified for new favorite
+        await resetNotificationTracking();
       }
     } catch (e) {
       _logger.severe('Failed to add favorite: $e');
@@ -31,6 +34,8 @@ class FavoritesService {
       favorites.remove(showTitle);
       await _prefs.setStringList(_favoritesKey, favorites);
       _logger.info('Removed favorite: $showTitle');
+      // Reset notification tracking
+      await resetNotificationTracking();
     } catch (e) {
       _logger.severe('Failed to remove favorite: $e');
     }

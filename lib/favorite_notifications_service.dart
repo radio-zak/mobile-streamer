@@ -3,6 +3,7 @@ import 'package:logging/logging.dart';
 import 'notifications.dart';
 import 'schedule_service.dart';
 import 'favorites_service.dart';
+import 'background_service.dart';
 
 class FavoriteNotificationsService {
   final _logger = Logger('FavoriteNotificationsService');
@@ -192,8 +193,8 @@ class FavoriteNotificationsService {
 
   /// Refreshes the favorites and restarts checking
   Future<void> refreshFavorites() async {
-    _sentNotifications
-        .clear(); // Clear sent notifications to allow resending if needed
+    _sentNotifications.clear(); // Clear sent notifications to allow resending if needed
+    await resetNotificationTracking(); // Reset background service tracking
     await _checkForUpcomingFavorites();
   }
 

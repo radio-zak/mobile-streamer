@@ -327,3 +327,26 @@ Future<bool> areBackgroundTasksEnabled() async {
     return false;
   }
 }
+
+/// Resets notification tracking when favorites list changes
+/// This ensures notifications are sent for new favorite shows
+Future<void> resetNotificationTracking() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final allKeys = prefs.getKeys();
+
+    // Remove all notification tracking entries
+    final notificationKeys = allKeys.where(
+      (key) => key.startsWith('thirty_') || key.startsWith('five_')
+    ).toList();
+
+    for (final key in notificationKeys) {
+      await prefs.remove(key);
+    }
+
+    _log.info('Reset notification tracking for favorites change');
+  } catch (e) {
+    _log.warning('Failed to reset notification tracking: $e');
+  }
+}
+
