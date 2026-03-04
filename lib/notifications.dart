@@ -52,8 +52,17 @@ class Notifications {
           priority: Priority.high,
           showWhen: false,
         );
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+
+    const DarwinNotificationDetails iOSPlatformChannelSpecifics =
+        DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        );
+
+    final NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics,
     );
 
     // Generate a unique ID based on title if not provided

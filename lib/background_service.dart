@@ -350,3 +350,15 @@ Future<void> resetNotificationTracking() async {
   }
 }
 
+/// Manually triggers the background task for testing purposes
+/// This allows testing notification logic without waiting for the periodic schedule
+Future<void> triggerBackgroundTaskManually() async {
+  try {
+    _log.info('Manually triggering background task for testing');
+    await _checkAndNotifyScheduleUpdate();
+    _log.info('Manual background task execution completed');
+  } catch (e) {
+    _log.severe('Manual background task execution failed: $e');
+  }
+}
+
