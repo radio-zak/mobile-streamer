@@ -173,5 +173,29 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
   }
 }
 
+/// Disables background tasks and removes them from Workmanager
+Future<void> disableBackgroundTasks() async {
+  try {
+    _log.info('Disabling background tasks');
+    await Workmanager().cancelAll();
 
+    // Mark that background tasks are disabled
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_backgroundTasksEnabledKey, false);
 
+    _log.info('Background tasks disabled');
+  } catch (e) {
+    _log.severe('Failed to disable background tasks: $e');
+  }
+}
+
+/// Checks if background tasks are currently enabled
+Future<bool> areBackgroundTasksEnabled() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_backgroundTasksEnabledKey) ?? false;
+  } catch (e) {
+    _log.warning('Failed to check background tasks status: $e');
+    return false;
+  }
+}
