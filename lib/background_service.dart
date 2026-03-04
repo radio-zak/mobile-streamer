@@ -66,12 +66,20 @@ void callbackDispatcher() {
   });
 }
 
-/// Fetches schedule and sends notification if live show is different
+/// Fetches schedule and sends notifications for upcoming favorite shows
 Future<void> _checkAndNotifyScheduleUpdate() async {
   try {
-    _log.info('Background task: Checking schedule updates...');
+    _log.info('Background task: Checking for upcoming favorite shows...');
 
     final scheduleService = ScheduleService();
+    final prefs = await SharedPreferences.getInstance();
+
+    // Get favorites list from SharedPreferences
+    final favorites = prefs.getStringList('favorite_shows') ?? [];
+    if (favorites.isEmpty) {
+      _log.info('Background task: No favorite shows, skipping check');
+      return;
+    }
 
     // Try to fetch schedule with retry logic using background-compatible method
     Map<String, List<dynamic>>? schedule;
@@ -93,7 +101,6 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
         _log.warning('Network error (retries left: $retries): $e');
 
         if (retries > 0) {
-          // Wait before retrying with exponential backoff
           await Future.delayed(Duration(milliseconds: delayMs));
           delayMs *= 2;
         }
@@ -110,7 +117,6 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
         _log.warning('Schedule fetch failed (retries left: $retries): $e');
 
         if (retries > 0) {
-          // Wait before retrying with exponential backoff
           await Future.delayed(Duration(milliseconds: delayMs));
           delayMs *= 2;
         }
@@ -132,45 +138,83 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
 
     final todayKey = schedule.keys.elementAt(todayIndex);
     final entriesToday = schedule[todayKey] ?? [];
+    final now = DateTime.now();
 
-    // Find live show
-    final liveEntry = entriesToday.firstWhere(
-      (e) => e.isLive,
-      orElse: () => null as dynamic,
-    ) as dynamic;
+    // Check each favorite show
+    for (final entry in entriesToday) {
+      if (favorites.contains(entry.title)) {
+        final startTime = _parseStartTime(entry.time);
+        if (startTime != null) {
+          // Check for 30 minutes before
+          final thirtyMinBefore = startTime.subtract(const Duration(minutes: 30));
+          if (_shouldNotifyBackground(now, thirtyMinBefore, 'thirty_${entry.title}', prefs)) {
+            _log.info('Background: Sending 30-min notification for ${entry.title}');
+            await Notifications.showNotification(
+              title: 'Zbliża się Twoja ulubiona audycja!',
+              body: '${entry.title} za 30 minut (${entry.time})',
+              payload: 'favorite_show',
+            );
+            await prefs.setString('notified_thirty_${entry.title}', now.toString().split(' ')[0]);
+          }
 
-    if (liveEntry != null) {
-      // Get previous live show from SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      final previousShow = prefs.getString('lastNotifiedShow');
-      final currentShow = liveEntry.title;
-
-      // Only notify if show has changed
-      if (previousShow != currentShow) {
-        _log.info('Background: New live show detected: $currentShow');
-
-        final artist = liveEntry.hosts.isNotEmpty
-            ? liveEntry.hosts
-            : 'Studenckie Radio "ŻAK" Politechniki Łódzkiej';
-
-        await Notifications.showNotification(
-          title: 'Nowy program na żywo',
-          body: '$currentShow\nProwadzący: $artist',
-          payload: 'schedule',
-        );
-
-        // Remember this show
-        await prefs.setString('lastNotifiedShow', currentShow);
+          // Check for 5 minutes before
+          final fiveMinBefore = startTime.subtract(const Duration(minutes: 5));
+          if (_shouldNotifyBackground(now, fiveMinBefore, 'five_${entry.title}', prefs)) {
+            _log.info('Background: Sending 5-min notification for ${entry.title}');
+            await Notifications.showNotification(
+              title: 'Za 5 minut: ${entry.title}',
+              body: 'Twoja ulubiona audycja zaczyna się za 5 minut!',
+              payload: 'favorite_show',
+            );
+            await prefs.setString('notified_five_${entry.title}', now.toString().split(' ')[0]);
+          }
+        }
       }
-    } else {
-      _log.info('Background: No live show at this time');
-      // Clear if no live show
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('lastNotifiedShow');
     }
   } catch (e, stackTrace) {
-    _log.severe('Error checking schedule: $e', stackTrace);
+    _log.severe('Error checking for upcoming favorites: $e', stackTrace);
   }
+}
+
+/// Parses start time from schedule entry (e.g., "10:00 - 12:00")
+DateTime? _parseStartTime(String timeString) {
+  try {
+    final parts = timeString.split('-').map((e) => e.trim()).toList();
+    if (parts.isEmpty) return null;
+
+    final timeParts = parts[0].split(':');
+    if (timeParts.length != 2) return null;
+
+    final hour = int.parse(timeParts[0]);
+    final minute = int.parse(timeParts[1]);
+
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, hour, minute);
+  } catch (e) {
+    _log.warning('Failed to parse time: $timeString, error: $e');
+    return null;
+  }
+}
+
+/// Checks if notification should be sent (within 2 minutes of target time)
+bool _shouldNotifyBackground(DateTime now, DateTime targetTime, String notificationId, SharedPreferences prefs) {
+  if (now.isBefore(targetTime)) {
+    return false; // Too early
+  }
+
+  final difference = now.difference(targetTime);
+  if (difference.inMinutes > 2) {
+    return false; // Too late, we missed the window
+  }
+
+  // Check if we've already sent this notification today
+  final today = now.toString().split(' ')[0];
+  final lastSent = prefs.getString(notificationId);
+  if (lastSent == today) {
+    return false; // Already sent today
+  }
+
+  return true;
 }
 
 /// Disables background tasks and removes them from Workmanager

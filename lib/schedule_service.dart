@@ -164,11 +164,12 @@ class ScheduleService {
           final path = _dayPaths[dayName]!;
           final uri = Uri.parse(_baseUrl + path);
 
-          final request = await httpClient.getUrl(uri);
-          request.headers.add('User-Agent',
+          final request = httpClient.getUrl(uri);
+          final resolvedRequest = await request;
+          resolvedRequest.headers.add('User-Agent',
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36');
 
-          final response = await request.close();
+          final response = await resolvedRequest.close();
 
           if (response.statusCode == 200) {
             _logger.info('zak.lodz.pl (background) responded with status code 200, parsing...');
