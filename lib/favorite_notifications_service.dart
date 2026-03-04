@@ -12,6 +12,11 @@ class FavoriteNotificationsService {
   Timer? _checkTimer;
   final List<String> _sentNotifications = [];
 
+  /// Cache for the schedule to avoid too many network requests
+  Map<String, List<dynamic>>? _scheduleCache;
+  DateTime? _scheduleCacheTime;
+  final Duration _scheduleCacheDuration = const Duration(minutes: 5);
+
   FavoriteNotificationsService({
     required this.favoritesService,
     required this.scheduleService,
@@ -49,9 +54,28 @@ class FavoriteNotificationsService {
         return;
       }
 
-      final schedule = await scheduleService.fetchSchedule();
+      // Fetch schedule from cache or network
+      Map<String, List<dynamic>>? schedule;
+      if (_isScheduleCacheValid()) {
+        schedule = _scheduleCache;
+      } else {
+        schedule = await _fetchScheduleWithRetry();
+      }
+
+      if (schedule == null) {
+        _logger.warning('Could not fetch schedule, skipping favorite check');
+        return;
+      }
+
       final now = DateTime.now();
       final today = (DateTime.now().weekday - 1).clamp(0, 6);
+
+      // Safe access to today's key
+      if (today >= schedule.keys.length) {
+        _logger.warning('Schedule has only ${schedule.keys.length} days, today index is $today');
+        return;
+      }
+
       final todayKey = schedule.keys.elementAt(today);
       final entriesToday = schedule[todayKey] ?? [];
 
@@ -85,8 +109,8 @@ class FavoriteNotificationsService {
           }
         }
       }
-    } catch (e) {
-      _logger.severe('Error checking for upcoming favorites: $e');
+    } catch (e, stackTrace) {
+      _logger.severe('Error checking for upcoming favorites: $e', stackTrace);
     }
   }
 
@@ -171,5 +195,59 @@ class FavoriteNotificationsService {
     _sentNotifications
         .clear(); // Clear sent notifications to allow resending if needed
     await _checkForUpcomingFavorites();
+  }
+
+  /// Checks if the schedule cache is still valid
+  bool _isScheduleCacheValid() {
+    if (_scheduleCacheTime == null) return false;
+    return DateTime.now().isBefore(_scheduleCacheTime!.add(_scheduleCacheDuration));
+  }
+
+  /// Fetches the schedule with retry logic and caches the result
+  Future<Map<String, List<dynamic>>?> _fetchScheduleWithRetry() async {
+    // Fetch schedule with retry logic
+    int retries = 3;
+    int delayMs = 500;
+
+    while (retries > 0) {
+      try {
+        final schedule = await scheduleService.fetchSchedule().timeout(
+          const Duration(seconds: 30),
+        );
+
+        // Cache the schedule and update the cache time
+        _scheduleCache = schedule;
+        _scheduleCacheTime = DateTime.now();
+
+        return schedule;
+      } catch (e) {
+        retries--;
+        _logger.warning('Schedule fetch failed (retries left: $retries): $e');
+
+        if (retries > 0) {
+          // Wait before retrying with exponential backoff
+          await Future.delayed(Duration(milliseconds: delayMs));
+          delayMs *= 2;
+        } else {
+          // Last resort: try fetchScheduleBackground() if all retries failed
+          try {
+            _logger.info('Trying background fetch method as fallback...');
+            final schedule = await scheduleService.fetchScheduleBackground().timeout(
+              const Duration(seconds: 30),
+            );
+
+            // Cache the schedule and update the cache time
+            _scheduleCache = schedule;
+            _scheduleCacheTime = DateTime.now();
+
+            return schedule;
+          } catch (e2) {
+            _logger.severe('Fallback background fetch also failed: $e2');
+          }
+        }
+      }
+    }
+
+    return null;
   }
 }

@@ -8,6 +8,7 @@ import 'page_manager.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
 import 'notifications.dart';
+import 'background_service.dart';
 import 'package:zakstreamer/pages/home_page.dart';
 import 'favorite_notifications_service.dart';
 
@@ -41,6 +42,12 @@ Future<void> main() async {
     await Notifications.init();
   } catch (e) {
     log.severe('Notifications service failed', e);
+  }
+  try {
+    log.info('Initializing background schedule tasks');
+    await initializeBackgroundTasks();
+  } catch (e) {
+    log.severe('Background service initialization failed', e);
   }
   try {
     log.info('Initializing audio session');
