@@ -78,6 +78,8 @@ void callbackDispatcher() {
 
 /// Fetches schedule and sends notifications for upcoming favorite shows
 Future<void> _checkAndNotifyScheduleUpdate() async {
+  int notificationsSent = 0;
+
   try {
     _log.info('Background task: Checking for upcoming favorite shows...');
 
@@ -200,6 +202,7 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
                 notificationId: notifHash,
               );
               await prefs.setString(thirtyMinNotifId, now.toString().split(' ')[0]);
+              notificationsSent++;
             }
 
             // Check for 5 minutes before
@@ -215,6 +218,7 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
                 notificationId: notifHash,
               );
               await prefs.setString(fiveMinNotifId, now.toString().split(' ')[0]);
+              notificationsSent++;
             }
           }
         }
@@ -226,6 +230,8 @@ Future<void> _checkAndNotifyScheduleUpdate() async {
 
   // Cleanup old notification tracking entries
   _cleanupOldNotificationEntries();
+
+  _log.info('Background task completed: $notificationsSent notifications sent');
 }
 
 /// Parses start time from schedule entry (e.g., "10:00 - 12:00")
