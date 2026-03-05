@@ -5,10 +5,7 @@ import 'package:zakstreamer/schedule_service.dart';
 class ShowProgressBar extends StatefulWidget {
   final ScheduleEntry entry;
 
-  const ShowProgressBar({
-    super.key,
-    required this.entry,
-  });
+  const ShowProgressBar({super.key, required this.entry});
 
   @override
   State<ShowProgressBar> createState() => _ShowProgressBarState();
@@ -24,12 +21,9 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
   }
 
   void _startUpdateTimer() {
-    _updateTimer = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) {
-        setState(() {});
-      },
-    );
+    _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {});
+    });
   }
 
   @override
@@ -70,8 +64,9 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 4,
-              backgroundColor:
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(
                 Theme.of(context).colorScheme.primary,
               ),
@@ -81,9 +76,9 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
           // Current time and status in one line
           Text(
             '$currentTimeStr • $statusText',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  height: 1.0,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(height: 1.0),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -93,14 +88,3 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-

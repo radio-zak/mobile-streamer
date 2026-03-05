@@ -27,7 +27,7 @@ class Streamer extends BaseAudioHandler {
   Timer? _bufferingTimer;
   bool _isConnecting = false;
   bool _bufferingErrorActive = false;
-
+  Duration _currentProgress = Duration.zero;
   final mediaLibrary = MediaLibrary();
   Streamer() {
     final getMediaItem = mediaLibrary.items[MediaLibrary.albumsRootId]!;
@@ -130,6 +130,7 @@ class Streamer extends BaseAudioHandler {
             ProcessingState.ready: AudioProcessingState.ready,
           }[_audioPlayer.processingState]!,
           playing: playing,
+          updatePosition: _currentProgress,
         ),
       );
     });
@@ -145,6 +146,19 @@ class Streamer extends BaseAudioHandler {
         final currentItem = mediaItem.value;
         if (currentItem != null) {
           mediaItem.add(currentItem.copyWith(title: title, artist: artist));
+        }
+      }
+    } else if (name == 'updateProgress') {
+      final elapsedSeconds = extras?['elapsedSeconds'] as int?;
+      final totalSeconds = extras?['totalSeconds'] as int?;
+
+      if (elapsedSeconds != null && totalSeconds != null) {
+        final duration = Duration(seconds: totalSeconds);
+        _currentProgress = Duration(seconds: elapsedSeconds);
+
+        final currentItem = mediaItem.value;
+        if (currentItem != null) {
+          mediaItem.add(currentItem.copyWith(duration: duration));
         }
       }
     }
