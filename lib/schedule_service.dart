@@ -85,6 +85,10 @@ class ScheduleEntry {
     }
   }
 
+  DateTime? get startDateTime => _startDateTime;
+
+  DateTime? get endDateTime => _endDateTime;
+
   double get progressPercent {
     try {
       final start = _startDateTime;

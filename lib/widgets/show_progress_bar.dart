@@ -41,12 +41,11 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
   @override
   Widget build(BuildContext context) {
     final progress = widget.entry.progressPercent;
-    final minutesElapsed = widget.entry.minutesElapsed;
     final minutesRemaining = widget.entry.minutesRemaining;
     final startTime = widget.entry.startTime;
     final endTime = widget.entry.endTime;
     final now = DateTime.now();
-    final startDateTime = widget.entry._startDateTime;
+    final startDateTime = widget.entry.startDateTime;
 
     // Format current time as HH:MM
     final currentTimeStr =
@@ -73,7 +72,7 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
               value: progress,
               minHeight: 6,
               backgroundColor:
-                  Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(
                 Theme.of(context).colorScheme.primary,
               ),
@@ -108,7 +107,7 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
                   color: Theme.of(context)
                       .colorScheme
                       .onSurface
-                      .withOpacity(0.7),
+                      .withValues(alpha: 0.7),
                   fontStyle: FontStyle.italic,
                 ),
           ),
@@ -117,4 +116,6 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
     );
   }
 }
+
+
 
