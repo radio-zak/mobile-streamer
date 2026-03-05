@@ -42,8 +42,6 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
   Widget build(BuildContext context) {
     final progress = widget.entry.progressPercent;
     final minutesRemaining = widget.entry.minutesRemaining;
-    final startTime = widget.entry.startTime;
-    final endTime = widget.entry.endTime;
     final now = DateTime.now();
     final startDateTime = widget.entry.startDateTime;
 
@@ -58,19 +56,20 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
     } else if (progress >= 1.0) {
       statusText = 'zakończone';
     } else {
-      statusText = 'min pozostało: $minutesRemaining';
+      statusText = 'pozostało $minutesRemaining min';
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Progress bar
+          // Progress bar - very slim
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(2),
             child: LinearProgressIndicator(
               value: progress,
-              minHeight: 6,
+              minHeight: 4,
               backgroundColor:
                   Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(
@@ -78,44 +77,30 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
               ),
             ),
           ),
-          const SizedBox(height: 6),
-          // Time information
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                currentTimeStr,
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-              Text(
-                '$startTime - $endTime',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-              Text(
-                endTime,
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          // Status text
+          const SizedBox(height: 3),
+          // Current time and status in one line
           Text(
-            statusText,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.7),
-                  fontStyle: FontStyle.italic,
+            '$currentTimeStr • $statusText',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  height: 1.0,
                 ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
 }
+
+
+
+
+
+
+
+
 
 
 

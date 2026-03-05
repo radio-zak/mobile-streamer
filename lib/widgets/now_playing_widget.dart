@@ -47,7 +47,7 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
             return FadeTransition(opacity: animation, child: child);
           },
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Column(
               key: ValueKey(nowPlaying?.title),
               children: [
