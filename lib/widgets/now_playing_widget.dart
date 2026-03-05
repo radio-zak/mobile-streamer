@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:zakstreamer/now_playing.dart';
 import 'package:zakstreamer/schedule_service.dart';
 import 'package:zakstreamer/service_locator.dart';
+import 'package:zakstreamer/widgets/show_progress_bar.dart';
 
 class NowPlayingWidget extends StatelessWidget {
   const NowPlayingWidget({super.key});
@@ -71,6 +72,8 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ),
+                const SizedBox(height: 8),
+                ShowProgressBar(entry: nowPlaying),
               ],
             ),
           ),
