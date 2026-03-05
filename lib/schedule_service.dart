@@ -45,6 +45,96 @@ class ScheduleEntry {
     }
   }
 
+  DateTime? get _startDateTime {
+    try {
+      final now = DateTime.now();
+      final parts = time.split('-').map((e) => e.trim()).toList();
+      if (parts.length != 2) return null;
+
+      final startTimeParts = parts[0].split(':');
+      if (startTimeParts.length != 2) return null;
+
+      final startHour = int.parse(startTimeParts[0]);
+      final startMinute = int.parse(startTimeParts[1]);
+
+      return DateTime(now.year, now.month, now.day, startHour, startMinute);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  DateTime? get _endDateTime {
+    try {
+      final now = DateTime.now();
+      final parts = time.split('-').map((e) => e.trim()).toList();
+      if (parts.length != 2) return null;
+
+      final endTimeParts = parts[1].split(':');
+      if (endTimeParts.length != 2) return null;
+
+      final endHour = int.parse(endTimeParts[0]);
+      final endMinute = int.parse(endTimeParts[1]);
+
+      var endTime = DateTime(now.year, now.month, now.day, endHour, endMinute);
+      if (endTime.isBefore(_startDateTime ?? now)) {
+        endTime = endTime.add(const Duration(days: 1));
+      }
+      return endTime;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  double get progressPercent {
+    try {
+      final start = _startDateTime;
+      final end = _endDateTime;
+      if (start == null || end == null) return 0.0;
+
+      final now = DateTime.now();
+      if (now.isBefore(start)) return 0.0;
+      if (now.isAfter(end)) return 1.0;
+
+      final total = end.difference(start).inSeconds;
+      final elapsed = now.difference(start).inSeconds;
+      return (elapsed / total).clamp(0.0, 1.0);
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
+  int get minutesElapsed {
+    try {
+      final start = _startDateTime;
+      if (start == null) return 0;
+      final now = DateTime.now();
+      if (now.isBefore(start)) return 0;
+      return now.difference(start).inMinutes;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  int get minutesRemaining {
+    try {
+      final end = _endDateTime;
+      if (end == null) return 0;
+      final now = DateTime.now();
+      if (now.isAfter(end)) return 0;
+      return end.difference(now).inMinutes;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  String get startTime {
+    return time.split('-')[0].trim();
+  }
+
+  String get endTime {
+    return time.split('-')[1].trim();
+  }
+
   @override
   String toString() => '[$time] $title (Hosts: $hosts)';
 }
