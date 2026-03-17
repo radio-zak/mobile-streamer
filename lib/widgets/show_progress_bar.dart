@@ -36,29 +36,23 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
   Widget build(BuildContext context) {
     final progress = widget.entry.progressPercent;
     final minutesRemaining = widget.entry.minutesRemaining;
-    final now = DateTime.now();
     final startDateTime = widget.entry.startDateTime;
+    final endDateTime = widget.entry.endDateTime;
 
-    // Format current time as HH:MM
-    final currentTimeStr =
-        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-
-    // Determine status text
-    String statusText;
-    if (startDateTime != null && now.isBefore(startDateTime)) {
-      statusText = 'za $minutesRemaining min';
-    } else if (progress >= 1.0) {
-      statusText = 'zakończone';
-    } else {
-      statusText = 'pozostało $minutesRemaining min';
-    }
+    // Format start and end times as HH:MM
+    final startTimeStr = startDateTime != null
+        ? '${startDateTime.hour.toString().padLeft(2, '0')}:${startDateTime.minute.toString().padLeft(2, '0')}'
+        : '--:--';
+    final endTimeStr = endDateTime != null
+        ? '${endDateTime.hour.toString().padLeft(2, '0')}:${endDateTime.minute.toString().padLeft(2, '0')}'
+        : '--:--';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Progress bar - very slim
+          // Progress bar
           ClipRRect(
             borderRadius: BorderRadius.circular(2),
             child: LinearProgressIndicator(
@@ -72,16 +66,29 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
               ),
             ),
           ),
-          const SizedBox(height: 3),
-          // Current time and status in one line
-          Text(
-            '$currentTimeStr • $statusText',
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge?.copyWith(height: 1.0),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          const SizedBox(height: 4),
+          // Start time, remaining time in center, and end time on one line
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  startTimeStr,
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+                Expanded(
+                  child: Text(
+                    'pozostało $minutesRemaining min',
+                    style: Theme.of(context).textTheme.labelLarge,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(endTimeStr, style: Theme.of(context).textTheme.labelSmall),
+              ],
+            ),
           ),
         ],
       ),

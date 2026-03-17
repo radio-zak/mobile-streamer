@@ -63,7 +63,7 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
                   nowPlaying!.title,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (nowPlaying.hosts.isNotEmpty)
