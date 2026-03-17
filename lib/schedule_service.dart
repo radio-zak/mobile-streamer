@@ -119,6 +119,31 @@ class ScheduleEntry {
     }
   }
 
+  int get secondsElapsed {
+    try {
+      final start = _startDateTime;
+      if (start == null) return 0;
+      final now = DateTime.now();
+      if (now.isBefore(start)) return 0;
+      final totalSeconds = now.difference(start).inSeconds;
+      return totalSeconds % 60;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  int get totalSecondsElapsed {
+    try {
+      final start = _startDateTime;
+      if (start == null) return 0;
+      final now = DateTime.now();
+      if (now.isBefore(start)) return 0;
+      return now.difference(start).inSeconds;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   int get minutesRemaining {
     try {
       final end = _endDateTime;
@@ -126,6 +151,31 @@ class ScheduleEntry {
       final now = DateTime.now();
       if (now.isAfter(end)) return 0;
       return end.difference(now).inMinutes;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  int get secondsRemaining {
+    try {
+      final end = _endDateTime;
+      if (end == null) return 0;
+      final now = DateTime.now();
+      if (now.isAfter(end)) return 0;
+      final totalSeconds = end.difference(now).inSeconds;
+      return totalSeconds % 60;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  int get totalSecondsRemaining {
+    try {
+      final end = _endDateTime;
+      if (end == null) return 0;
+      final now = DateTime.now();
+      if (now.isAfter(end)) return 0;
+      return end.difference(now).inSeconds;
     } catch (e) {
       return 0;
     }

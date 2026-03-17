@@ -50,13 +50,13 @@ class NowPlaying {
   }
 
   void _updateProgressBar(ScheduleEntry entry) {
-    final elapsed = entry.minutesElapsed;
-    final remaining = entry.minutesRemaining;
-    final total = elapsed + remaining;
+    final totalElapsedSeconds = entry.totalSecondsElapsed;
+    final totalRemainingSeconds = entry.totalSecondsRemaining;
+    final totalSeconds = totalElapsedSeconds + totalRemainingSeconds;
 
     _audioHandler.customAction('updateProgress', {
-      'elapsedSeconds': elapsed * 60,
-      'totalSeconds': total * 60,
+      'elapsedSeconds': totalElapsedSeconds,
+      'totalSeconds': totalSeconds,
     });
   }
 
