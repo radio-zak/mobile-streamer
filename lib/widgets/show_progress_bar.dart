@@ -48,7 +48,7 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
         : '--:--';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -66,27 +66,36 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
               ),
             ),
           ),
-          const SizedBox(height: 4),
           // Start time, remaining time in center, and end time on one line
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 0),
+            padding: const EdgeInsets.only(top: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   startTimeStr,
-                  style: Theme.of(context).textTheme.labelSmall,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    fontSize: 11,
+                  ),
                 ),
                 Expanded(
                   child: Text(
                     'pozostało $minutesRemaining min',
-                    style: Theme.of(context).textTheme.labelLarge,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Text(endTimeStr, style: Theme.of(context).textTheme.labelSmall),
+                Text(
+                  endTimeStr,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    fontSize: 11,
+                  ),
+                ),
               ],
             ),
           ),
