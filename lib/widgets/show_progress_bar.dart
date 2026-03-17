@@ -74,9 +74,9 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
               children: [
                 Text(
                   startTimeStr,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    fontSize: 13,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(fontSize: 13),
                 ),
                 Expanded(
                   child: Text(
@@ -92,9 +92,9 @@ class _ShowProgressBarState extends State<ShowProgressBar> {
                 ),
                 Text(
                   endTimeStr,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    fontSize: 13,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(fontSize: 13),
                 ),
               ],
             ),
