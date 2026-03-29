@@ -18,6 +18,7 @@ class NowPlaying {
 
   // State
   Timer? _nowPlayingTimer;
+  Timer? _metadataUpdateTimer;
   Map<String, List<ScheduleEntry>>? _fullSchedule;
   Future<void> initializeNowPlayingFeature() async {
     try {
@@ -30,10 +31,40 @@ class NowPlaying {
       _nowPlayingTimer = Timer.periodic(const Duration(minutes: 1), (_) {
         updateNowPlaying();
       });
+      // Start a timer to update metadata every second with current progress
+      _startMetadataUpdateTimer();
     } catch (e) {
       _logger.severe("Failed to initialize Now Playing feature: $e");
       nowPlayingNotifier.value = NowPlayingState.inactive;
     }
+  }
+
+  void _startMetadataUpdateTimer() {
+    _metadataUpdateTimer?.cancel();
+    _metadataUpdateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      final currentEntry = nowPlayingContents.value;
+      if (currentEntry != null && currentEntry.isLive) {
+        _updateProgressBar(currentEntry);
+      }
+    });
+  }
+
+  void _updateProgressBar(ScheduleEntry entry) {
+    final totalElapsedSeconds = entry.totalSecondsElapsed;
+    final totalRemainingSeconds = entry.totalSecondsRemaining;
+    final totalSeconds = totalElapsedSeconds + totalRemainingSeconds;
+
+    _audioHandler.customAction('updateProgress', {
+      'elapsedSeconds': totalElapsedSeconds,
+      'totalSeconds': totalSeconds,
+    });
+  }
+
+  void _updateMetadata(ScheduleEntry entry) {
+    _audioHandler.customAction('updateMetadata', {
+      'title': entry.title,
+      'artist': entry.hosts,
+    });
   }
 
   Future<void> updateNowPlaying() async {
@@ -70,16 +101,14 @@ class NowPlaying {
     if (nowPlayingContents.value?.title != liveEntry?.title) {
       _logger.info("Updating notification metadata with fetched schedule data");
       nowPlayingContents.value = liveEntry;
-      _audioHandler.customAction('updateMetadata', {
-        'title': liveEntry?.title ?? 'Alternatywa na żywo',
-        'artist': liveEntry?.hosts.isNotEmpty == true
-            ? liveEntry!.hosts
-            : 'Studenckie Radio "ŻAK" Politechniki Łódzkiej',
-      });
+      if (liveEntry != null) {
+        _updateMetadata(liveEntry);
+      }
     }
   }
 
   void cancelTimer() {
     _nowPlayingTimer?.cancel();
+    _metadataUpdateTimer?.cancel();
   }
 }

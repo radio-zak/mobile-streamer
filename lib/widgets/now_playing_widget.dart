@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:zakstreamer/now_playing.dart';
 import 'package:zakstreamer/schedule_service.dart';
 import 'package:zakstreamer/service_locator.dart';
+import 'package:zakstreamer/widgets/show_progress_bar.dart';
 
 class NowPlayingWidget extends StatelessWidget {
   const NowPlayingWidget({super.key});
@@ -46,9 +47,10 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
             return FadeTransition(opacity: animation, child: child);
           },
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             child: Column(
               key: ValueKey(nowPlaying?.title),
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'TERAZ GRAMY',
@@ -56,7 +58,7 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
                   nowPlaying!.title,
                   textAlign: TextAlign.center,
@@ -64,13 +66,17 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
                 ),
                 if (nowPlaying.hosts.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
+                    padding: const EdgeInsets.only(top: 2.0),
                     child: Text(
                       'Prowadzący: ${nowPlaying.hosts}',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.labelLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                const SizedBox(height: 4),
+                ShowProgressBar(entry: nowPlaying),
               ],
             ),
           ),
