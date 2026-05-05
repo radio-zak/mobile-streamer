@@ -29,18 +29,21 @@ class RecentlyPlayedEntry {
 
 class RecentlyPlayedService {
   final String _url = 'https://www.zak.lodz.pl/ostatnio_wyemitowane.txt';
-  
+
   // Cache zapobiegający wielokrotnym zapytaniom o ten sam utwór
   static final Map<String, String?> _artworkCache = {};
 
   Future<List<RecentlyPlayedEntry>> fetchRecentlyPlayed() async {
     try {
-      final response = await http.get(
-        Uri.parse(_url),
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
-        },
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .get(
+            Uri.parse(_url),
+            headers: {
+              'User-Agent':
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36',
+            },
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode != 200) {
         throw Exception('Błąd serwera: ${response.statusCode}');
@@ -48,7 +51,7 @@ class RecentlyPlayedService {
 
       final content = utf8.decode(response.bodyBytes, allowMalformed: true);
       final baseEntries = _parseContent(content);
-      
+
       // Optymalizacja: pobieramy okładki tylko dla 15 najnowszych utworów
       final recentEntries = baseEntries.take(15).toList();
       final olderEntries = baseEntries.skip(15).toList();
@@ -61,8 +64,10 @@ class RecentlyPlayedService {
           }
 
           try {
-            final artUrl = await _getArtwork(entry.artist, entry.title)
-                .timeout(const Duration(seconds: 2));
+            final artUrl = await _getArtwork(
+              entry.artist,
+              entry.title,
+            ).timeout(const Duration(seconds: 2));
             _artworkCache[cacheKey] = artUrl;
             return entry.copyWith(imageUrl: artUrl);
           } catch (_) {
@@ -79,7 +84,10 @@ class RecentlyPlayedService {
   }
 
   Future<String?> _getArtwork(String artist, String title) async {
-    if (artist == 'Radio Żak' || artist.isEmpty || artist.toLowerCase().contains('żak')) return null;
+    if (artist == 'Radio Żak' ||
+        artist.isEmpty ||
+        artist.toLowerCase().contains('żak'))
+      return null;
 
     // 1. Try iTunes
     final itunesUrl = await _fetchFromItunes(artist, title);
@@ -92,9 +100,13 @@ class RecentlyPlayedService {
   Future<String?> _fetchFromItunes(String artist, String title) async {
     try {
       final query = Uri.encodeComponent('$artist $title');
-      final response = await http.get(
-        Uri.parse('https://itunes.apple.com/search?term=$query&entity=song&limit=1'),
-      ).timeout(const Duration(seconds: 2));
+      final response = await http
+          .get(
+            Uri.parse(
+              'https://itunes.apple.com/search?term=$query&entity=song&limit=1',
+            ),
+          )
+          .timeout(const Duration(seconds: 2));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -111,9 +123,9 @@ class RecentlyPlayedService {
   Future<String?> _fetchFromDeezer(String artist, String title) async {
     try {
       final query = Uri.encodeComponent('artist:"$artist" track:"$title"');
-      final response = await http.get(
-        Uri.parse('https://api.deezer.com/search?q=$query&limit=1'),
-      ).timeout(const Duration(seconds: 2));
+      final response = await http
+          .get(Uri.parse('https://api.deezer.com/search?q=$query&limit=1'))
+          .timeout(const Duration(seconds: 2));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -130,7 +142,9 @@ class RecentlyPlayedService {
     final List<RecentlyPlayedEntry> entries = [];
 
     // Regex capturing only HH:mm (Group 1). Optional seconds are matched but outside the group.
-    final regex = RegExp(r'^\d{4}\.\d{2}\.\d{2}\s+(\d{2}:\d{2})(?::\d{2})?\s+(.*?):\s+(.*)$');
+    final regex = RegExp(
+      r'^\d{4}\.\d{2}\.\d{2}\s+(\d{2}:\d{2})(?::\d{2})?\s+(.*?):\s+(.*)$',
+    );
 
     for (var line in lines) {
       line = line.trim();
@@ -138,27 +152,33 @@ class RecentlyPlayedService {
 
       final match = regex.firstMatch(line);
       if (match != null) {
-        entries.add(RecentlyPlayedEntry(
-          time: match.group(1)!, // HH:mm
-          artist: match.group(2)!.trim(),
-          title: match.group(3)!.trim(),
-        ));
+        entries.add(
+          RecentlyPlayedEntry(
+            time: match.group(1)!, // HH:mm
+            artist: match.group(2)!.trim(),
+            title: match.group(3)!.trim(),
+          ),
+        );
       } else {
         final colonIndex = line.indexOf(':');
         if (colonIndex != -1) {
           final firstPart = line.substring(0, colonIndex).trim();
           final title = line.substring(colonIndex + 1).trim();
-          
-          final timeMatch = RegExp(r'(\d{2}:\d{2})(?::\d{2})?$').firstMatch(firstPart);
+
+          final timeMatch = RegExp(
+            r'(\d{2}:\d{2})(?::\d{2})?$',
+          ).firstMatch(firstPart);
           if (timeMatch != null) {
             final time = timeMatch.group(1)!; // HH:mm
             final fullTimeStr = timeMatch.group(0)!;
             final artist = firstPart.replaceFirst(fullTimeStr, '').trim();
-            entries.add(RecentlyPlayedEntry(
-              time: time,
-              artist: artist.isEmpty ? 'Radio Żak' : artist,
-              title: title,
-            ));
+            entries.add(
+              RecentlyPlayedEntry(
+                time: time,
+                artist: artist.isEmpty ? 'Radio Żak' : artist,
+                title: title,
+              ),
+            );
           }
         }
       }

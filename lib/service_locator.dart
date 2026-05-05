@@ -13,5 +13,7 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton<PageManager>(() => PageManager());
   getIt.registerLazySingleton<NowPlaying>(() => NowPlaying());
   getIt.registerLazySingleton<ScheduleService>(() => ScheduleService());
-  getIt.registerLazySingleton<RecentlyPlayedService>(() => RecentlyPlayedService());
+  getIt.registerLazySingleton<RecentlyPlayedService>(
+    () => RecentlyPlayedService(),
+  );
 }

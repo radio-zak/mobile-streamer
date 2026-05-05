@@ -143,17 +143,17 @@ class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       entry.artist,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[500],
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
                     ),
                   ],
                 ),
@@ -163,9 +163,9 @@ class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
               Text(
                 entry.time,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[400],
-                    ),
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[400],
+                ),
               ),
             ],
           ),
