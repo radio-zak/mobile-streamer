@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:zakstreamer/now_playing.dart';
 import 'package:zakstreamer/schedule_service.dart';
 import 'package:zakstreamer/service_locator.dart';
@@ -50,16 +51,54 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
             child: Column(
               key: ValueKey(nowPlaying?.title),
               children: [
-                Text(
-                  'TERAZ GRAMY',
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                Row(
+                  children: [
+                    const SizedBox(
+                      width: 48.0,
+                    ), // Spacer to balance the button on the right
+                    Expanded(
+                      child: Text(
+                        'TERAZ GRAMY',
+                        textAlign: TextAlign.center, // Center the text
+                        style: Theme.of(context).textTheme.titleMedium!
+                            .copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              letterSpacing: 1.5,
+                            ),
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      onSelected: (value) {
+                        if (value == 'share') {
+                          final shareText =
+                              'Słucham właśnie "${nowPlaying?.title}" w Studenckim Radiu Żak PŁ! Dołącz do mnie na 88,8 MHz!';
+                          // ignore: deprecated_member_use
+                          Share.share(shareText);
+                        }
+                      },
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
+                            const PopupMenuItem<String>(
+                              value: 'share',
+                              child: ListTile(
+                                leading: Icon(Icons.share),
+                                title: Text('Udostępnij audycję'),
+                              ),
+                            ),
+                          ],
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 Text(
                   nowPlaying!.title,
                   textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 if (nowPlaying.hosts.isNotEmpty)
@@ -68,6 +107,8 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
                     child: Text(
                       'Prowadzący: ${nowPlaying.hosts}',
                       textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ),
