@@ -8,7 +8,9 @@ import 'page_manager.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
 import 'notifications.dart';
+import 'background_service.dart';
 import 'package:zakstreamer/pages/home_page.dart';
+import 'favorite_notifications_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +42,14 @@ Future<void> main() async {
     await Notifications.init();
   } catch (e) {
     log.severe('Notifications service failed', e);
+  }
+  try {
+    log.info('Initializing background schedule tasks');
+    await initializeBackgroundTasks();
+    // Also restore any previously enabled background tasks after app restart
+    await restoreBackgroundTasksIfNeeded();
+  } catch (e) {
+    log.severe('Background service initialization failed', e);
   }
   try {
     log.info('Initializing audio session');
@@ -84,6 +94,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
   void dispose() {
     _notificationSubscription?.cancel();
     getIt<PageManager>().dispose();
+    getIt<FavoriteNotificationsService>().dispose();
     super.dispose();
   }
 

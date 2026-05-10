@@ -21,15 +21,15 @@ class NowPlaying {
   Map<String, List<ScheduleEntry>>? _fullSchedule;
   Future<void> initializeNowPlayingFeature() async {
     try {
-      // Fetch the schedule once.
+      // Background schedule updates are handled by workmanager service
+      // This initializes only the UI state for current/upcoming shows
       nowPlayingNotifier.value = NowPlayingState.loading;
-      _logger.info("Attempting to fetch schedule (init)...");
-      // Perform the first check immediately.
+      _logger.info(
+        "NowPlaying feature initialized (background updates via workmanager)",
+      );
+
+      // Perform initial check for UI
       await updateNowPlaying();
-      // Start a timer to check every minute.
-      _nowPlayingTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-        updateNowPlaying();
-      });
     } catch (e) {
       _logger.severe("Failed to initialize Now Playing feature: $e");
       nowPlayingNotifier.value = NowPlayingState.inactive;

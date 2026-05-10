@@ -42,6 +42,7 @@ class Notifications {
     required String title,
     required String body,
     String? payload,
+    int? notificationId,
   }) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
@@ -51,11 +52,24 @@ class Notifications {
           priority: Priority.high,
           showWhen: false,
         );
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+
+    const DarwinNotificationDetails iOSPlatformChannelSpecifics =
+        DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        );
+
+    final NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics,
     );
+
+    // Generate a unique ID based on title if not provided
+    final id = notificationId ?? title.hashCode;
+
     await _flutterLocalNotificationsPlugin.show(
-      0,
+      id,
       title,
       body,
       platformChannelSpecifics,

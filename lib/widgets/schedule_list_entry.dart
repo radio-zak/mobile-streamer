@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zakstreamer/widgets/live_chip.dart';
+import 'package:zakstreamer/widgets/favorite_button.dart';
 
 class ScheduleListEntry extends StatelessWidget {
   final bool isLiveNow;
@@ -21,7 +22,7 @@ class ScheduleListEntry extends StatelessWidget {
       color: isLiveNow
           ? Theme.of(context).colorScheme.primaryFixedDim
           : Theme.of(context).colorScheme.surface,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Row(
         children: [
           Expanded(
@@ -30,13 +31,19 @@ class ScheduleListEntry extends StatelessWidget {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       entryTime,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    isLiveNow ? LiveChip() : Container(),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isLiveNow) const LiveChip(),
+                        FavoriteButton(showTitle: entryTitle),
+                      ],
+                    ),
                   ],
                 ),
                 Text(

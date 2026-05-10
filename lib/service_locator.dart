@@ -4,6 +4,8 @@ import 'streamer.dart';
 import 'package:get_it/get_it.dart';
 import 'schedule_service.dart';
 import 'now_playing.dart';
+import 'favorites_service.dart';
+import 'favorite_notifications_service.dart';
 
 GetIt getIt = GetIt.instance;
 
@@ -12,4 +14,20 @@ Future<void> setupServiceLocator() async {
   getIt.registerLazySingleton<PageManager>(() => PageManager());
   getIt.registerLazySingleton<NowPlaying>(() => NowPlaying());
   getIt.registerLazySingleton<ScheduleService>(() => ScheduleService());
+
+  // Initialize FavoritesService
+  final favoritesService = FavoritesService();
+  await favoritesService.init();
+  getIt.registerSingleton<FavoritesService>(favoritesService);
+
+  // Register FavoriteNotificationsService (init will be non-blocking)
+  getIt.registerSingleton<FavoriteNotificationsService>(
+    FavoriteNotificationsService(
+      favoritesService: favoritesService,
+      scheduleService: getIt<ScheduleService>(),
+    ),
+  );
+
+  // Start the service initialization without blocking (fire and forget)
+  getIt<FavoriteNotificationsService>().init();
 }
