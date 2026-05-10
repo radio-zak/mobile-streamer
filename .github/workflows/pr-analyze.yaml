@@ -34,3 +34,6 @@ jobs:
 
       - name: Analyze code
         run: flutter analyze --no-fatal-infos --no-pub
+
+      - name: Test code
+        run: flutter test --no-pub --coverage
