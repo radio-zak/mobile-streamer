@@ -19,9 +19,9 @@ dependencies:
   get_it: ^9.2.0
   http: ^1.6.0
   html: ^0.15.0
-  flutter_local_notifications: ^19.5.0
+  flutter_local_notifications: ^21.0.0
   scrollable_positioned_list: ^0.3.8
-  google_fonts: ^7.0.0
+  google_fonts: ^8.1.0
 
 dev_dependencies:
   flutter_test:

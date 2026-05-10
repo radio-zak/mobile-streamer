@@ -23,7 +23,7 @@ class Notifications {
           iOS: initializationSettingsDarwin,
         );
     await _flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse: (response) {
         onNotificationTapped.add(response.payload);
       },
@@ -55,10 +55,10 @@ class Notifications {
       android: androidPlatformChannelSpecifics,
     );
     await _flutterLocalNotificationsPlugin.show(
-      0,
-      title,
-      body,
-      platformChannelSpecifics,
+      id: 0,
+      title: title,
+      body: body,
+      notificationDetails: platformChannelSpecifics,
       payload: payload,
     );
   }
