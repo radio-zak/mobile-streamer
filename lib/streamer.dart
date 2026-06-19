@@ -218,7 +218,18 @@ class Streamer extends BaseAudioHandler {
     String mediaId, [
     Map<String, dynamic>? extras,
   ]) async {
-    _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(mediaId)));
+    final uri = Uri.tryParse(mediaId);
+    if (uri == null ||
+        !uri.hasScheme ||
+        !['http', 'https'].contains(uri.scheme)) {
+      log.warning('playFromMediaId: invalid media ID rejected: $mediaId');
+      return;
+    }
+    if (uri.host != 'ra.man.lodz.pl') {
+      log.warning('playFromMediaId: unauthorized host rejected: ${uri.host}');
+      return;
+    }
+    _audioPlayer.setAudioSource(AudioSource.uri(uri));
     await _audioPlayer.play();
   }
 }
@@ -232,7 +243,7 @@ class MediaLibrary {
     ],
     albumsRootId: [
       MediaItem(
-        id: "http://ra.man.lodz.pl:8000/radiozak6.mp3",
+        id: "https://ra.man.lodz.pl:8000/radiozak6.mp3",
         title: "Alternatywa na żywo",
         artist: 'Studenckie Radio "ŻAK" Politechniki Łódzkiej',
         artUri: Uri.parse(

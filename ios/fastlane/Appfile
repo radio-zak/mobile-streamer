@@ -1,5 +1,5 @@
 app_identifier("com.srzak.zakstreamer") # The bundle identifier of your app
-apple_id("kml.zielin@gmail.com") # Your Apple Developer Portal username
+apple_id(ENV["APPLE_ID"]) # Your Apple Developer Portal username (set via GitHub Secret APPLE_ID)
 
 
 # For more information about the Appfile, see:

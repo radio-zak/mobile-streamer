@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Block cleartext traffic globally -->
+    <base-config cleartextTrafficPermitted="false" />
+    <!-- Allow cleartext only for the radio streaming server -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">ra.man.lodz.pl</domain>
+    </domain-config>
+</network-security-config>

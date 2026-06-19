@@ -48,3 +48,9 @@ app.*.map.json
 .secrets
 .env
 .env.*
+
+# Bundler local gem cache
+android/.bundle/
+android/vendor/
+ios/.bundle/
+ios/vendor/

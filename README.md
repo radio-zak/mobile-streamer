@@ -1,38 +1,132 @@
-# mobile-streamer
+# ŻAK Streamer
 
-Simple multi-platform radio streaming app. Uses Flutter with just_audio and just_audio_background libraries.  
-Created for Studenckie Radio ŻAK Politechniki Łódzkiej, therefore appropriate branding is applied. Make sure to remove all associated branding if you wish to use this app as scaffolding for your own projects
+Aplikacja mobilna do streamingu Studenckiego Radia ŻAK Politechniki Łódzkiej. Dostępna na Android i iOS.
 
-## License disclaimer
+Zbudowana w Flutter z wykorzystaniem `just_audio` i `audio_service`.
 
-The code of this project is licensed under AGPLv3, all provisions of this license apply.
+---
 
-Assets like the "88,8MHz" logo and all it's variants are the sole propriety of Technical University of Lodz Student Radio ŻAK and, by extension, of the Technical University of Lodz. Use of this assets in forks or other, here not specified works requires specific permission from the maintainer of this project and from the radio station.
+## Funkcje
 
-## Developing
+- Odtwarzanie strumienia radia ŻAK na żywo
+- Ramówka tygodniowa z automatycznym podświetleniem aktualnej audycji
+- Informacja o aktualnie granej audycji (Now Playing)
+- Powiadomienia o błędach połączenia z możliwością wznowienia
+- Obsługa sterowania z poziomu powiadomień i ekranu blokady (MediaSession)
+- Obsługa Android Auto
 
-To start contributing to this project:
+---
 
-1. Install git
-2. [Install Flutter SDK according to docs](https://docs.flutter.dev/install/manual)
-3. Clone this repository: `git clone https://github.com/radio-zak/mobile-streamer`
-4. Run `flutter pub get` in the repository root
+## Wymagania
 
-Next steps are very platform-specific.
+- Flutter SDK ≥ 3.x ([instrukcja instalacji](https://docs.flutter.dev/install/manual))
+- Android: Android Studio + Android SDK API 21+
+- iOS: Xcode 14+ (wymagany Mac)
+- Ruby + Bundler (tylko dla Fastlane / CI)
 
-For Android app development:
+---
 
-1. [Install Android Studio and appropriate SDKs (link to docs)](https://developer.android.com/studio/install)
-2. [Create an Android Virtual Device (link to docs)](https://developer.android.com/studio/run/managing-avds)
-3. In your IDE select the virtual device of your choice for debugging purposes.
-   If you're using VSCode, this should be in the right hand corner.
+## Uruchomienie lokalne
 
-As far as CLI use is concerned, to debug your app on the emulated Android device:
+```bash
+# Pobierz zależności
+flutter pub get
 
-- run `flutter devices list` and get your device name
-- start the emulator `flutter emulators --lanuch <device name>`
-- then run `flutter run -d <device name> --debug`
+# Sprawdź dostępne urządzenia/emulatory
+flutter devices
+flutter emulators
 
-## Contact
+# Uruchom emulator Android
+flutter emulators --launch Medium_Phone
 
-Primary developer: Kacper Zieliński (<kacper.zielinski@zak.lodz.pl>)
+# Uruchom aplikację w trybie debug
+flutter run -d <device-id>
+
+# Statyczna analiza kodu
+flutter analyze
+
+# Testy jednostkowe
+flutter test
+```
+
+> **Uwaga:** Budowanie release wymaga pliku `android/key.properties` z kluczem podpisywania.
+> Lokalnie aplikacja buduje się poprawnie w trybie debug bez tego pliku.
+
+---
+
+## Struktura projektu
+
+```
+lib/
+├── main.dart                  # Punkt wejścia, konfiguracja motywu
+├── page_manager.dart          # Zarządzanie stanem odtwarzacza
+├── streamer.dart              # AudioHandler (just_audio + audio_service)
+├── now_playing.dart           # Logika "teraz gramy"
+├── schedule_service.dart      # Pobieranie i parsowanie ramówki z zak.lodz.pl
+├── service_locator.dart       # Dependency injection (get_it)
+├── notifications.dart         # Powiadomienia lokalne
+├── pages/
+│   ├── home_page.dart         # Strona główna z przyciskiem play
+│   └── schedule_page.dart     # Strona ramówki tygodniowej
+└── widgets/
+    ├── play_button.dart       # Przycisk play/pause z animacją
+    ├── now_playing_widget.dart
+    └── schedule_list_entry.dart
+
+android/fastlane/              # Konfiguracja Fastlane dla Androida
+ios/fastlane/                  # Konfiguracja Fastlane dla iOS
+.github/workflows/             # Pipelines CI/CD GitHub Actions
+```
+
+---
+
+## CI/CD
+
+| Workflow | Trigger | Opis |
+|----------|---------|------|
+| `pr-analyze.yaml` | PR do `main` | Lint, analyze, testy jednostkowe |
+| `test-build.yaml` | PR do `main` | Testowy build Android |
+| `build-alpha.yaml` | Push do `main` | Build + upload do TestFlight / Play Internal |
+| `release.yml` | Ręczny / tag | Promocja do Production |
+
+### Wymagane GitHub Secrets
+
+| Secret | Opis |
+|--------|------|
+| `ANDROID_SIGNING_KEY` | Keystore Base64 do podpisywania APK/AAB |
+| `ANDROID_KEY_ALIAS` | Alias klucza w keystorze |
+| `ANDROID_KEY_PASSWORD` | Hasło klucza |
+| `ANDROID_STORE_PASSWORD` | Hasło keystora |
+| `FIREBASE_SERVICE_ACCOUNT` | Konto serwisowe Google Play |
+| `ASC_KEY_ID` | App Store Connect API Key ID |
+| `ASC_ISSUER_ID` | App Store Connect Issuer ID |
+| `ASC_KEY_P8` | App Store Connect klucz prywatny (Base64) |
+| `MATCH_PASSWORD` | Hasło do szyfrowania certyfikatów Match |
+| `MATCH_GIT_PRIVATE_KEY` | Klucz SSH do repozytorium Match |
+| `APPLE_ID` | Apple ID dewelopera |
+
+---
+
+## Bezpieczeństwo
+
+- Ruch HTTP jest dozwolony wyłącznie do `ra.man.lodz.pl` (serwer strumieniowy).
+  Wszystkie inne połączenia używają HTTPS.
+- Po wdrożeniu TLS na serwerze strumieniowym cleartext exception zostanie usunięty — patrz [`SERVER_TASKS.md`](SERVER_TASKS.md).
+- Znalezione i naprawione podatności opisane są w historii commitów (`security: fix multiple vulnerabilities`).
+
+Zgłaszanie podatności: utwórz prywatne [Security Advisory](https://github.com/radio-zak/mobile-streamer/security/advisories/new) na GitHubie.
+
+---
+
+## Licencja
+
+Kod projektu jest objęty licencją **AGPLv3**.
+
+Zasoby graficzne (logo „88,8MHz" i jego warianty) są własnością Studenckiego Radia ŻAK Politechniki Łódzkiej. Ich użycie w projektach pochodnych wymaga pisemnej zgody opiekuna projektu.
+
+---
+
+## Kontakt
+
+- Opiekun projektu: Kacper Zieliński — <kacper.zielinski@zak.lodz.pl>
+- Studenckie Radio ŻAK PŁ: <https://www.zak.lodz.pl>
