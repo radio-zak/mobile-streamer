@@ -133,7 +133,10 @@ void main() {
 
       // Assert: Should have at least one stream item
       expect(streamItems.isNotEmpty, isTrue);
-      expect(streamItems.first.id, contains('radiozak'));
+      expect(
+        streamItems.first.id,
+        contains('https://www.zak.lodz.pl/stream/sr_zak.mp3'),
+      );
       expect(streamItems.first.isLive, isTrue);
     });
 
