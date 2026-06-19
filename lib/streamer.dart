@@ -219,7 +219,9 @@ class Streamer extends BaseAudioHandler {
     Map<String, dynamic>? extras,
   ]) async {
     final uri = Uri.tryParse(mediaId);
-    if (uri == null || !uri.hasScheme || !['http', 'https'].contains(uri.scheme)) {
+    if (uri == null ||
+        !uri.hasScheme ||
+        !['http', 'https'].contains(uri.scheme)) {
       log.warning('playFromMediaId: invalid media ID rejected: $mediaId');
       return;
     }
