@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:logging/logging.dart';
 import 'package:http/http.dart' as http;
@@ -65,16 +66,21 @@ class ScheduleService {
   Future<Map<String, List<ScheduleEntry>>> fetchSchedule() async {
     final scheduleMap = <String, List<ScheduleEntry>>{};
     final headers = {
-      'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
+      'User-Agent': 'ZakStreamer/1.0 (com.srzak.zakstreamer)',
     };
 
     for (var dayName in _dayPaths.keys) {
       final path = _dayPaths[dayName]!;
-      final response = await http.get(
-        Uri.parse(_baseUrl + path),
-        headers: headers,
-      );
+      final response = await http
+          .get(Uri.parse(_baseUrl + path), headers: headers)
+          .timeout(
+            const Duration(seconds: 15),
+            onTimeout: () {
+              throw TimeoutException(
+                'Schedule fetch timed out for $dayName',
+              );
+            },
+          );
 
       if (response.statusCode == 200) {
         _logger.info('zak.lodz.pl responded with status code 200, parsing...');

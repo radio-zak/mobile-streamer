@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:zakstreamer/page_manager.dart';
 import 'package:zakstreamer/service_locator.dart';
@@ -74,9 +75,11 @@ class PlayButton extends StatelessWidget {
               curve: Curves.easeInOut,
               startPosition: 0.5,
               control: Control.mirror,
-              animationStatusListener: (status) {
-                debugPrint('status updated: $status');
-              },
+              animationStatusListener: kDebugMode
+                  ? (status) {
+                      debugPrint('status updated: $status');
+                    }
+                  : null,
             );
         }
       },

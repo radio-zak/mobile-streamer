@@ -43,7 +43,7 @@ class NowPlaying {
     } catch (e) {
       _logger.severe("Failed to fetch Now Playing data: $e", e);
       nowPlayingNotifier.value = NowPlayingState.inactive;
-      _logger.severe(nowPlayingNotifier.value);
+      return;
     }
 
     if (nowPlayingContents.value == null) {
