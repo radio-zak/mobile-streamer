@@ -232,7 +232,7 @@ class MediaLibrary {
     ],
     albumsRootId: [
       MediaItem(
-        id: "http://ra.man.lodz.pl:8000/radiozak6.mp3",
+        id: "https://www.zak.lodz.pl/stream/sr_zak.mp3",
         title: "Alternatywa na żywo",
         artist: 'Studenckie Radio "ŻAK" Politechniki Łódzkiej',
         artUri: Uri.parse(

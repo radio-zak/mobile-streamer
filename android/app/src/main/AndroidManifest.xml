@@ -7,7 +7,7 @@
     <application
         android:label="ŻAK Streamer"
         android:icon="@mipmap/launcher_icon"
-        android:usesCleartextTraffic="true">
+        >
         <activity
             android:name="com.ryanheise.audioservice.AudioServiceActivity"   
             android:exported="true"
