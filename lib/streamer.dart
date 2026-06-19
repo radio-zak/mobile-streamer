@@ -241,7 +241,6 @@ class MediaLibrary {
     ],
     albumsRootId: [
       MediaItem(
-        // NOTE: If the streaming server adds TLS support, update port accordingly.
         id: "https://ra.man.lodz.pl:8000/radiozak6.mp3",
         title: "Alternatywa na żywo",
         artist: 'Studenckie Radio "ŻAK" Politechniki Łódzkiej',
