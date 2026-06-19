@@ -65,9 +65,7 @@ class ScheduleService {
 
   Future<Map<String, List<ScheduleEntry>>> fetchSchedule() async {
     final scheduleMap = <String, List<ScheduleEntry>>{};
-    final headers = {
-      'User-Agent': 'ZakStreamer/1.0 (com.srzak.zakstreamer)',
-    };
+    final headers = {'User-Agent': 'ZakStreamer/1.0 (com.srzak.zakstreamer)'};
 
     for (var dayName in _dayPaths.keys) {
       final path = _dayPaths[dayName]!;
@@ -76,9 +74,7 @@ class ScheduleService {
           .timeout(
             const Duration(seconds: 15),
             onTimeout: () {
-              throw TimeoutException(
-                'Schedule fetch timed out for $dayName',
-              );
+              throw TimeoutException('Schedule fetch timed out for $dayName');
             },
           );
 
