@@ -58,11 +58,11 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  nowPlaying!.title,
+                  nowPlaying?.title ?? 'Alternatywa na żywo',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                if (nowPlaying.hosts.isNotEmpty)
+                if (nowPlaying != null && nowPlaying.hosts.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4.0),
                     child: Text(
