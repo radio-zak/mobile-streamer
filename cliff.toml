@@ -41,6 +41,10 @@ footer = """
 # Remove leading and trailing whitespaces from the changelog's body.
 trim = true
 
+postprocessors = [
+  # Replace the placeholder `<REPO>` with a URL.
+  { pattern = '\$REPO', replace = "https://github.com/radio-zak/mobile-streamer" }, # replace repository URL
+]
 [git]
 # Parse commits according to the conventional commits specification.
 # See https://www.conventionalcommits.org

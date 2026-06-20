@@ -154,7 +154,7 @@ jobs:
       - uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --output CHANGELOG.md
+          args: --output CHANGELOG.md --latest
 
       - uses: ncipollo/release-action@v1
         with:
