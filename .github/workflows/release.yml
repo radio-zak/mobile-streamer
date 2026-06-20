@@ -15,7 +15,6 @@ on:
       - .vscode/**
 
 env:
-  FLUTTER_CHANNEL: "stable"
   VERSION_NAME: ${{ github.ref_name }}
 
 jobs:
