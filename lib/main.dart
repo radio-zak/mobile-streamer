@@ -5,11 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:logging/logging.dart';
+import 'package:zakstreamer/layout.dart';
 import 'page_manager.dart';
 import 'service_locator.dart';
 import 'package:flutter/services.dart';
 import 'notifications.dart';
-import 'package:zakstreamer/pages/home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -89,6 +89,8 @@ class _ZakStreamerState extends State<ZakStreamer> {
   }
 
   final surfaceColor = Color.fromARGB(255, 34, 34, 34);
+  final navBarSurface = Color.fromARGB(255, 51, 51, 51);
+  final navBarSelected = Color.fromARGB(255, 0, 117, 128);
   final primaryColor = Color.fromARGB(255, 0, 230, 255);
   final primaryDimmedColor = Color.fromARGB(255, 45, 71, 74);
   final textPrimaryColor = Colors.white;
@@ -99,6 +101,14 @@ class _ZakStreamerState extends State<ZakStreamer> {
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData(
+        useMaterial3: true,
+        pageTransitionsTheme: PageTransitionsTheme(),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: navBarSurface,
+          indicatorColor: navBarSelected,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          labelPadding: EdgeInsetsDirectional.all(4),
+        ),
         appBarTheme: AppBarThemeData(
           actionsIconTheme: IconThemeData(color: textPrimaryColor),
           iconTheme: IconThemeData(color: textPrimaryColor),
@@ -127,7 +137,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
           primaryFixedDim: primaryDimmedColor,
           tertiary: textGreyedColor,
           brightness: Brightness.dark,
-          onError: textPrimaryColor,
+          onError: Colors.red,
           error: Colors.red,
         ),
         textTheme: TextTheme(
@@ -157,7 +167,7 @@ class _ZakStreamerState extends State<ZakStreamer> {
           bodySmall: GoogleFonts.sora(),
         ),
       ),
-      home: HomePage(),
+      home: MainLayout(),
     );
   }
 }
