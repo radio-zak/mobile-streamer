@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zakstreamer/pages/home_page.dart';
 import 'package:zakstreamer/pages/schedule_page.dart';
+import 'package:zakstreamer/widgets/nav_bar_button.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -31,20 +32,49 @@ class MainLayoutState extends State<MainLayout> {
         },
         children: [HomePage(), SchedulePage(), Container()],
       ),
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          pageController.animateToPage(
-            index,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOutSine,
-          );
-        },
-        selectedIndex: currentPageIndex,
-        destinations: [
-          NavigationDestination(icon: Icon(Icons.home), label: "Streamer"),
-          NavigationDestination(icon: Icon(Icons.list), label: "Ramówka"),
-          NavigationDestination(icon: Icon(Icons.info), label: "O nas"),
-        ],
+      bottomNavigationBar: BottomAppBar(
+        padding: EdgeInsetsDirectional.all(0),
+        color: Theme.of(context).navigationBarTheme.backgroundColor,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: Colors.grey, width: 1)),
+          ),
+          child: Flex(
+            direction: Axis.horizontal,
+            children: [
+              Flexible(
+                fit: FlexFit.tight,
+                child: NavBarButton(
+                  page: 0,
+                  currentPageIndex: currentPageIndex,
+                  pageController: pageController,
+                  icon: Icon(Icons.play_circle_rounded),
+                  label: "Streamer",
+                ),
+              ),
+              Flexible(
+                fit: FlexFit.tight,
+                child: NavBarButton(
+                  page: 1,
+                  currentPageIndex: currentPageIndex,
+                  pageController: pageController,
+                  icon: Icon(Icons.list),
+                  label: "Ramówka",
+                ),
+              ),
+              Flexible(
+                fit: FlexFit.tight,
+                child: NavBarButton(
+                  page: 2,
+                  currentPageIndex: currentPageIndex,
+                  pageController: pageController,
+                  icon: Icon(Icons.info),
+                  label: "O nas",
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

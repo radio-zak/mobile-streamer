@@ -101,13 +101,10 @@ class _ZakStreamerState extends State<ZakStreamer> {
     return MaterialApp(
       title: 'Żak Streamer',
       theme: ThemeData(
-        useMaterial3: true,
         pageTransitionsTheme: PageTransitionsTheme(),
         navigationBarTheme: NavigationBarThemeData(
           backgroundColor: navBarSurface,
           indicatorColor: navBarSelected,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          labelPadding: EdgeInsetsDirectional.all(4),
         ),
         appBarTheme: AppBarThemeData(
           actionsIconTheme: IconThemeData(color: textPrimaryColor),
