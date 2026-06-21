@@ -96,11 +96,6 @@ class HomePagePortrait extends HomePage {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const PlayButton(),
-        const PrimaryTextButton(
-          icon: Icons.list,
-          label: 'ZOBACZ RAMÓWKĘ',
-          route: SchedulePage(),
-        ),
       ],
     );
   }
