@@ -167,8 +167,8 @@ void main() {
     });
 
     test('playFromMediaId plays correct source', () async {
-      // Arrange
-      const mediaId = 'http://example.com/stream.mp3';
+      // Arrange — must use the whitelisted host
+      const mediaId = 'http://ra.man.lodz.pl:8000/radiozak6.mp3';
 
       // Act
       await streamer.playFromMediaId(mediaId);
@@ -176,6 +176,30 @@ void main() {
       // Assert: Verify setAudioSource was called with correct URI
       verify(mockAudioPlayer.setAudioSource(any)).called(1);
       verify(mockAudioPlayer.play()).called(1);
+    });
+
+    test('playFromMediaId rejects unauthorized host', () async {
+      // Arrange
+      const mediaId = 'http://evil.example.com/stream.mp3';
+
+      // Act
+      await streamer.playFromMediaId(mediaId);
+
+      // Assert: setAudioSource should NOT be called for unauthorized host
+      verifyNever(mockAudioPlayer.setAudioSource(any));
+      verifyNever(mockAudioPlayer.play());
+    });
+
+    test('playFromMediaId rejects invalid scheme', () async {
+      // Arrange
+      const mediaId = 'ftp://ra.man.lodz.pl/stream.mp3';
+
+      // Act
+      await streamer.playFromMediaId(mediaId);
+
+      // Assert: setAudioSource should NOT be called for invalid scheme
+      verifyNever(mockAudioPlayer.setAudioSource(any));
+      verifyNever(mockAudioPlayer.play());
     });
 
     test('connection timeout triggers error event', () async {
