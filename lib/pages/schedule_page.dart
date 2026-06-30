@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:zakstreamer/service_locator.dart';
@@ -73,7 +74,8 @@ class _SchedulePageState extends State<SchedulePage>
         }
       });
     } catch (e, stackTrace) {
-      log.severe('Error fetching schedule: $e\n$stackTrace');
+      log.severe('Error fetching schedule: $e');
+      if (kDebugMode) log.severe('Stack trace: $stackTrace');
       if (!mounted) return;
       setState(() {
         _error = e;
@@ -115,7 +117,7 @@ class _SchedulePageState extends State<SchedulePage>
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            'Nie udało się załadować ramówki.\nBłąd: $_error',
+            'Nie udało się załadować ramówki.\nSprawdź połączenie z internetem i spróbuj ponownie.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),

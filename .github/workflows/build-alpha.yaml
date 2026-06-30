@@ -5,9 +5,6 @@ on:
     tags:
       - "**-alpha*"
 
-env:
-  FLUTTER_CHANNEL: "stable"
-
 jobs:
   build_aab:
     name: Build AAB
@@ -41,8 +38,8 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
-          channel: ${{ env.FLUTTER_CHANNEL }}
-          flutter-version-file: "pubspec.yaml"
+          channel: stable
+          flutter-version: 3.x
 
       - name: Generate version code
         id: version-code
@@ -83,72 +80,72 @@ jobs:
           bundle exec fastlane alpha version_name:"${{ github.ref_name }}" version_code:${{ steps.version-code.outputs.code }}
         working-directory: android
 
-  build_ipa:
-    name: Build iOS test release
-    runs-on: macos-latest
-    env:
-      RUBY_VERSION: "4.0.1"
-      XCODE_VERSION: "26.2"
-      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
-      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Select Xcode version
-        run: sudo xcode-select -switch /Applications/Xcode_$XCODE_VERSION.app
-
-      - name: Check Xcode version
-        run: /usr/bin/xcodebuild -version
-
-      - name: Setup SSH key
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ env.RUBY_VERSION }}
-          bundler-cache: true
-
-      - name: Bundle install Gemfile
-        timeout-minutes: 5
-        run: |
-          bundle install
-        working-directory: ios
-
-      - name: Run Flutter tasks
-        uses: subosito/flutter-action@v2
-        with:
-          channel: ${{ env.FLUTTER_CHANNEL }}
-          flutter-version-file: "pubspec.yaml"
-
-      - name: Generate version code
-        id: version-code
-        run: |
-          echo -n "code=$(git rev-list --count ${{ github.ref }})" >> $GITHUB_OUTPUT
-
-      - name: Fetch deps
-        run: flutter pub get
-
-      - name: Run pod install
-        run: bundle exec pod install
-        working-directory: ios
-
-      - name: Build and push to TestFlight
-        run: |
-          bundle exec fastlane alpha_upload version_name:"${{ github.ref_name }}" version_code:${{ steps.version-code.outputs.code }}
-        working-directory: ios
+  # build_ipa:
+  #   name: Build iOS test release
+  #   runs-on: macos-latest
+  #   env:
+  #     RUBY_VERSION: "4.0.1"
+  #     XCODE_VERSION: "26.2"
+  #     ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+  #     ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+  #     ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+  #     MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v6
+  #       with:
+  #         fetch-depth: 0
+  #
+  #     - name: Select Xcode version
+  #       run: sudo xcode-select -switch /Applications/Xcode_$XCODE_VERSION.app
+  #
+  #     - name: Check Xcode version
+  #       run: /usr/bin/xcodebuild -version
+  #
+  #     - name: Setup SSH key
+  #       uses: webfactory/ssh-agent@v0.9.1
+  #       with:
+  #         ssh-private-key: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+  #
+  #     - name: Setup Ruby
+  #       uses: ruby/setup-ruby@v1
+  #       with:
+  #         ruby-version: ${{ env.RUBY_VERSION }}
+  #         bundler-cache: true
+  #
+  #     - name: Bundle install Gemfile
+  #       timeout-minutes: 5
+  #       run: |
+  #         bundle install
+  #       working-directory: ios
+  #
+  #     - name: Run Flutter tasks
+  #       uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: stable
+  #         flutter-version: 3.x
+  #
+  #     - name: Generate version code
+  #       id: version-code
+  #       run: |
+  #         echo -n "code=$(git rev-list --count ${{ github.ref }})" >> $GITHUB_OUTPUT
+  #
+  #     - name: Fetch deps
+  #       run: flutter pub get
+  #
+  #     - name: Run pod install
+  #       run: bundle exec pod install
+  #       working-directory: ios
+  #
+  #     - name: Build and push to TestFlight
+  #       run: |
+  #         bundle exec fastlane alpha_upload version_name:"${{ github.ref_name }}" version_code:${{ steps.version-code.outputs.code }}
+  #       working-directory: ios
 
   alpha-changelogs:
     name: Generate alpha changelog
     runs-on: ubuntu-latest
-    needs: [build_aab, build_ipa]
+    needs: [build_aab]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -157,7 +154,7 @@ jobs:
       - uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --output CHANGELOG.md
+          args: --output CHANGELOG.md --latest
 
       - uses: ncipollo/release-action@v1
         with:

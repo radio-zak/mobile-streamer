@@ -22,14 +22,17 @@ Future<AudioHandler> initAudioService() async {
 
 class Streamer extends BaseAudioHandler {
   final log = Logger('Streamer');
-  final _audioPlayer = AudioPlayer();
+  late final AudioPlayer _audioPlayer;
   Timer? _connectionTimer;
   Timer? _bufferingTimer;
   bool _isConnecting = false;
   bool _bufferingErrorActive = false;
+  StreamSubscription? _playbackEventSubscription;
 
   final mediaLibrary = MediaLibrary();
-  Streamer() {
+
+  Streamer({AudioPlayer? audioPlayer}) {
+    _audioPlayer = audioPlayer ?? AudioPlayer();
     final getMediaItem = mediaLibrary.items[MediaLibrary.albumsRootId]!;
 
     final streamSources = List<AudioSource>.empty(growable: true);
@@ -85,7 +88,12 @@ class Streamer extends BaseAudioHandler {
   }
 
   void _notifyAudioHandlerAboutPlaybackEvents() {
-    _audioPlayer.playbackEventStream.listen((PlaybackEvent event) {
+    // Cancel any existing subscription to prevent duplicate listeners
+    _playbackEventSubscription?.cancel();
+
+    _playbackEventSubscription = _audioPlayer.playbackEventStream.listen((
+      PlaybackEvent event,
+    ) {
       final playing = _audioPlayer.playing;
 
       final successfullyConnected =
@@ -210,7 +218,18 @@ class Streamer extends BaseAudioHandler {
     String mediaId, [
     Map<String, dynamic>? extras,
   ]) async {
-    _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(mediaId)));
+    final uri = Uri.tryParse(mediaId);
+    if (uri == null ||
+        !uri.hasScheme ||
+        !['http', 'https'].contains(uri.scheme)) {
+      log.warning('playFromMediaId: invalid media ID rejected: $mediaId');
+      return;
+    }
+    if (uri.host != 'www.zak.lodz.pl') {
+      log.warning('playFromMediaId: unauthorized host rejected: ${uri.host}');
+      return;
+    }
+    _audioPlayer.setAudioSource(AudioSource.uri(uri));
     await _audioPlayer.play();
   }
 }
@@ -224,7 +243,7 @@ class MediaLibrary {
     ],
     albumsRootId: [
       MediaItem(
-        id: "http://ra.man.lodz.pl:8000/radiozak6.mp3",
+        id: "https://www.zak.lodz.pl/stream/sr_zak.mp3",
         title: "Alternatywa na żywo",
         artist: 'Studenckie Radio "ŻAK" Politechniki Łódzkiej',
         artUri: Uri.parse(

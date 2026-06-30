@@ -5,7 +5,7 @@ publish_to: "none"
 
 environment:
   sdk: ^3.9.2
-  flutter: 3.38.5
+  flutter: ">=3.38.5"
 dependencies:
   flutter:
     sdk: flutter
@@ -19,15 +19,17 @@ dependencies:
   get_it: ^9.2.0
   http: ^1.6.0
   html: ^0.15.0
-  flutter_local_notifications: ^19.5.0
+  flutter_local_notifications: ^22.0.1
   scrollable_positioned_list: ^0.3.8
-  google_fonts: ^7.0.0
+  google_fonts: ^8.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: "^0.14.4"
+  mockito: ^5.4.0
+  build_runner: ^2.4.0
 flutter:
   uses-material-design: true
 

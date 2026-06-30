@@ -7,9 +7,9 @@
     <application
         android:label="ŻAK Streamer"
         android:icon="@mipmap/launcher_icon"
-        android:usesCleartextTraffic="true">
+        >
         <activity
-            android:name="com.ryanheise.audioservice.AudioServiceActivity"   
+            android:name="com.ryanheise.audioservice.AudioServiceActivity"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback"
             android:launchMode="singleTop"
@@ -45,7 +45,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
-        </receiver> 
+        </receiver>
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
