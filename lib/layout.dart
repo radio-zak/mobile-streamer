@@ -14,6 +14,22 @@ class MainLayout extends StatefulWidget {
 class MainLayoutState extends State<MainLayout> {
   int currentPageIndex = 0;
   final PageController pageController = PageController();
+  bool isNavigatingViaNavBar = false;
+
+  void navigateToPage(int index) async {
+    if (currentPageIndex == index) return;
+
+    setState(() {
+      currentPageIndex = index;
+      isNavigatingViaNavBar = true;
+    });
+    await pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOutSine,
+    );
+    isNavigatingViaNavBar = false;
+  }
 
   @override
   void dispose() {
@@ -27,9 +43,11 @@ class MainLayoutState extends State<MainLayout> {
       body: PageView(
         controller: pageController,
         onPageChanged: (index) {
-          setState(() {
-            currentPageIndex = index;
-          });
+          if (!isNavigatingViaNavBar) {
+            setState(() {
+              currentPageIndex = index;
+            });
+          }
         },
         children: [HomePage(), SchedulePage(), AboutUsPage()],
       ),
@@ -48,7 +66,9 @@ class MainLayoutState extends State<MainLayout> {
                 child: NavBarButton(
                   page: 0,
                   currentPageIndex: currentPageIndex,
-                  pageController: pageController,
+                  onTap: () {
+                    navigateToPage(0);
+                  },
                   icon: Icon(Icons.play_circle_rounded),
                   label: "Streamer",
                 ),
@@ -58,7 +78,9 @@ class MainLayoutState extends State<MainLayout> {
                 child: NavBarButton(
                   page: 1,
                   currentPageIndex: currentPageIndex,
-                  pageController: pageController,
+                  onTap: () {
+                    navigateToPage(1);
+                  },
                   icon: Icon(Icons.list),
                   label: "Ramówka",
                 ),
@@ -68,7 +90,9 @@ class MainLayoutState extends State<MainLayout> {
                 child: NavBarButton(
                   page: 2,
                   currentPageIndex: currentPageIndex,
-                  pageController: pageController,
+                  onTap: () {
+                    navigateToPage(2);
+                  },
                   icon: Icon(Icons.info),
                   label: "O nas",
                 ),
