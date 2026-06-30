@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zakstreamer/pages/about_us.dart';
 import 'package:zakstreamer/pages/home_page.dart';
 import 'package:zakstreamer/pages/schedule_page.dart';
 import 'package:zakstreamer/widgets/nav_bar_button.dart';
@@ -30,7 +31,7 @@ class MainLayoutState extends State<MainLayout> {
             currentPageIndex = index;
           });
         },
-        children: [HomePage(), SchedulePage(), Container()],
+        children: [HomePage(), SchedulePage(), AboutUsPage()],
       ),
       bottomNavigationBar: BottomAppBar(
         padding: EdgeInsetsDirectional.all(0),
