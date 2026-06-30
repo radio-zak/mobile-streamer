@@ -17,7 +17,12 @@ class HomePage extends StatelessWidget {
         children: [
           Center(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 36, horizontal: 12),
+              padding: EdgeInsetsGeometry.directional(
+                start: 12,
+                end: 12,
+                top: 36,
+                bottom: 8,
+              ),
               child: OrientationBuilder(
                 builder: (context, orientation) {
                   return orientation == Orientation.portrait
@@ -62,21 +67,16 @@ class HomePageLandscape extends HomePage {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             const SizedBox(height: 140, child: NowPlayingWidget()),
-            Text(
-              'Wciśnij Kropkę, aby włączyć alternatywę.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const PrimaryTextButton(
-              icon: Icons.list,
-              label: 'ZOBACZ RAMÓWKĘ',
-              route: SchedulePage(),
+            FittedBox(
+              fit: BoxFit.fitWidth,
+              child: Text(
+                'Wciśnij Kropkę, aby włączyć alternatywę.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
           ],
         ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [const PlayButton()],
-        ),
+        const PlayButton(),
       ],
     );
   }
@@ -91,9 +91,15 @@ class HomePagePortrait extends HomePage {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         const SizedBox(height: 140, child: NowPlayingWidget()),
-        Text(
-          'Wciśnij Kropkę, aby włączyć alternatywę.',
-          style: Theme.of(context).textTheme.bodyMedium,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: FittedBox(
+            fit: BoxFit.fitWidth,
+            child: Text(
+              'Wciśnij Kropkę, aby włączyć alternatywę.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
         ),
         const PlayButton(),
       ],
