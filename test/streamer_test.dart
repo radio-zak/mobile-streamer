@@ -171,7 +171,7 @@ void main() {
 
     test('playFromMediaId plays correct source', () async {
       // Arrange — must use the whitelisted host
-      const mediaId = 'http://ra.man.lodz.pl:8000/radiozak6.mp3';
+      const mediaId = 'https://www.zak.lodz.pl/stream/sr_zak.mp3';
 
       // Act
       await streamer.playFromMediaId(mediaId);
