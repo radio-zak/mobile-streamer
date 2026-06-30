@@ -119,9 +119,4 @@ Podpisywanie iOS: certyfikaty zarządzane przez Fastlane Match.
 
 ## Bezpieczeństwo sieci
 
-| Platforma | Konfiguracja |
-|-----------|-------------|
-| Android | `network_security_config.xml` — cleartext tylko dla `ra.man.lodz.pl` |
-| iOS | `Info.plist` ATS exception tylko dla `ra.man.lodz.pl` |
-
-Po wdrożeniu HTTPS na serwerze strumieniowym oba wyjątki należy usunąć. Patrz [`SERVER_TASKS.md`](SERVER_TASKS.md).
+Komunikacja z serwersem strumieniującym występuje z uzyciem HTTPS.
