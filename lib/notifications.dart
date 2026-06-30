@@ -10,7 +10,7 @@ class Notifications {
 
   static Future<void> init() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/launcher_icon');
+        AndroidInitializationSettings('@drawable/notification_icon');
     final DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
           requestSoundPermission: true,

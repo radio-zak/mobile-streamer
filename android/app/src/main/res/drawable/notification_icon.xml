@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!--
+      Your original "Dot" logo (Radio Żak).
+      An outer white circle with the stylized logo cutout.
+      Maximized to touch the edges (0 to 24).
+    -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M12,0C5.37,0 0,5.37 0,12C0,18.63 5.37,24 12,24C18.63,24 24,18.63 24,12C24,5.37 18.63,0 12,0Z M19,18.5 L5,18.5 L5,16.5 L12,10.5 L5,10.5 L5,8 L19,8 L19,10.5 L12,16.5 L19,16.5 L19,18.5 Z M12,6.5 A1.8,1.8 0 1,0 12,2.9 A1.8,1.8 0 1,0 12,6.5 Z" />
+</vector>
