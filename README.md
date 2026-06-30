@@ -109,10 +109,8 @@ ios/fastlane/                  # Konfiguracja Fastlane dla iOS
 
 ## Bezpieczeństwo
 
-- Ruch HTTP jest dozwolony wyłącznie do `ra.man.lodz.pl` (serwer strumieniowy).
-  Wszystkie inne połączenia używają HTTPS.
-- Po wdrożeniu TLS na serwerze strumieniowym cleartext exception zostanie usunięty — patrz [`SERVER_TASKS.md`](SERVER_TASKS.md).
-- Znalezione i naprawione podatności opisane są w historii commitów (`security: fix multiple vulnerabilities`).
+- Wszystkie połączenia uzywają HTTPS.
+- Znalezione i naprawione podatności opisane są w historii commitów (`security: fix multiple vulnerabilities`, `chore: switch endpoint to https and disable cleartext traffic`).
 
 Zgłaszanie podatności: utwórz prywatne [Security Advisory](https://github.com/radio-zak/mobile-streamer/security/advisories/new) na GitHubie.
 
