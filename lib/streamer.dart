@@ -225,7 +225,7 @@ class Streamer extends BaseAudioHandler {
       log.warning('playFromMediaId: invalid media ID rejected: $mediaId');
       return;
     }
-    if (uri.host != 'ra.man.lodz.pl') {
+    if (uri.host != 'www.zak.lodz.pl') {
       log.warning('playFromMediaId: unauthorized host rejected: ${uri.host}');
       return;
     }
