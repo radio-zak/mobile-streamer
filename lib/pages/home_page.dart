@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zakstreamer/widgets/play_button.dart';
 import 'package:zakstreamer/widgets/now_playing_widget.dart';
-import 'package:zakstreamer/widgets/primary_text_button.dart';
-import 'package:zakstreamer/pages/schedule_page.dart';
 import 'package:zakstreamer/widgets/error_banner.dart';
 import 'package:zakstreamer/page_manager.dart';
 import 'package:zakstreamer/service_locator.dart';
