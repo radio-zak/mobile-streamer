@@ -65,10 +65,13 @@ class NowPlayingActiveWidget extends NowPlayingWidget {
                 if (nowPlaying != null && nowPlaying.hosts.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4.0),
-                    child: Text(
-                      'Prowadzący: ${nowPlaying.hosts}',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.labelLarge,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Prowadzący: ${nowPlaying.hosts}',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
                     ),
                   ),
               ],
