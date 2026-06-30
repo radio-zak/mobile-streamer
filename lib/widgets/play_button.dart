@@ -14,24 +14,42 @@ class PlayButton extends StatelessWidget {
       builder: (_, value, _) {
         switch (value) {
           case ButtonState.loading:
-            return SizedBox(
-              width: 300,
-              height: 300,
-              child: CircularProgressIndicator(
-                strokeWidth: 15,
-                strokeCap: StrokeCap.round,
-                color: Theme.of(context).colorScheme.primary,
+            return Padding(
+              padding: EdgeInsetsGeometry.directional(
+                start: 32,
+                end: 32,
+                top: 16,
+                bottom: 16,
+              ),
+              child: FittedBox(
+                fit: BoxFit.fitWidth,
+                child: SizedBox(
+                  width: 450,
+                  height: 450,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 15,
+                    strokeCap: StrokeCap.round,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ),
             );
           case ButtonState.paused:
             return Opacity(
               opacity: 0.5,
-              child: SizedBox(
-                width: 300,
-                height: 300,
-                child: IconButton(
-                  icon: Image.asset('assets/zak-kropka-niebieska-biale.png'),
-                  onPressed: pageManager.play,
+              child: Padding(
+                padding: EdgeInsetsGeometry.directional(
+                  start: 32,
+                  end: 32,
+                  top: 16,
+                  bottom: 16,
+                ),
+                child: FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: IconButton(
+                    icon: Image.asset('assets/zak-kropka-niebieska-biale.png'),
+                    onPressed: pageManager.play,
+                  ),
                 ),
               ),
             );
@@ -57,20 +75,35 @@ class PlayButton extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(
-                      width: 300,
-                      height: 300,
-                      child: IconButton(
-                        icon: Image.asset(
-                          'assets/zak-kropka-niebieska-biale.png',
+                    Padding(
+                      padding: EdgeInsetsGeometry.directional(
+                        start: 32,
+                        end: 32,
+                        top: 16,
+                        bottom: 16,
+                      ),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: IconButton(
+                          icon: Image.asset(
+                            'assets/zak-kropka-niebieska-biale.png',
+                          ),
+                          onPressed: pageManager.pause,
                         ),
-                        onPressed: pageManager.pause,
                       ),
                     ),
                   ],
                 );
               },
-              tween: Tween(begin: 275, end: 300),
+              tween: Tween(
+                begin:
+                    MediaQuery.of(context).orientation == Orientation.portrait
+                    ? MediaQuery.of(context).size.width * 0.7
+                    : MediaQuery.of(context).size.height * 0.5,
+                end: MediaQuery.of(context).orientation == Orientation.portrait
+                    ? MediaQuery.of(context).size.width * 0.7
+                    : MediaQuery.of(context).size.height * 0.5,
+              ),
               duration: const Duration(seconds: 2),
               curve: Curves.easeInOut,
               startPosition: 0.5,
