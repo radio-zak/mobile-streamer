@@ -15,7 +15,7 @@ class ErrorBanner extends StatelessWidget {
     return GestureDetector(
       onTap: pageManager.clearError,
       child: Padding(
-        padding: const EdgeInsets.only(top: 48, left: 16, right: 16),
+        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
         child: Material(
           borderRadius: BorderRadius.circular(12.0),
           elevation: 4.0,
@@ -35,10 +35,13 @@ class ErrorBanner extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Błąd połączenia',
-                        style: theme.textTheme.titleSmall!.copyWith(
-                          color: theme.colorScheme.onError,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          'Błąd połączenia',
+                          style: theme.textTheme.titleSmall!.copyWith(
+                            color: theme.colorScheme.onError,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 2),
