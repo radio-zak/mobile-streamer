@@ -6,7 +6,7 @@ class NavBarButton extends StatelessWidget {
   final TextStyle? style;
   final int currentPageIndex;
   final int page;
-  final PageController pageController;
+  final VoidCallback onTap;
 
   NavBarButton({
     super.key,
@@ -14,7 +14,7 @@ class NavBarButton extends StatelessWidget {
     required this.label,
     required this.currentPageIndex,
     required this.page,
-    required this.pageController,
+    required this.onTap,
     this.style,
   });
 
@@ -30,13 +30,7 @@ class NavBarButton extends StatelessWidget {
     return Material(
       color: color,
       child: InkWell(
-        onTap: () {
-          pageController.animateToPage(
-            page,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOutSine,
-          );
-        },
+        onTap: onTap,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 10,
