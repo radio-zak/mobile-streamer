@@ -23,9 +23,8 @@ class PlayButton extends StatelessWidget {
               ),
               child: FittedBox(
                 fit: BoxFit.fitWidth,
-                child: SizedBox(
-                  width: 450,
-                  height: 450,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: 450, minWidth: 450),
                   child: CircularProgressIndicator(
                     strokeWidth: 15,
                     strokeCap: StrokeCap.round,
@@ -46,9 +45,14 @@ class PlayButton extends StatelessWidget {
                 ),
                 child: FittedBox(
                   fit: BoxFit.fitWidth,
-                  child: IconButton(
-                    icon: Image.asset('assets/zak-kropka-niebieska-biale.png'),
-                    onPressed: pageManager.play,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: 450, minWidth: 450),
+                    child: IconButton(
+                      icon: Image.asset(
+                        'assets/zak-kropka-niebieska-biale.png',
+                      ),
+                      onPressed: pageManager.play,
+                    ),
                   ),
                 ),
               ),
@@ -84,11 +88,17 @@ class PlayButton extends StatelessWidget {
                       ),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: IconButton(
-                          icon: Image.asset(
-                            'assets/zak-kropka-niebieska-biale.png',
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: 450,
+                            minWidth: 450,
                           ),
-                          onPressed: pageManager.pause,
+                          child: IconButton(
+                            icon: Image.asset(
+                              'assets/zak-kropka-niebieska-biale.png',
+                            ),
+                            onPressed: pageManager.pause,
+                          ),
                         ),
                       ),
                     ),
@@ -98,11 +108,11 @@ class PlayButton extends StatelessWidget {
               tween: Tween(
                 begin:
                     MediaQuery.of(context).orientation == Orientation.portrait
-                    ? MediaQuery.of(context).size.width * 0.7
-                    : MediaQuery.of(context).size.height * 0.5,
+                    ? MediaQuery.of(context).size.width * 0.65
+                    : MediaQuery.of(context).size.height * 0.45,
                 end: MediaQuery.of(context).orientation == Orientation.portrait
-                    ? MediaQuery.of(context).size.width * 0.7
-                    : MediaQuery.of(context).size.height * 0.5,
+                    ? MediaQuery.of(context).size.width * 0.75
+                    : MediaQuery.of(context).size.height * 0.55,
               ),
               duration: const Duration(seconds: 2),
               curve: Curves.easeInOut,
