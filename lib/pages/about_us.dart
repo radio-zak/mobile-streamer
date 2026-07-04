@@ -48,6 +48,7 @@ class AboutUsPage extends StatelessWidget {
                   ],
                 ),
               ),
+              Divider(height: 2, color: Colors.grey),
               RichText(
                 textAlign: TextAlign.justify,
                 text: TextSpan(
@@ -104,12 +105,18 @@ class AboutUsPage extends StatelessWidget {
                   ],
                 ),
               ),
-              Image.asset(
-                'assets/bb2b5b5c9bbaad233d411fd9e90e8f629799c12f.png',
-                color: Colors.white,
-                alignment: Alignment.center,
-filterQuality: FilterQuality.none,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 8,
+                ),
+                child: Image.asset(
+                  'assets/bb2b5b5c9bbaad233d411fd9e90e8f629799c12f.png',
+                  color: Colors.white,
+                  alignment: Alignment.center,
+                  filterQuality: FilterQuality.none,
                   isAntiAlias: true,
+                ),
               ),
             ],
           ),
