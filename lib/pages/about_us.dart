@@ -108,6 +108,8 @@ class AboutUsPage extends StatelessWidget {
                 'assets/bb2b5b5c9bbaad233d411fd9e90e8f629799c12f.png',
                 color: Colors.white,
                 alignment: Alignment.center,
+filterQuality: FilterQuality.none,
+                  isAntiAlias: true,
               ),
             ],
           ),
