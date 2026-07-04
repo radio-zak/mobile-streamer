@@ -24,9 +24,14 @@ class PlayButton extends StatelessWidget {
               child: FittedBox(
                 fit: BoxFit.fitWidth,
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: 450, minWidth: 450),
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.width * 0.75,
+                    minWidth: MediaQuery.of(context).size.width * 0.75,
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                    maxHeight: MediaQuery.of(context).size.width * 0.75,
+                  ),
                   child: CircularProgressIndicator(
-                    strokeWidth: 15,
+                    strokeWidth: 8,
                     strokeCap: StrokeCap.round,
                     color: Theme.of(context).colorScheme.primary,
                   ),
@@ -46,7 +51,12 @@ class PlayButton extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.fitWidth,
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: 450, minWidth: 450),
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.width * 0.75,
+                      minWidth: MediaQuery.of(context).size.width * 0.75,
+                      maxWidth: MediaQuery.of(context).size.width * 0.75,
+                      maxHeight: MediaQuery.of(context).size.width * 0.75,
+                    ),
                     child: IconButton(
                       icon: Image.asset(
                         'assets/zak-kropka-niebieska-biale.png',
@@ -90,8 +100,10 @@ class PlayButton extends StatelessWidget {
                         fit: BoxFit.scaleDown,
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
-                            minHeight: 450,
-                            minWidth: 450,
+                            minHeight: MediaQuery.of(context).size.width * 0.75,
+                            minWidth: MediaQuery.of(context).size.width * 0.75,
+                            maxWidth: MediaQuery.of(context).size.width * 0.75,
+                            maxHeight: MediaQuery.of(context).size.width * 0.75,
                           ),
                           child: IconButton(
                             icon: Image.asset(
